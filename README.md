@@ -47,8 +47,9 @@ else
     print("Firewall hack failed!")
 end
 ```
-![Firewall Pulse Minigame](https://github.com/user-attachments/assets/55484201-4d3b-4e40-8909-5c267ff194b3)
- 
+
+![Firewall Pulse Minigame](https://github.com/user-attachments/assets/ce9a0809-06d3-41bd-88f5-18ea18752920)
+
 ### 2. **Backdoor Sequence**
 - **Description**: A memory/reflex minigame where players must input a sequence of keys shown on screen. Each stage can require multiple simultaneous key presses for increased difficulty. Requires precise keyboard inputs.
 - **Export**: `exports['glitch-minigames']:StartBackdoorSequence(requiredSequences, sequenceLength, timeLimit, maxAttempts, timePenalty, minSimultaneousKeys, maxSimultaneousKeys, customKeys, keyHintText)`
@@ -118,7 +119,7 @@ else
     print("Rhythm game failed!")
 end
 ```
-![Circuit Rhythm Minigame](https://github.com/user-attachments/assets/696e6a25-79b8-4cc9-abcd-8786d3ea496a)
+![Circuit Rhythm Minigame](https://github.com/user-attachments/assets/dad94fea-3840-415f-86f6-72e4044815c7)
 
 ### 4. **Surge Override**
 - **Description**: A rapid key-mashing minigame where players must repeatedly press the displayed key(s) to fill a circular progress bar. The progress gradually depletes when not pressing keys, adding pressure to maintain consistent input. Can be configured for single keys or multiple simultaneous key combinations.
@@ -155,7 +156,7 @@ else
     print("Surge Override failed!")
 end
 ```
-![Surge Override Minigame](https://github.com/user-attachments/assets/9a4208d5-7a3e-4239-b02a-7239e805e305)
+![Surge Override Minigame](https://github.com/user-attachments/assets/85006c61-e55b-4f80-96ab-a929f301a040)
 
 ### 5. **Circuit Breaker**
 - **Description**: A precision-based hacking minigame where players must guide a cursor through a circuit board maze. Features dynamic difficulty with reconnection mechanics and time pressure.
@@ -183,7 +184,7 @@ else
     print("Circuit breach failed!")
 end
 ```
-![Circuit Breaker Minigame](https://github.com/user-attachments/assets/957d0153-b453-49c2-a44d-5db8ff2e1226)
+![Circuit Breaker Minigame](https://github.com/user-attachments/assets/a3e76f19-693e-4551-8b7d-728cfe05a755)
 
 ### 6. **Data Crack**
 - **Description**: A timing-based hacking minigame where players must stop moving bars when they align with the target zone. Features increasing difficulty with each successful alignment.
@@ -205,7 +206,7 @@ else
     print("Failed to crack data!")
 end
 ```
-![Data Crack Minigame](https://github.com/user-attachments/assets/9295f90b-fa16-40e1-b5d5-d3e94878e0f4)
+![Data Crack Minigame](https://github.com/user-attachments/assets/8075347f-408d-44c3-a05d-651e1f3fae57)
 
 ### 7. **Brute Force**
 - **Description**: A password cracking minigame where players must solve letter combinations with limited attempts. Features visual and audio feedback for correct/incorrect guesses.
@@ -227,7 +228,7 @@ else
     print("Failed to crack password!")
 end
 ```
-![Brute Force Minigame](https://github.com/user-attachments/assets/3ad137ce-020d-4caf-9ae0-1e5ef9f70a33)
+![Brute Force Minigame](https://github.com/user-attachments/assets/df4b748c-8b82-47dc-a061-b66be44af67f)
 
 ### 8. **Drilling** (Sounds not working correctly)
 - **Description**: A precision drilling minigame where players must maintain optimal pressure and temperature while drilling through materials. Features dynamic difficulty based on material hardness and drill bit condition.
@@ -252,7 +253,7 @@ else
     print("Drilling failed!")
 end
 ```
-![Drilling Minigame](https://github.com/user-attachments/assets/03633028-913d-43d7-8eb8-a9f6fa169e9e)
+![Drilling Minigame](https://github.com/user-attachments/assets/8d769d9b-4fa9-4bae-aad3-294a91307c00)
 
 #### Controls
 - **W/S or Up/Down Arrow**: Adjust drilling pressure
@@ -280,7 +281,7 @@ else
     print("VAR hack failed!")
 end
 ```
-![VAR Hack Minigame](https://github.com/user-attachments/assets/233693af-39d3-4a72-a7ef-d638094c9029)
+![VAR Hack Minigame](https://github.com/user-attachments/assets/db8fa440-3101-458f-a1a3-551a3100d8ae)
 
 ### 10. **Plasma Drill** (Sounds not working correctly)
 - **Description**: A precision-based drilling minigame where players must manage drill speed and temperature while maintaining optimal pressure. Features dynamic temperature management and depth progression tracking.
@@ -317,7 +318,7 @@ end
 - **Left/Right Arrow**: Control drill speed
 - **ESC**: Cancel drilling
 - 
-![Plasma Drill Minigame](https://github.com/user-attachments/assets/7a0de014-b994-4fc8-b8ec-2dff65dc5b74)
+![Plasma Drill Minigame](https://github.com/user-attachments/assets/a732bed5-3410-4c0f-be4a-ed81c79b3de3)
 
 ## Installation
 1. Clone this repository to your FiveM server's resources folder:
@@ -354,4 +355,3 @@ Your contributions have not only enriched the FiveM ecosystem but have also fost
 
 ## Support
 For support, issues, or feature requests, please open an issue on this repository or contact us directly through our Discord. [![Discord Badge](https://img.shields.io/badge/-Glitch%20Studios-000000?style=flat&labelColor=7289DA&logo=discord&link=https://discord.gg/yourdiscordlink)](https://discord.gg/3DsNKxq2DQ)
-
