@@ -1,0 +1,215 @@
+<!-- 
+-- Glitch Minigames
+-- Copyright (C) 2024 Glitch
+-- 
+-- This program is free software: you can redistribute it and/or modify
+-- it under the terms of the GNU General Public License as published by
+-- the Free Software Foundation, either version 3 of the License, or
+-- (at your option) any later version.
+-- 
+-- This program is distributed in the hope that it will be useful,
+-- but WITHOUT ANY WARRANTY; without even the implied warranty of
+-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+-- GNU General Public License for more details.
+-- 
+-- You should have received a copy of the GNU General Public License
+-- along with this program. If not, see <https://www.gnu.org/licenses/>. -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Luma Minigames</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        html, body {
+            background: transparent !important;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Firewall Pulse Game Container -->
+    <div id="hack-container" class="game-container">
+        <div class="hack-title">
+            <h2>FIREWALL PULSE <span class="blink">[BREACH IN PROGRESS]</span></h2>
+        </div>
+        
+        <div class="pulse-container">
+            <div class="wall left-wall"></div>
+            <div class="pulse-track">
+                <div class="safe-zone"></div>
+                <div class="pulse-bar"></div>
+            </div>
+            <div class="wall right-wall"></div>
+        </div>
+        
+        <div class="hack-info">
+            <div class="counter">ATTEMPTS: <span id="counter">0</span>/<span id="total-hacks">3</span></div>
+            <div class="message"><span id="message">Click to stop the pulse inside the safe zone</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="timer-count">10.0</span>s</div>
+        </div>
+        
+        <div class="hack-controls">
+            <button id="hack-button">EXECUTE</button>
+        </div>
+    </div>
+    
+    <!-- Backdoor Sequence Game Container -->
+    <div id="sequence-container" class="game-container">
+        <div class="hack-title">
+            <h2>BACKDOOR SEQUENCE <span class="blink">[ACCESS RESTRICTED]</span></h2>
+        </div>
+        
+        <div class="sequence-display">
+            <div class="previous-keys"></div>
+            <div class="current-key"></div>
+            <div class="next-keys"></div>
+        </div>
+        
+        <div class="hack-info">
+            <div class="counter">SEQUENCES: <span id="seq-counter">0</span>/<span id="seq-total">3</span></div>
+            <div class="message"><span id="seq-message">Input the sequence to break the encryption</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="seq-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="seq-timer-count">15.0</span>s</div>
+            <div class="time-penalty" id="time-penalty"></div>
+        </div>
+        
+        <div class="sequence-progress">
+            <div class="sequence-attempt" data-attempt="1">
+                <div class="attempt-indicator active"></div>
+                <div class="attempt-label">SEQ-01</div>
+            </div>
+            <div class="sequence-attempt" data-attempt="2">
+                <div class="attempt-indicator"></div>
+                <div class="attempt-label">SEQ-02</div>
+            </div>
+            <div class="sequence-attempt" data-attempt="3">
+                <div class="attempt-indicator"></div>
+                <div class="attempt-label">SEQ-03</div>
+            </div>
+        </div>
+        
+        <div class="sequence-help">
+            <div>PRESS KEYS SHOWN IN SEQUENCE</div>
+            <div class="key-hint">W, A, S, D, ←, →, ↑, ↓, 0-9</div>
+        </div>
+    </div>
+    
+    <!-- Circuit Rhythm Game Container -->
+    <div id="rhythm-container" class="game-container">
+        <div class="hack-title">
+            <h2>CIRCUIT RHYTHM <span class="blink">[SYNCHRONIZE REQUIRED]</span></h2>
+        </div>
+        
+        <div class="rhythm-display">
+            <div class="combo-counter">
+                <span id="combo-number">0</span>
+                <span id="combo-text">COMBO</span>
+            </div>
+            
+            <div class="rhythm-highway">
+                <!-- Dynamic -->
+            </div>
+            
+            <div class="hit-zone"></div>
+            
+            <div class="key-indicators">
+                <!-- Dynamic -->
+            </div>
+        </div>
+        
+        <div class="hack-info">
+            <div class="counter">SCORE: <span id="rhythm-score">0</span></div>
+            <div class="message"><span id="rhythm-message">Hit the notes in sync with the beat</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="rhythm-progress"></div>
+            </div>
+            <div class="timer-text">Progress: <span id="rhythm-progress">0</span>%</div>
+        </div>
+        
+        <div class="key-help">
+            <div id="rhythm-key-hint">Press keys to match falling notes</div>
+        </div>
+    </div>
+    
+    <div class="audio-elements" style="display: none;">
+        <audio id="sound-click" preload="auto">
+            <source src="sounds/click.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="sound-success" preload="auto">
+            <source src="sounds/success.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="sound-failure" preload="auto">
+            <source src="sounds/failure.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="sound-penalty" preload="auto">
+            <source src="sounds/penalty.mp3" type="audio/mpeg">
+        </audio>
+        <audio id="sound-buttonPress" preload="auto">
+            <source src="sounds/buttonPress.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+    
+    <div id="keymash-container" class="game-container">
+        <div class="progress-circle">
+            <svg viewBox="0 0 100 100">
+                <circle class="progress-background" cx="50" cy="50" r="45"></circle>
+                <circle class="progress-bar" cx="50" cy="50" r="45"></circle>
+            </svg>
+            <div class="key-display">
+                <span id="target-key">E</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Var Hack Game Container -->
+    <div id="var-hack-container" class="game-container">
+        <div class="hack-title">
+            <h2>VAR SIMULATION <span class="blink">[MEMORY TEST]</span></h2>
+        </div>
+        
+        <div class="var-display">
+            <div class="var-splash">
+                <div class="var-icon"></div>
+                <span class="var-text">PREPARING INTERFACE...</span>
+            </div>
+            <div class="var-groups hidden"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="message"><span id="var-message">Memorize the pattern</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="var-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="var-timer">0.0</span>s</div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/sequence.js"></script>
+    <script src="js/rhythm.js"></script>
+    <script src="js/keymash.js"></script>
+    <script src="js/varhack.js"></script>
+</body>
+</html>
