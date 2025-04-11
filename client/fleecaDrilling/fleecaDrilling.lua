@@ -263,7 +263,7 @@ Drilling.Start = function(callback)
         
         loadDrillSound()
         
-        if config.usingGlitchNotification then 
+        if config.usingGlitchNotifications then 
             DrillingControls = exports['glitch-notifications']:ShowNotification(
                 'Drilling Controls',
                 'W/S - Move Drill Up/Down\nQ - Slow Down\nE - Speed Up\nESC - Cancel',
@@ -300,7 +300,7 @@ Drilling.Update = function(callback)
             Drilling.Active = false
             Drilling.Result = false
             
-            if config.usingGlitchNotification then
+            if config.usingGlitchNotifications then
                 exports['glitch-notifications']:ShowNotification('Cancelled', 'Drilling cancelled', 3000, '#ffaa00', false)
                 exports['glitch-notifications']:RemoveNotification(DrillingControls)
             end
@@ -322,7 +322,7 @@ Drilling.Update = function(callback)
     
     Drilling.ClearDrillProp()
 
-    if config.usingGlitchNotification then
+    if config.usingGlitchNotifications then
         exports['glitch-notifications']:RemoveNotification(DrillingControls)
     end
     
@@ -460,7 +460,7 @@ Drilling.HandleControls = function()
             
             triggeredPinBreaks[i] = true
             
-            if config.usingGlitchNotification then
+            if config.usingGlitchNotifications then
                 exports['glitch-notifications']:ShowNotification('Warning', 'Pin break detected!', 2000, '#ffaa00', false)
             end
             
@@ -502,7 +502,7 @@ Drilling.HandleControls = function()
         FreezeEntityPosition(PlayerPedId(), false)
         Drilling.ClearDrillProp()
         
-        if config.usingGlitchNotification then
+        if config.usingGlitchNotifications then
             exports['glitch-notifications']:ShowNotification('Failed', 'Drill overheated!', 3000, '#ff0000', false)
             exports['glitch-notifications']:RemoveNotification(DrillingControls)
         end
@@ -528,7 +528,7 @@ Drilling.HandleControls = function()
         FreezeEntityPosition(PlayerPedId(), false)
         Drilling.ClearDrillProp()
         
-        if config.usingGlitchNotification then
+        if config.usingGlitchNotifications then
             exports['glitch-notifications']:ShowNotification('Success', 'Successfully drilled!', 3000, '#00ff00', false)
             exports['glitch-notifications']:RemoveNotification(DrillingControls)
         end

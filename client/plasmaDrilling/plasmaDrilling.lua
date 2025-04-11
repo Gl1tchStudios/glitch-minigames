@@ -194,7 +194,7 @@ function beginnDrilling(callback)
 
   setupDrillingCamera()
 
-  if config.usingGlitchNotification then
+  if config.usingGlitchNotifications then
     PlasmaDrilling.ControlsNotificationId = exports['glitch-notifications']:ShowNotification(
         'Plasma Drilling Controls',
         'Up/Down Arrow - Move Drill\n‎ ‎ ‎ ‎ ‎ Left/Right Arrow - Speed Up\nESC - Cancel',
@@ -256,12 +256,12 @@ function stopDrilling(success)
   RobbingATM = false    
 
   if success then
-      if config.usingGlitchNotification then
+      if config.usingGlitchNotifications then
         exports['glitch-notifications']:ShowNotification('Success', 'Plasma drilling complete!', 3000, '#00ff00', false)
       end
       TriggerEvent("glitch-minigames:plasmaDrillComplete", true)
   else
-      if config.usingGlitchNotification then
+      if config.usingGlitchNotifications then
         exports['glitch-notifications']:ShowNotification('Failed', 'Plasma drilling failed!', 3000, '#ff0000', false)
       end
       TriggerEvent("glitch-minigames:plasmaDrillComplete", false)

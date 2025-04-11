@@ -17,4 +17,4 @@
 config = {}
 
 config.DebugCommands = false -- This is for testing purposes only. Set to true to enable debug commands.
-coifig.usingGlitchNotification = true -- Set to true to enable glitch notifications.
+coifig.usingGlitchNotifications = true -- Set to true to enable glitch notifications.
