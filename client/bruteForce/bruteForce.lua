@@ -23,6 +23,8 @@ local gamePassword
 local inMinigame = false
 local minigameResult = nil
 
+local PlayerFreezed = false
+
 local function cleanupControls()
     FreezeEntityPosition(PlayerPedId(), false)
     EnableControlAction(0, 24, true) -- LEFT CLICK
@@ -129,6 +131,7 @@ Citizen.CreateThread(function()
         Citizen.Wait(0)
         if inMinigame and HasScaleformMovieLoaded(scaleform) then
             FreezeEntityPosition(PlayerPedId(), true)
+            PlayerFreezed = true
             DisableControlAction(0, 24, true)
             DisableControlAction(0, 25, true)
             
@@ -291,7 +294,10 @@ Citizen.CreateThread(function()
                 end
             end
         else
-            FreezeEntityPosition(PlayerPedId(), false)
+            if PlayerFreezed then 
+                FreezeEntityPosition(PlayerPedId(), false)
+                PlayerFreezed = false
+            end
             Citizen.Wait(500)
         end
     end
