@@ -354,6 +354,11 @@ end
 ---@param minReconnectTimeMs integer
 ---@param maxReconnectTimeMs integer
 local function startReconnection(minReconnectTimeMs, maxReconnectTimeMs)
+    minReconnectTimeMs = minReconnectTimeMs or defaultMinReconnectTimeMs
+    maxReconnectTimeMs = maxReconnectTimeMs or defaultMaxReconnectTimeMs
+    minReconnectTimeMs = math.clamp(minReconnectTimeMs, defaultMinReconnectTimeMs, maxReconnectTimeMs)
+    maxReconnectTimeMs = math.clamp(maxReconnectTimeMs, minReconnectTimeMs + 1, defaultMaxReconnectTimeMs)
+
     PlaySoundFrontend(-1, 'Power_Down', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true)
 
     showDisplayScaleform('CONNECTION LOST', 'Reconnecting...', 188, 49, 43, false)
@@ -363,8 +368,12 @@ local function startReconnection(minReconnectTimeMs, maxReconnectTimeMs)
 end
 
 ---@param disconnectChance number
----@param disconnectCheckRateMs number
+---@param disconnectCheckRateMs integer
 local function checkIfHackingDisconnected(disconnectChance, disconnectCheckRateMs)
+    disconnectCheckRateMs = disconnectCheckRateMs or minDisconnectCheckRateMs
+    local maxDisconnectCheckRateMs = 10000
+    disconnectCheckRateMs = math.clamp(disconnectCheckRateMs, minDisconnectCheckRateMs, maxDisconnectCheckRateMs)
+
     if GetGameTimer() - (lastDisconnectCheckTime + disconnectCheckRateMs + applyHackingKitBonusToDisconnectCheckRate()) < 0 then return end
 
     disconnectChance += applyHackingKitBonusToDisconnectChance()
@@ -560,15 +569,17 @@ end
 ---@param minReconnectTimeMs integer The time in milliseconds it takes at minimal to reconnect after disconnecting by chance
 ---@param maxReconnectTimeMs integer The time in milliseconds it takes at the max to reconnect after disconnecting by chance
 ---@return boolean
-local function runMiniGame(levelNumber, difficultyLevel, cursorSpeed, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
+local function runMiniGame(levelNumber, difficultyLevel, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
     levelNumber = math.clamp(levelNumber, 1, 6)
     difficultyLevel = math.clamp(difficultyLevel, 0, 3)
-    cursorSpeed = math.clamp(cursorSpeed, minCursorSpeed, maxCursorSpeed)
+    cursorSpeed = getCursorSpeedFromDifficulty(difficultyLevel)
     delayStartMs = math.clamp(delayStartMs, 1000, 60000)
     minFailureDelayTimeMs = math.clamp(minFailureDelayTimeMs, minDelayEndGameTimeMs, maxFailureDelayTimeMs)
     maxFailureDelayTimeMs = math.clamp(maxFailureDelayTimeMs, minDelayEndGameTimeMs, maxFailureDelayTimeMs > minFailureDelayTimeMs and maxFailureDelayTimeMs or minFailureDelayTimeMs + 1)
     disconnectChance = math.clamp(disconnectChance, 0, maxDisconnectChance)
-    disconnectCheckRateMs = math.clamp(disconnectCheckRateMs, minDisconnectCheckRateMs, disconnectCheckRateMs)
+    local maxDisconnectCheckRateMs = 10000
+    disconnectCheckRateMs = disconnectCheckRateMs or minDisconnectCheckRateMs
+    disconnectCheckRateMs = math.clamp(disconnectCheckRateMs, minDisconnectCheckRateMs, maxDisconnectCheckRateMs)
     minReconnectTimeMs = math.clamp(minReconnectTimeMs, defaultMinReconnectTimeMs, maxReconnectTimeMs)
     maxReconnectTimeMs = math.clamp(maxReconnectTimeMs, minReconnectTimeMs + 1, defaultMaxReconnectTimeMs)
     local gameStatus = runMinigameTask(levelNumber, difficultyLevel, cursorSpeed, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
@@ -598,7 +609,20 @@ end
 exports('runMiniGame', runMiniGame)
 exports('runDefaultMiniGameFromDifficulty', runDefaultMiniGameFromDifficulty)
 exports('runDefaultRandom', runDefaultMiniGame)
-exports('StartCircuitBreaker', runMiniGame)
+
+exports('StartCircuitBreaker', function(levelNumber, difficultyLevel, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
+    levelNumber = levelNumber or math.random(1, 6)
+    difficultyLevel = difficultyLevel or 0
+    delayStartMs = delayStartMs or defaultDelayStartTimeMs
+    minFailureDelayTimeMs = minFailureDelayTimeMs or minDelayEndGameTimeMs
+    maxFailureDelayTimeMs = maxFailureDelayTimeMs or maxDelayEndGameTimeMs
+    disconnectChance = disconnectChance or getDisconnectChanceFromDifficulty(difficultyLevel)
+    disconnectCheckRateMs = disconnectCheckRateMs or getDisconnectCheckRateMsFromDifficulty(difficultyLevel)
+    minReconnectTimeMs = minReconnectTimeMs or defaultMinReconnectTimeMs
+    maxReconnectTimeMs = maxReconnectTimeMs or defaultMaxReconnectTimeMs
+    
+    return runMiniGame(levelNumber, difficultyLevel, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
+end)
 
 if config.DebugCommands then
     RegisterCommand('testcircuit', function(source, args, rawCommand)
