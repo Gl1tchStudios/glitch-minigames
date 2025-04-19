@@ -598,6 +598,7 @@ end
 exports('runMiniGame', runMiniGame)
 exports('runDefaultMiniGameFromDifficulty', runDefaultMiniGameFromDifficulty)
 exports('runDefaultRandom', runDefaultMiniGame)
+exports('StartCircuitBreaker ', runMiniGame)
 
 if config.DebugCommands then
     RegisterCommand('testcircuit', function(source, args, rawCommand)
