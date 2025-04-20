@@ -341,7 +341,7 @@ function StartHackConnect(numLives)
     return Citizen.Await(p)
 end
 
-exports('StartHackConnect', StartHackConnect)
+exports('StartBruteForce', StartHackConnect)
 
 if config.DebugCommands then 
     RegisterCommand('testbruteforce', function()
