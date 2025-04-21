@@ -232,6 +232,22 @@ window.addEventListener('message', (event) => {
     if (event.data.action === 'startVarHack') {
         console.log('Starting VAR hack with config:', event.data.config);
         startVarHack(event.data.config);
+    } else if (event.data.action === 'endVarHack' || event.data.action === 'forceClose') {
+        console.log('Forced close of VAR hack:', event.data);
+        if (varHackState.timerInterval) {
+            clearInterval(varHackState.timerInterval);
+            varHackState.timerInterval = null;
+        }
+        
+        varHackState.gameStarted = false;
+        varHackState.gamePlaying = false;
+        
+        $.post(`https://${GetParentResourceName()}/varHackResult`, JSON.stringify({ 
+            success: false
+        }));
+        
+        $('#var-hack-container').fadeOut();
+        resetGame();
     }
 });
 

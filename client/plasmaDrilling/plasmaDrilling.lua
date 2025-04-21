@@ -58,6 +58,17 @@ PlasmaDrilling.Update = function(callback)
   while PlasmaDrilling.Active do
     PlasmaDrilling.Draw()
     PlasmaDrilling.DisableControls()
+    
+    if IsEntityDead(PlayerPedId()) then
+      print("Plasma drilling cancelled - player died")
+      PlasmaDrilling.Result = false
+      PlasmaDrilling.Active = false
+      
+      Scaleforms.PopVoid(PlasmaDrilling.Scaleform, "RESET")
+      
+      break
+    end
+    
     PlasmaDrilling.HandleControls()
     Wait(0)
   end
@@ -268,7 +279,7 @@ function stopDrilling(success)
   end
 end
 
-exports('StartPlasmaDrill', function(difficulty)
+exports('StartPlasmaDrilling', function(difficulty)
     if PlasmaDrilling.Active then return false end
     
     local success = false
@@ -291,7 +302,7 @@ end)
 
 if config.DebugCommands then 
   RegisterCommand('testplasma', function()
-      local success = exports['glitch-minigames']:StartPlasmaDrill(5)
+      local success = exports['glitch-minigames']:StartPlasmaDrilling(5)
       if success then
           print("Drilling successful!")
       else

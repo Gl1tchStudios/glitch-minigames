@@ -132,14 +132,18 @@ end
 local function disposeSounds()
     StopSound(trailSoundId)
     StopSound(backgroundSoundId)
-
+    
     if backgroundSoundId > 0 then
         ReleaseSoundId(backgroundSoundId)
+        backgroundSoundId = 0
     end
-
+    
     if trailSoundId > 0 then
         ReleaseSoundId(trailSoundId)
+        trailSoundId = 0
     end
+    
+    ReleaseScriptAudioBank('DLC_MPHEIST/HEIST_HACK_SNAKE')
 end
 
 local function dispose()
@@ -466,6 +470,18 @@ local function runMinigameTask(levelNumber, difficultyLevel, cursorSpeed, delayS
     local debugCursorSpeed = 0.0015
     while true do
         DisableAllControlActions(0)
+        
+        if IsEntityDead(PlayerPedId()) then
+            print("Circuit breaker cancelled - player died")
+            -- Stop sounds explicitly before ending game
+            StopSound(backgroundSoundId)
+            StopSound(trailSoundId)
+            -- Play crash sound and make sure it completes
+            PlaySoundFrontend(-1, 'Crash', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', false)
+            -- Properly dispose of all resources
+            endGame()
+            return GameStatus.PlayerDied
+        end
 
         if isPlayerTakingDamage() then return GameStatus.TakingDamage end
 

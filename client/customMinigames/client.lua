@@ -19,6 +19,9 @@ local successCount = 0
 local isSequencing = false
 local sequenceSuccessCount = 0
 local disableMovementControls = false
+local callback = nil
+
+local deathCheckThreadId = nil
 
 local function cleanupMinigame()
     isHacking = false
@@ -26,6 +29,52 @@ local function cleanupMinigame()
     disableMovementControls = false
     SetNuiFocus(false, false)
     EnableAllControlActions(0)
+end
+
+local function cancelMinigameOnDeath()
+    SetNuiFocus(false, false)
+    
+    SendNUIMessage({ action = 'end', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endSequence', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endRhythm', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endKeymash', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endVarHack', forced = true })
+    
+    TriggerEvent('firewall-pulse:completeHack', false)
+    TriggerEvent('backdoor-sequence:completeHack', false)
+    TriggerEvent('circuit-rhythm:completeGame', false)
+    
+    SendNUIMessage({ 
+        action = 'forceClose',
+        reason = 'playerDied',
+        playerId = GetPlayerServerId(PlayerId())
+    })
+    
+    cleanupMinigame()
+    
+    if callback then
+        callback(false)
+        callback = nil
+    end
+end
+
+local function startDeathCheck()
+    if deathCheckThreadId then return end
+    
+    deathCheckThreadId = Citizen.CreateThread(function()
+        while isHacking or isSequencing do
+            if IsEntityDead(PlayerPedId()) then
+                cancelMinigameOnDeath()
+                break
+            end
+            Citizen.Wait(500)
+        end
+        deathCheckThreadId = nil
+    end)
 end
 
 RegisterNUICallback('hackSuccess', function(data, cb)
@@ -61,11 +110,7 @@ RegisterNUICallback('rhythmResult', function(data, cb)
 end)
 
 RegisterNUICallback('keymashResult', function(data, cb)
-    isHacking = false
-    isSequencing = false
-    disableMovementControls = false
-    SetNuiFocus(false, false)
-    EnableAllControlActions(0)
+    cleanupMinigame()
     
     if callback then
         callback(data.success)
@@ -82,6 +127,22 @@ RegisterNUICallback('varHackResult', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('playerDied', function(_, cb)
+    cb('ok')
+end)
+
+RegisterNUICallback('surgeClose', function(data, cb)
+    print("Surge closing through NUI callback")
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('varHackClose', function(data, cb)
+    print("VarHack closing through NUI callback")
+    cleanupMinigame()
+    cb('ok')
+end)
+
 RegisterNetEvent('firewall-pulse:startHack')
 AddEventHandler('firewall-pulse:startHack', function()
     if not isHacking then
@@ -89,6 +150,7 @@ AddEventHandler('firewall-pulse:startHack', function()
         successCount = 0
         SetNuiFocus(true, true)
         SendNUIMessage({ action = 'start' })
+        startDeathCheck()
     end
 end)
 
@@ -109,6 +171,7 @@ AddEventHandler('backdoor-sequence:startHack', function()
         sequenceSuccessCount = 0
         SetNuiFocus(false, true)
         SendNUIMessage({ action = 'startSequence' })
+        startDeathCheck()
     end
 end)
 
@@ -141,8 +204,13 @@ exports('StartFirewallPulse', function(requiredHacks, initialSpeed, maxSpeed, ti
     disableMovementControls = true
     SetNuiFocus(true, true)
     
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
     RegisterNUICallback('hackResult', function(data)
-        p:resolve(data.success)
+        callback(data.success)
     end)
     
     SendNUIMessage({ 
@@ -150,6 +218,7 @@ exports('StartFirewallPulse', function(requiredHacks, initialSpeed, maxSpeed, ti
         config = hackConfig
     })
     
+    startDeathCheck()
     return Citizen.Await(p)
 end)
 
@@ -170,8 +239,13 @@ exports('StartBackdoorSequence', function(requiredSequences, sequenceLength, tim
         keyHintText = keyHintText
     }
     
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
     RegisterNUICallback('sequenceResult', function(data)
-        p:resolve(data.success)
+        callback(data.success)
     end)
     
     isSequencing = true
@@ -182,6 +256,7 @@ exports('StartBackdoorSequence', function(requiredSequences, sequenceLength, tim
         config = sequenceConfig
     })
     
+    startDeathCheck()
     return Citizen.Await(p)
 end)
 
@@ -201,8 +276,13 @@ exports('StartCircuitRhythm', function(lanes, keys, noteSpeed, noteSpawnRate, re
         maxMissedNotes = maxMissedNotes or 3
     }
     
+    callback = function(success, score, maxCombo)
+        p:resolve({success = success, score = score or 0, maxCombo = maxCombo or 0})
+        callback = nil
+    end
+    
     RegisterNUICallback('rhythmResult', function(data)
-        p:resolve({success = data.success, score = data.score, maxCombo = data.maxCombo})
+        callback(data.success, data.score, data.maxCombo)
     end)
     
     isHacking = true
@@ -213,6 +293,7 @@ exports('StartCircuitRhythm', function(lanes, keys, noteSpeed, noteSpawnRate, re
         config = rhythmConfig
     })
     
+    startDeathCheck()
     return Citizen.Await(p)
 end)
 
@@ -231,8 +312,13 @@ exports('StartSurgeOverride', function(possibleKeys, requiredPresses, decayRate)
         decayRate = decayRate or 2
     }
     
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
     RegisterNUICallback('keymashResult', function(data)
-        p:resolve(data.success)
+        callback(data.success)
     end)
     
     isHacking = true
@@ -243,6 +329,7 @@ exports('StartSurgeOverride', function(possibleKeys, requiredPresses, decayRate)
         config = keymashConfig
     })
     
+    startDeathCheck()
     return Citizen.Await(p)
 end)
 
@@ -256,8 +343,13 @@ exports('StartVarHack', function(blocks, speed)
         speed = speed or 5
     }
     
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
     RegisterNUICallback('varHackResult', function(data)
-        p:resolve(data.success)
+        callback(data.success)
     end)
     
     isHacking = true
@@ -268,6 +360,7 @@ exports('StartVarHack', function(blocks, speed)
         config = varConfig
     })
     
+    startDeathCheck()
     return Citizen.Await(p)
 end)
 

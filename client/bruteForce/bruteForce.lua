@@ -326,6 +326,30 @@ function StartHackConnect(numLives)
     end)
     
     Citizen.CreateThread(function()
+        while inMinigame do
+            if IsEntityDead(PlayerPedId()) then
+                PlaySoundFrontend(-1, "HACKING_FAILURE", "", true)
+                minigameResult = false
+                inMinigame = false
+                
+                cleanupControls()
+                
+                if scaleform then
+                    SetScaleformMovieAsNoLongerNeeded(scaleform)
+                    scaleform = nil
+                end
+                
+                TriggerEvent('bruteforce:uiSequenceComplete')
+
+                print("Hack cancelled - player died")
+
+                break
+            end
+            Citizen.Wait(500)
+        end
+    end)
+    
+    Citizen.CreateThread(function()
         while inMinigame or (not uiSequenceComplete and minigameResult == false) do
             Citizen.Wait(100)
         end
@@ -345,7 +369,7 @@ exports('StartBruteForce', StartHackConnect)
 
 if config.DebugCommands then 
     RegisterCommand('testbruteforce', function()
-        local success = exports['glitch-minigames']:StartHackConnect(3)
+        local success = exports['glitch-minigames']:StartBruteForce(3)
         
         if success then
             print("Hacking successful!")

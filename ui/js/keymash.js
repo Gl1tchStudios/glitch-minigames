@@ -220,3 +220,26 @@ window.keymashFunctions = {
     stop: stopKeymash,
     handleKeypress: handleKeymashKeypress
 };
+
+window.addEventListener('message', (event) => {
+    console.log('Received NUI message:', event.data);
+    
+    if (event.data.action === 'startKeymash') {
+        startKeymash(event.data.config);
+    } else if (event.data.action === 'endKeymash' || event.data.action === 'forceClose') {
+        console.log('Forced close of keymash:', event.data);
+        
+        if (decayInterval) {
+            clearInterval(decayInterval);
+            decayInterval = null;
+        }
+        
+        keymashActive = false;
+        
+        $.post(`https://${GetParentResourceName()}/keymashResult`, JSON.stringify({
+            success: false
+        }));
+        
+        $('#keymash-container').hide();
+    }
+});

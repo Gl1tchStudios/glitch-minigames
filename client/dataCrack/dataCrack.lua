@@ -165,6 +165,17 @@ function F_02668(arg1)
             Citizen.Wait(1)
         end
     end)
+    Citizen.CreateThread(function()
+        while not stophack do
+            if IsEntityDead(PlayerPedId()) then
+                print("DataCrack hack cancelled - player died")
+                PlaySoundFrontend(-1, "HACKING_FAILURE", "", true)
+                Abort()
+                break
+            end
+            Citizen.Wait(500)
+        end
+    end)
 end
 
 function Abort()

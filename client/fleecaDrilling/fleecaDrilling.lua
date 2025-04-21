@@ -291,6 +291,28 @@ Drilling.Update = function(callback)
         Drilling.DisableControls()
         Drilling.HandleControls()
         
+        if IsEntityDead(PlayerPedId()) then
+            print("Drilling cancelled - player died")
+            Drilling.Active = false
+            Drilling.Result = false
+            
+            if config.usingGlitchNotifications then
+                exports['glitch-notifications']:RemoveNotification(DrillingControls)
+            end
+            
+            if soundPlaying then
+                StopSound(drillSound)
+                ReleaseSoundId(drillSound)
+                soundPlaying = false
+                isDrillingMetal = false
+            end
+            
+            StopGameplayCamShaking(true)
+            FreezeEntityPosition(PlayerPedId(), false)
+            Drilling.ClearDrillProp()
+            break
+        end
+        
         if GetGameTimer() - lastSoundRefresh > 10000 and soundPlaying then
             loadDrillSound()
             lastSoundRefresh = GetGameTimer()
