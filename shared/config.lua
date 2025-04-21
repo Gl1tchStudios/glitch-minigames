@@ -16,5 +16,5 @@
 
 config = {}
 
-config.DebugCommands = true -- This is for testing purposes only. Set to true to enable debug commands.
+config.DebugCommands = false -- This is for testing purposes only. Set to true to enable debug commands.
 config.usingGlitchNotifications = true -- Set to true to enable glitch notifications.
