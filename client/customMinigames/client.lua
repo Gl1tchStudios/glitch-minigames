@@ -102,9 +102,13 @@ RegisterNUICallback('sequenceResult', function(data, cb)
 end)
 
 RegisterNUICallback('rhythmResult', function(data, cb)
+    print("Rhythm game completed with result:", json.encode(data))
     cleanupMinigame()
     if callback then
+        --print("Calling rhythm callback with success:", data.success, "score:", data.score, "combo:", data.maxCombo)
         callback(data.success, data.score, data.maxCombo)
+    else
+        print("Warning: rhythmResult callback was called when callback was nil")
     end
     cb('ok')
 end)
@@ -209,10 +213,6 @@ exports('StartFirewallPulse', function(requiredHacks, initialSpeed, maxSpeed, ti
         callback = nil
     end
     
-    RegisterNUICallback('hackResult', function(data)
-        callback(data.success)
-    end)
-    
     SendNUIMessage({ 
         action = 'start',
         config = hackConfig
@@ -244,10 +244,6 @@ exports('StartBackdoorSequence', function(requiredSequences, sequenceLength, tim
         callback = nil
     end
     
-    RegisterNUICallback('sequenceResult', function(data)
-        callback(data.success)
-    end)
-    
     isSequencing = true
     disableMovementControls = true
     SetNuiFocus(true, false)
@@ -277,13 +273,10 @@ exports('StartCircuitRhythm', function(lanes, keys, noteSpeed, noteSpawnRate, re
     }
     
     callback = function(success, score, maxCombo)
-        p:resolve({success = success, score = score or 0, maxCombo = maxCombo or 0})
+        local resultDetails = {success = success, score = score or 0, maxCombo = maxCombo or 0}
+        p:resolve(success)
         callback = nil
     end
-    
-    RegisterNUICallback('rhythmResult', function(data)
-        callback(data.success, data.score, data.maxCombo)
-    end)
     
     isHacking = true
     disableMovementControls = true
@@ -317,10 +310,6 @@ exports('StartSurgeOverride', function(possibleKeys, requiredPresses, decayRate)
         callback = nil
     end
     
-    RegisterNUICallback('keymashResult', function(data)
-        callback(data.success)
-    end)
-    
     isHacking = true
     disableMovementControls = true
     SetNuiFocus(true, false)
@@ -348,10 +337,6 @@ exports('StartVarHack', function(blocks, speed)
         callback = nil
     end
     
-    RegisterNUICallback('varHackResult', function(data)
-        callback(data.success)
-    end)
-    
     isHacking = true
     disableMovementControls = true
     SetNuiFocus(true, true)
@@ -367,22 +352,27 @@ end)
 if config.DebugCommands then 
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
+        print("Result: ", success)
     end, false)
 
     RegisterCommand('testfirewall', function()
         local success = exports['glitch-minigames']:StartFirewallPulse(3, 2, 10, 8, 30, 120, 40)
+        print("Result: ", success)
     end, false)
 
     RegisterCommand('testsequence', function()
         local success = exports['glitch-minigames']:StartBackdoorSequence(3, 20, 20, 3, 2.0, 3, 6, {'W', 'A', 'S', 'D'}, 'W, A, S, D only')
+        print("Result: ", success)
     end, false)
 
     RegisterCommand('testrhythm', function()
         local result = exports['glitch-minigames']:StartCircuitRhythm(4, {'A','S','D','F'}, 150, 800, 15, "normal", 5, 3)
+        print("Result: ", result)
     end, false)
 
     RegisterCommand('testvarhack', function()
-        local success = exports['glitch-minigames']:StartVarHack(5, 5)
+        local success = exports['glitch-minigames']:StartVarHack(5, 25)
+        print("Result: ", success)
     end, false)
 end 
 

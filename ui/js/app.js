@@ -654,9 +654,13 @@ function repositionSafeZone() {
 
 function startTimer() {
     timeRemaining = hackConfig.timeLimit;
+    
     updateTimerDisplay();
-    clearInterval(timerInterval);
+    
     $('.timer-progress').css('width', '100%');
+    
+    clearInterval(timerInterval);
+    
     timerInterval = setInterval(function() {
         timeRemaining -= 0.1;
         timeRemaining = Math.max(0, parseFloat(timeRemaining.toFixed(1)));
@@ -664,7 +668,6 @@ function startTimer() {
         updateTimerDisplay();
         
         const percentage = (timeRemaining / hackConfig.timeLimit) * 100;
-
         $('.timer-progress').css('width', percentage + '%');
         
         if (timeRemaining <= 0) {
@@ -674,12 +677,12 @@ function startTimer() {
     }, 100);
 }
 
-function stopTimer() {
-    clearInterval(timerInterval);
-}
-
 function updateTimerDisplay() {
     $('#timer-count').text(timeRemaining.toFixed(1));
+}
+
+function stopTimer() {
+    clearInterval(timerInterval);
 }
 
 function checkResult() {

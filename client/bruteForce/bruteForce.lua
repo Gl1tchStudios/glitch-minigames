@@ -164,13 +164,14 @@ Citizen.CreateThread(function()
                 elseif ProgramID == 92 then --IF YOU CLICK THE RIGHT LETTER IN BRUTEFORCE APP, you could add more lives here.
                     PlaySoundFrontend(-1, "HACKING_CLICK_GOOD", "", false)
 
-                -- Modify the successful hack section (ProgramID == 86)
                 elseif ProgramID == 86 then --IF YOU SUCCESSFULY GET ALL LETTERS RIGHT IN BRUTEFORCE APP
                     PlaySoundFrontend(-1, "HACKING_SUCCESS", "", true)
                     minigameResult = true
                     inMinigame = false
                     
                     cleanupControls()
+                    
+                    TriggerEvent('bruteforce:uiSequenceComplete')
                     
                     PushScaleformMovieFunction(scaleform, "SET_ROULETTE_OUTCOME")
                     PushScaleformMovieFunctionParameterBool(true)
@@ -243,6 +244,8 @@ Citizen.CreateThread(function()
                     
                     cleanupControls()
                     
+                    TriggerEvent('bruteforce:uiSequenceComplete')
+                    
                     PushScaleformMovieFunction(scaleform, "SET_ROULETTE_OUTCOME")
                     PushScaleformMovieFunctionParameterBool(false)
                     PushScaleformMovieFunctionParameterString("BRUTEFORCE FAILED!")
@@ -291,6 +294,8 @@ Citizen.CreateThread(function()
                     Wait(3500)
                     SetScaleformMovieAsNoLongerNeeded(scaleform)
                     PopScaleformMovieFunctionVoid()
+
+                    TriggerEvent('bruteforce:uiSequenceComplete')
                 end
             end
         else
@@ -343,14 +348,14 @@ function StartHackConnect(numLives)
 
                 print("Hack cancelled - player died")
 
-                break
+                p:resolve(minigameResult)
             end
             Citizen.Wait(500)
         end
     end)
     
     Citizen.CreateThread(function()
-        while inMinigame or (not uiSequenceComplete and minigameResult == false) do
+        while inMinigame or (not uiSequenceComplete) do
             Citizen.Wait(100)
         end
         
