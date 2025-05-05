@@ -137,7 +137,6 @@ Citizen.CreateThread(function()
             
             if GetScaleformMovieFunctionReturnBool(ClickReturn) then
                 ProgramID = GetScaleformMovieFunctionReturnInt(ClickReturn)
-                print("ProgramID: "..ProgramID) -- Prints the ID of the Apps we click on inside the scaleform, very useful.
 
                 if ProgramID == 83 or ProgramID == 82 then  --BRUTEFORCE.EXE
                     PushScaleformMovieFunction(scaleform, "RUN_PROGRAM")

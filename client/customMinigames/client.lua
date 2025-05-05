@@ -102,7 +102,6 @@ RegisterNUICallback('sequenceResult', function(data, cb)
 end)
 
 RegisterNUICallback('rhythmResult', function(data, cb)
-    print("Rhythm game completed with result:", json.encode(data))
     cleanupMinigame()
     if callback then
         --print("Calling rhythm callback with success:", data.success, "score:", data.score, "combo:", data.maxCombo)
@@ -136,13 +135,11 @@ RegisterNUICallback('playerDied', function(_, cb)
 end)
 
 RegisterNUICallback('surgeClose', function(data, cb)
-    print("Surge closing through NUI callback")
     cleanupMinigame()
     cb('ok')
 end)
 
 RegisterNUICallback('varHackClose', function(data, cb)
-    print("VarHack closing through NUI callback")
     cleanupMinigame()
     cb('ok')
 end)
