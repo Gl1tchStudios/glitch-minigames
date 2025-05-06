@@ -80,6 +80,13 @@ PlasmaDrilling.Draw = function()
 end
 
 PlasmaDrilling.HandleControls = function()
+  if IsControlJustPressed(0, 200) or IsControlJustPressed(0, 177) then -- ESC key
+    PlasmaDrilling.Result = false
+    PlasmaDrilling.Active = false
+    Scaleforms.PopVoid(PlasmaDrilling.Scaleform, "RESET")
+    return
+  end
+  
   local last_pos = PlasmaDrilling.DrillPos
   if IsControlJustPressed(0,188) then -- (UP)
     PlasmaDrilling.DrillPos = math.min(1.0,PlasmaDrilling.DrillPos + 0.01)
@@ -116,9 +123,15 @@ PlasmaDrilling.HandleControls = function()
         PlasmaDrilling.DrillTemp = math.min(1.0,PlasmaDrilling.DrillTemp + (0.01 * GetFrameTime()))
       end
     end
+  elseif not IsControlPressed(0, 188) then
+    PlasmaDrilling.DrillTemp = math.max(0.0,PlasmaDrilling.DrillTemp - ((0.05 * GetFrameTime()) * math.max(0.005,(PlasmaDrilling.DrillSpeed * 10) /2)))
+    
+    if PlasmaDrilling.DrillPos ~= PlasmaDrilling.HoleDepth then
+      Scaleforms.PopFloat(PlasmaDrilling.Scaleform,"SET_DRILL_POSITION",PlasmaDrilling.DrillPos)
+    end
   else
     if PlasmaDrilling.DrillPos < PlasmaDrilling.HoleDepth then
-      PlasmaDrilling.DrillTemp = math.max(0.0,PlasmaDrilling.DrillTemp - ( (0.05 * GetFrameTime()) *  math.max(0.005,(PlasmaDrilling.DrillSpeed * 10) /2)) )
+      PlasmaDrilling.DrillTemp = math.max(0.0,PlasmaDrilling.DrillTemp - ((0.05 * GetFrameTime()) * math.max(0.005,(PlasmaDrilling.DrillSpeed * 10) /2)))
     end
 
     if PlasmaDrilling.DrillPos ~= PlasmaDrilling.HoleDepth then
@@ -279,25 +292,46 @@ function stopDrilling(success)
   end
 end
 
-exports('StartPlasmaDrilling', function(difficulty)
+local function clamp(value, min, max)
+  if value < min then return min end
+  if value > max then return max end
+  return value
+end
+
+exports('StartPlasmaDrilling', function(difficultyOrCallback, optionalCallback)
     if PlasmaDrilling.Active then return false end
     
     local success = false
     local completed = false
+    local difficulty = 5
+    local userCallback
     
-    difficulty = difficulty or 5
-    PlasmaDrilling.Difficulty = math.clamp(difficulty, 1, 10)
+    if type(difficultyOrCallback) == 'function' then
+        userCallback = difficultyOrCallback
+    elseif type(difficultyOrCallback) == 'number' then
+        difficulty = difficultyOrCallback
+        userCallback = optionalCallback
+    end
+    
+    PlasmaDrilling.Difficulty = clamp(difficulty, 1, 10)
     
     beginnDrilling(function(result)
         success = result
         completed = true
+        
+        if userCallback then
+            userCallback(result)
+            return
+        end
     end)
 
-    while not completed do
-        Wait(100)
+    if not userCallback then
+        while not completed do
+            Wait(100)
+        end
+        
+        return success
     end
-
-    return success
 end)
 
 if config.DebugCommands then 
