@@ -29,6 +29,11 @@
             background: transparent !important;
             overflow: hidden;
         }
+        
+        body::before, body::after {
+            display: none !important;
+            content: none !important;
+        }
     </style>
 </head>
 <body>
@@ -253,6 +258,42 @@
                 <div class="sequence-memory-timer-progress"></div>
             </div>
             <div class="timer-text">Time: <span id="sequence-memory-timer">3.0</span>s</div>
+        </div>    </div><!-- Verbal Memory Game Container -->
+    <div id="verbal-memory-container" class="game-container">
+        <div class="hack-title">
+            <h2>VERBAL MEMORY <span class="blink">[WORD RECOGNITION]</span></h2>
+        </div>
+        
+        <div class="verbal-memory-display">
+            <div class="verbal-memory-splash">
+                <div class="verbal-memory-icon">📝</div>
+                <span class="verbal-memory-text">PREPARING WORD MATRIX...</span>
+            </div>            <div class="verbal-memory-game">
+                <div class="verbal-memory-top-section">
+                    <div class="verbal-memory-word-display">
+                        <span id="verbal-memory-current-word">WORD</span>
+                    </div>
+                </div>
+                <div class="verbal-memory-bottom-section">
+                    <div class="verbal-memory-left-btn">
+                        <button id="verbal-memory-seen-btn" class="verbal-memory-btn seen-btn">SEEN</button>
+                    </div>
+                    <div class="verbal-memory-right-btn">
+                        <button id="verbal-memory-new-btn" class="verbal-memory-btn new-btn">NEW</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hack-info">
+            <div class="counter">SCORE: <span id="verbal-memory-score">0</span> | STRIKES: <span id="verbal-memory-strikes">0</span>/<span id="verbal-memory-max-strikes">3</span></div>
+            <div class="message"><span id="verbal-memory-message">Click SEEN if you've seen this word before, or NEW if it's a new word</span></div>
+        </div>
+          <div class="timer-container">
+            <div class="timer-bar">
+                <div class="verbal-memory-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="verbal-memory-time-left">5.0</span>s | Words: <span id="verbal-memory-word-count">0</span></div>
         </div>
     </div><script src="js/app.js"></script>
     <script src="js/rhythm.js"></script>
@@ -260,5 +301,6 @@
     <script src="js/varhack.js"></script>
     <script src="js/memory.js"></script>
     <script src="js/sequenceMemory.js"></script>
+    <script src="js/verbalMemory.js"></script>
 </body>
 </html>

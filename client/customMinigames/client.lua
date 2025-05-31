@@ -172,6 +172,19 @@ RegisterNUICallback('sequenceMemoryClose', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('verbalMemoryResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.score, data.strikes)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('verbalMemoryClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
 RegisterNetEvent('firewall-pulse:startHack')
 AddEventHandler('firewall-pulse:startHack', function()
     if not isHacking then
@@ -431,6 +444,33 @@ exports('StartSequenceMemoryGame', function(gridSize, maxRounds, maxWrongPresses
     return Citizen.Await(p)
 end)
 
+exports('StartVerbalMemoryGame', function(maxStrikes, wordsToShow, wordDuration)
+    local p = promise.new()
+    
+    if isHacking then return false end
+      local verbalConfig = {
+        maxStrikes = maxStrikes or 3,
+        wordsToShow = wordsToShow or 50,
+        wordDuration = wordDuration or 5000
+    }
+    
+    callback = function(success, score, strikes)
+        p:resolve({success = success, score = score, strikes = strikes})
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startVerbalMemory',
+        config = verbalConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -461,10 +501,15 @@ if config.DebugCommands then
         local success = exports['glitch-minigames']:StartMemoryGame(5, 8, 3, 3000)
         print("Memory Game Result: ", success)
     end, false)    
-    
+      
     RegisterCommand('testsequencememory', function()
         local success = exports['glitch-minigames']:StartSequenceMemoryGame(4, 5, 3, 1000, 300)
         print("Sequence Memory Game Result: ", success)
+    end, false)
+      
+    RegisterCommand('testverbalmemory', function()
+        local result = exports['glitch-minigames']:StartVerbalMemoryGame(3, 20, 5000)
+        print("Verbal Memory Game Result: Success:", result.success, "Score:", result.score, "Strikes:", result.strikes)
     end, false)
 end
 

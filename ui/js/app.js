@@ -90,6 +90,7 @@ $(document).ready(function() {
         const data = event.data;
         
         if (data.action === 'start') {
+            cleanupAllContainers(); // Clean up any existing containers
             $('.pulse-bar').removeClass('success-bar fail-bar');
             $('body').removeClass('sequence-active');
             
@@ -114,6 +115,7 @@ $(document).ready(function() {
         } else if (data.action === 'updateSpeed') {
             speed = Math.min(hackConfig.maxSpeed, speed + 1);
         } else if (data.action === 'startSequence') {
+            cleanupAllContainers(); // Clean up any existing containers
             if (data.hideCursor) {
                 $('body').addClass('sequence-active');
             }
@@ -126,6 +128,7 @@ $(document).ready(function() {
             $('body').removeClass('sequence-active');
             $('#sequence-container').fadeOut(500);
         } else if (data.action === 'startRhythm') {
+            cleanupAllContainers(); // Clean up any existing containers
             $('body').removeClass('sequence-active');
             $('#rhythm-container').fadeIn(500);
             
@@ -139,12 +142,41 @@ $(document).ready(function() {
             document.removeEventListener('keyup', handleRhythmKeyRelease);
             $('#rhythm-container').fadeOut(500);
         } else if (data.action === 'startKeymash') {
+            cleanupAllContainers(); // Clean up any existing containers
             window.keymashFunctions.setup(data.config);
-            window.keymashFunctions.start();
-        } else if (data.action === 'keyPress') {
+            window.keymashFunctions.start();        } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'stopKeymash') {
             window.keymashFunctions.stop(false);
+        } else if (data.action === 'forceClose' || data.action === 'closeAll') {
+            // Clean up everything and hide all containers
+            cleanupAllContainers();
+            
+            // Reset all game states
+            stopGame();
+            sequenceActive = false;
+            clearInterval(sequenceTimerInterval);
+            document.removeEventListener('keydown', handleSequenceKeyPress);
+            $('body').removeClass('sequence-active');
+            
+            if (window.rhythmFunctions && typeof window.rhythmFunctions.stop === 'function') {
+                window.rhythmFunctions.stop();
+            }
+            
+            if (window.keymashFunctions && typeof window.keymashFunctions.stop === 'function') {
+                window.keymashFunctions.stop(false);
+            }
+            
+            if (window.verbalMemoryGameState) {
+                if (verbalMemoryGameState.wordTimer) {
+                    clearTimeout(verbalMemoryGameState.wordTimer);
+                }
+                if (verbalMemoryGameState.countdownTimer) {
+                    clearInterval(verbalMemoryGameState.countdownTimer);
+                }
+            }
+            
+            console.log("Force closed all minigames:", data.reason || "Unknown reason");
         }
     });
     
@@ -750,4 +782,19 @@ function onFailure(reason) {
 
 function updateCounter() {
     $('#counter').text(successCount);
+}
+
+// Add a global function to clean up containers before starting any game
+function cleanupAllContainers() {
+    // Hide all game containers
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container').hide();
+    
+    // Ensure body has transparent background
+    $('body, html').css({
+        'background-color': 'transparent',
+        'background': 'transparent'
+    });
+    
+    // Remove any overlay elements
+    $('body > div.overlay, body > div.backdrop').remove();
 }
