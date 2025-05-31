@@ -31,11 +31,12 @@ ui_page 'ui/index.html'
 files {
     'client/circuitBreaker/class.lua',
     'ui/index.html',
-    'ui/css/style.css',
-    'ui/js/app.js',
+    'ui/css/style.css',    'ui/js/app.js',
     'ui/js/rhythm.js',
     'ui/js/keymash.js',
     'ui/js/varHack.js',
+    'ui/js/memory.js',
+    'ui/js/sequenceMemory.js',
     'ui/sounds/*.mp3',
     'ui/sounds/songs/*.mp3' -- Going to be used for the rhythm game later down the track
 }

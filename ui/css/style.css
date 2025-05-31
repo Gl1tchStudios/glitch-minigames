@@ -986,3 +986,342 @@ body, html {
         text-shadow: 0 0 20px var(--glow);
     }
 }
+
+/* Memory Game Styles */
+#memory-container {
+    background: linear-gradient(135deg, rgba(15, 30, 45, 0.85) 0%, rgba(30, 60, 90, 0.85) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    width: 600px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    display: none;
+}
+
+.memory-display {
+    position: relative;
+    height: 450px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.memory-splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--light-blue);
+    text-transform: uppercase;
+}
+
+.memory-icon {
+    font-size: 64px;
+    margin-bottom: 30px;
+    color: var(--neon-blue);
+    text-shadow: 0 0 15px var(--glow);
+}
+
+.memory-text {
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--glow);
+    animation: textPulse 2s infinite;
+}
+
+.memory-grid {
+    display: none;
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    gap: 8px;
+}
+
+.memory-square {
+    background: rgba(0, 40, 80, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: transparent;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.memory-square::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.memory-square:hover::before {
+    transform: translateX(100%);
+}
+
+.memory-square:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 60, 120, 0.5);
+    transform: scale(1.02);
+}
+
+.memory-square.lit {
+    background: linear-gradient(135deg, var(--light-blue), var(--neon-blue));
+    border-color: white;
+    box-shadow: 0 0 20px var(--glow);
+    animation: memoryPulse 0.5s ease-in-out;
+}
+
+.memory-square.player-selected {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--light-blue);
+    box-shadow: 0 0 10px var(--glow);
+}
+
+.memory-square.correct {
+    background: linear-gradient(135deg, #30ff30, #008000) !important;
+    border-color: #30ff30;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.7) !important;
+    animation: correctPulse 0.6s ease-in-out;
+}
+
+.memory-square.wrong {
+    background: linear-gradient(135deg, #ff3030, #800000) !important;
+    border-color: #ff3030;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.7) !important;
+    animation: wrongShake 0.6s ease-in-out;
+}
+
+.memory-timer-progress {
+    height: 100%;
+    background: linear-gradient(to right, var(--light-blue), var(--neon-blue));
+    width: 100%;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px var(--glow);
+}
+
+@keyframes memoryPulse {
+    0% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px var(--glow);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 0 0 30px var(--glow);
+    }
+    100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px var(--glow);
+    }
+}
+
+@keyframes correctPulse {
+    0% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+    }
+    50% { 
+        transform: scale(1.15);
+        box-shadow: 0 0 40px rgba(0, 255, 0, 0.9);
+    }
+    100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+    }
+}
+
+@keyframes wrongShake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-5px); }
+    100% { transform: translateX(0); }
+}
+
+/* ===== SEQUENCE MEMORY GAME STYLES ===== */
+
+#sequence-memory-container {
+    background: linear-gradient(135deg, rgba(15, 30, 45, 0.85) 0%, rgba(30, 60, 90, 0.85) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    width: 600px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    display: none;
+}
+
+.sequence-memory-display {
+    position: relative;
+    height: 450px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sequence-memory-splash {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--light-blue);
+    text-transform: uppercase;
+}
+
+.sequence-memory-icon {
+    font-size: 64px;
+    margin-bottom: 30px;
+    color: var(--neon-blue);
+    text-shadow: 0 0 15px var(--glow);
+}
+
+.sequence-memory-text {
+    font-size: 24px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--glow);
+    animation: textPulse 2s infinite;
+}
+
+.sequence-memory-grid {
+    display: none;
+    width: 400px;
+    height: 400px;
+    margin: 0 auto;
+    gap: 8px;
+}
+
+.sequence-memory-square {
+    background: rgba(0, 40, 80, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: transparent;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sequence-memory-square::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+}
+
+.sequence-memory-square:hover::before {
+    transform: translateX(100%);
+}
+
+.sequence-memory-square:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(0, 60, 120, 0.5);
+    transform: scale(1.02);
+}
+
+.sequence-memory-square.lit {
+    background: linear-gradient(135deg, var(--light-blue), var(--neon-blue));
+    border-color: white;
+    box-shadow: 0 0 20px var(--glow);
+    animation: sequenceMemoryPulse 0.5s ease-in-out;
+}
+
+.sequence-memory-square.player-selected {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--light-blue);
+    box-shadow: 0 0 10px var(--glow);
+}
+
+.sequence-memory-square.correct {
+    background: linear-gradient(135deg, #30ff30, #008000) !important;
+    border-color: #30ff30;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.7) !important;
+    animation: sequenceCorrectPulse 0.6s ease-in-out;
+}
+
+.sequence-memory-square.wrong {
+    background: linear-gradient(135deg, #ff3030, #800000) !important;
+    border-color: #ff3030;
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.7) !important;
+    animation: sequenceWrongShake 0.6s ease-in-out;
+}
+
+.sequence-memory-timer-progress {
+    height: 100%;
+    background: linear-gradient(to right, var(--light-blue), var(--neon-blue));
+    width: 100%;
+    transition: width 0.1s linear;
+    border-radius: 3px;
+    box-shadow: 0 0 10px var(--glow);
+}
+
+@keyframes sequenceMemoryPulse {
+    0% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px var(--glow);
+    }
+    50% { 
+        transform: scale(1.1);
+        box-shadow: 0 0 30px var(--glow);
+    }
+    100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px var(--glow);
+    }
+}
+
+@keyframes sequenceCorrectPulse {
+    0% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+    }
+    50% { 
+        transform: scale(1.15);
+        box-shadow: 0 0 40px rgba(0, 255, 0, 0.9);
+    }
+    100% { 
+        transform: scale(1);
+        box-shadow: 0 0 20px rgba(0, 255, 0, 0.7);
+    }
+}
+
+@keyframes sequenceWrongShake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-8px); }
+    80% { transform: translateX(8px); }
+    100% { transform: translateX(0); }
+}

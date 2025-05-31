@@ -39,10 +39,12 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endSequence', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endRhythm', forced = true })
+    Citizen.Wait(50)    SendNUIMessage({ action = 'endKeymash', forced = true })
+    Citizen.Wait(50)    SendNUIMessage({ action = 'endVarHack', forced = true })
     Citizen.Wait(50)
-    SendNUIMessage({ action = 'endKeymash', forced = true })
+    SendNUIMessage({ action = 'endMemory', forced = true })
     Citizen.Wait(50)
-    SendNUIMessage({ action = 'endVarHack', forced = true })
+    SendNUIMessage({ type = 'closeSequenceMemory', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -130,6 +132,14 @@ RegisterNUICallback('varHackResult', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('memoryResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
 RegisterNUICallback('playerDied', function(_, cb)
     cb('ok')
 end)
@@ -140,6 +150,24 @@ RegisterNUICallback('surgeClose', function(data, cb)
 end)
 
 RegisterNUICallback('varHackClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('memoryClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('sequenceMemoryResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('sequenceMemoryClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -346,7 +374,64 @@ exports('StartVarHack', function(blocks, speed)
     return Citizen.Await(p)
 end)
 
-if config.DebugCommands then 
+exports('StartMemoryGame', function(gridSize, squareCount, rounds, showTime, maxWrongPresses)
+    local p = promise.new()
+    
+    if isHacking then return false end
+      local memoryConfig = {
+        gridSize = gridSize or 5,
+        squareCount = squareCount or 8,
+        rounds = rounds or 3,
+        showTime = showTime or 3000,
+        maxWrongPresses = maxWrongPresses or 3
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startMemory',
+        config = memoryConfig
+    })
+      startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartSequenceMemoryGame', function(gridSize, maxRounds, maxWrongPresses, showTime, delayBetween)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local sequenceConfig = {
+        gridSize = gridSize or 4,
+        maxRounds = maxRounds or 5,
+        maxWrongPresses = maxWrongPresses or 3,
+        showTime = showTime or 1000,
+        delayBetween = delayBetween or 300
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)    SendNUIMessage({ 
+        type = 'startSequenceMemory',
+        config = sequenceConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
         print("Result: ", success)
@@ -365,13 +450,23 @@ if config.DebugCommands then
     RegisterCommand('testrhythm', function()
         local result = exports['glitch-minigames']:StartCircuitRhythm(4, {'A','S','D','F'}, 150, 800, 15, "normal", 5, 3)
         print("Result: ", result)
-    end, false)
-
+    end, false)    
+    
     RegisterCommand('testvarhack', function()
         local success = exports['glitch-minigames']:StartVarHack(5, 25)
         print("Result: ", success)
+    end, false)    
+    
+    RegisterCommand('testmemory', function()
+        local success = exports['glitch-minigames']:StartMemoryGame(5, 8, 3, 3000)
+        print("Memory Game Result: ", success)
+    end, false)    
+    
+    RegisterCommand('testsequencememory', function()
+        local success = exports['glitch-minigames']:StartSequenceMemoryGame(4, 5, 3, 1000, 300)
+        print("Sequence Memory Game Result: ", success)
     end, false)
-end 
+end
 
 Citizen.CreateThread(function()
     while true do
@@ -450,7 +545,7 @@ Citizen.CreateThread(function()
                 [47] = 71,  -- G
                 [74] = 72,  -- H
                 [311] = 74, -- J
-                [311] = 75, -- K
+                [168] = 75, -- K (using different control code)
                 [182] = 76, -- L
                 [20] = 90,  -- Z
                 [73] = 88,  -- X
@@ -468,7 +563,7 @@ Citizen.CreateThread(function()
                 [161] = 55, -- 7
                 [162] = 56, -- 8
                 [163] = 57, -- 9
-                [163] = 48  -- 0
+                [307] = 48  -- 0 (using different control code)
             }
             
             for fivemCode, jsCode in pairs(keyMap) do

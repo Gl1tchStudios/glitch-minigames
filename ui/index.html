@@ -206,10 +206,59 @@
         </div>
     </div>
 
-    <script src="js/app.js"></script>
-    <script src="js/sequence.js"></script>
+    <!-- Memory Game Container -->
+    <div id="memory-container" class="game-container">
+        <div class="hack-title">
+            <h2>NEURAL PATTERN <span class="blink">[MEMORY MATRIX]</span></h2>
+        </div>
+        
+        <div class="memory-display">
+            <div class="memory-splash">
+                <div class="memory-icon">🧠</div>
+                <span class="memory-text">PREPARING MEMORY MATRIX...</span>
+            </div>
+            <div class="memory-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="counter">ROUND: <span id="memory-round-current">1</span>/<span id="memory-round-total">3</span></div>
+            <div class="message"><span id="memory-message">Memorize the pattern</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="memory-timer-progress"></div>        </div>
+            <div class="timer-text">Time: <span id="memory-timer">3.0</span>s</div>
+        </div>    </div>    <!-- Sequence Memory Game Container -->
+    <div id="sequence-memory-container" class="game-container">
+        <div class="hack-title">
+            <h2>SEQUENCE PATTERN <span class="blink">[NEURAL SEQUENCE]</span></h2>
+        </div>
+        
+        <div class="sequence-memory-display">
+            <div class="sequence-memory-splash">
+                <div class="sequence-memory-icon">🔄</div>
+                <span class="sequence-memory-text">PREPARING SEQUENCE MATRIX...</span>
+            </div>
+            <div class="sequence-memory-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="counter">ROUND: <span id="sequence-memory-round-current">1</span>/<span id="sequence-memory-round-total">5</span></div>
+            <div class="message"><span id="sequence-memory-message">Watch the sequence</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="sequence-memory-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="sequence-memory-timer">3.0</span>s</div>
+        </div>
+    </div><script src="js/app.js"></script>
     <script src="js/rhythm.js"></script>
     <script src="js/keymash.js"></script>
     <script src="js/varhack.js"></script>
+    <script src="js/memory.js"></script>
+    <script src="js/sequenceMemory.js"></script>
 </body>
 </html>
