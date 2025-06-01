@@ -37,8 +37,8 @@ files {
     'ui/js/keymash.js',    
     'ui/js/varHack.js',
     'ui/js/memory.js',
-    'ui/js/sequenceMemory.js',
-    'ui/js/verbalMemory.js',
+    'ui/js/sequenceMemory.js',    'ui/js/verbalMemory.js',
+    'ui/js/numberedSequence.js',
     'ui/sounds/*.mp3',
     'ui/sounds/songs/*.mp3' -- Going to be used for the rhythm game later down the track
 }

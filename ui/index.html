@@ -234,7 +234,9 @@
             <div class="timer-bar">
                 <div class="memory-timer-progress"></div>        </div>
             <div class="timer-text">Time: <span id="memory-timer">3.0</span>s</div>
-        </div>    </div>    <!-- Sequence Memory Game Container -->
+        </div>    </div>    
+        
+    <!-- Sequence Memory Game Container -->
     <div id="sequence-memory-container" class="game-container">
         <div class="hack-title">
             <h2>SEQUENCE PATTERN <span class="blink">[NEURAL SEQUENCE]</span></h2>
@@ -252,13 +254,41 @@
             <div class="counter">ROUND: <span id="sequence-memory-round-current">1</span>/<span id="sequence-memory-round-total">5</span></div>
             <div class="message"><span id="sequence-memory-message">Watch the sequence</span></div>
         </div>
-        
-        <div class="timer-container">
+          <div class="timer-container">
             <div class="timer-bar">
                 <div class="sequence-memory-timer-progress"></div>
             </div>
             <div class="timer-text">Time: <span id="sequence-memory-timer">3.0</span>s</div>
-        </div>    </div><!-- Verbal Memory Game Container -->
+        </div>    </div>
+        
+    <!-- Numbered Sequence Game Container -->
+    <div id="numbered-sequence-container" class="game-container">
+        <div class="hack-title">
+            <h2>NUMBERED SEQUENCE <span class="blink">[NUMERICAL MATRIX]</span></h2>
+        </div>
+        
+        <div class="numbered-sequence-display">
+            <div class="numbered-sequence-splash">
+                <div class="numbered-sequence-icon">🔢</div>
+                <span class="numbered-sequence-text">PREPARING NUMBERED MATRIX...</span>
+            </div>
+            <div class="numbered-sequence-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="counter">ROUND: <span id="numbered-sequence-round-current">1</span>/<span id="numbered-sequence-round-total">3</span></div>
+            <div class="message"><span id="numbered-sequence-message">Memorize the numbered sequence</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="numbered-sequence-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="numbered-sequence-timer">4.0</span>s</div>
+        </div>
+    </div>
+        
+    <!-- Verbal Memory Game Container -->
     <div id="verbal-memory-container" class="game-container">
         <div class="hack-title">
             <h2>VERBAL MEMORY <span class="blink">[WORD RECOGNITION]</span></h2>
@@ -292,10 +322,10 @@
           <div class="timer-container">
             <div class="timer-bar">
                 <div class="verbal-memory-timer-progress"></div>
-            </div>
-            <div class="timer-text">Time: <span id="verbal-memory-time-left">5.0</span>s | Words: <span id="verbal-memory-word-count">0</span></div>
+            </div>            <div class="timer-text">Time: <span id="verbal-memory-time-left">5.0</span>s | Words: <span id="verbal-memory-word-count">0</span></div>
         </div>
-    </div><script src="js/app.js"></script>
+    </div>    <script src="js/numberedSequence.js"></script>
+    <script src="js/app.js"></script>
     <script src="js/rhythm.js"></script>
     <script src="js/keymash.js"></script>
     <script src="js/varhack.js"></script>

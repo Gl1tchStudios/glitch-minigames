@@ -140,11 +140,21 @@ $(document).ready(function() {
             clearInterval(moveInterval);
             document.removeEventListener('keydown', handleRhythmKeyPress);
             document.removeEventListener('keyup', handleRhythmKeyRelease);
-            $('#rhythm-container').fadeOut(500);
-        } else if (data.action === 'startKeymash') {
+            $('#rhythm-container').fadeOut(500);        } else if (data.action === 'startKeymash') {
             cleanupAllContainers(); // Clean up any existing containers
             window.keymashFunctions.setup(data.config);
-            window.keymashFunctions.start();        } else if (data.action === 'keyPress') {
+            window.keymashFunctions.start();        } else if (data.action === 'startNumberedSequence') {
+            cleanupAllContainers();
+            
+            if (typeof window.startNumberedSequenceGame === 'function') {
+                window.startNumberedSequenceGame(data.config);
+            } else if (typeof startNumberedSequenceGame !== 'undefined') {
+                startNumberedSequenceGame(data.config);
+            } else {
+                console.error('startNumberedSequenceGame function not found!');
+                $('#numbered-sequence-container').addClass('active').show();
+            }
+        } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'stopKeymash') {
             window.keymashFunctions.stop(false);
@@ -784,17 +794,15 @@ function updateCounter() {
     $('#counter').text(successCount);
 }
 
-// Add a global function to clean up containers before starting any game
 function cleanupAllContainers() {
-    // Hide all game containers
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container').hide();
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container')
+        .removeClass('active')
+        .hide();
     
-    // Ensure body has transparent background
     $('body, html').css({
         'background-color': 'transparent',
         'background': 'transparent'
     });
-    
-    // Remove any overlay elements
+
     $('body > div.overlay, body > div.backdrop').remove();
 }

@@ -41,10 +41,11 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endRhythm', forced = true })
     Citizen.Wait(50)    SendNUIMessage({ action = 'endKeymash', forced = true })
     Citizen.Wait(50)    SendNUIMessage({ action = 'endVarHack', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endMemory', forced = true })
+    Citizen.Wait(50)    SendNUIMessage({ action = 'endMemory', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ type = 'closeSequenceMemory', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endNumberedSequence', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -181,6 +182,19 @@ RegisterNUICallback('verbalMemoryResult', function(data, cb)
 end)
 
 RegisterNUICallback('verbalMemoryClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('numberedSequenceResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('numberedSequenceClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -471,6 +485,37 @@ exports('StartVerbalMemoryGame', function(maxStrikes, wordsToShow, wordDuration)
     return Citizen.Await(p)
 end)
 
+exports('StartNumberedSequenceGame', function(gridSize, sequenceLength, rounds, showTime, guessTime, maxWrongPresses)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local numberedConfig = {
+        gridSize = gridSize or 4,
+        sequenceLength = sequenceLength or 6,
+        rounds = rounds or 3,
+        showTime = showTime or 4000,
+        guessTime = guessTime or 10000,
+        maxWrongPresses = maxWrongPresses or 3
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startNumberedSequence',
+        config = numberedConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -506,10 +551,14 @@ if config.DebugCommands then
         local success = exports['glitch-minigames']:StartSequenceMemoryGame(4, 5, 3, 1000, 300)
         print("Sequence Memory Game Result: ", success)
     end, false)
-      
+        
     RegisterCommand('testverbalmemory', function()
         local result = exports['glitch-minigames']:StartVerbalMemoryGame(3, 20, 5000)
         print("Verbal Memory Game Result: Success:", result.success, "Score:", result.score, "Strikes:", result.strikes)
+    end, false)    
+    RegisterCommand('testnumberedsequence', function()
+        local success = exports['glitch-minigames']:StartNumberedSequenceGame(4, 6, 3, 4000, 10000, 2)
+        print("Numbered Sequence Game Result: ", success)
     end, false)
 end
 
