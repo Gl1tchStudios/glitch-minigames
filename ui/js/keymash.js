@@ -42,6 +42,7 @@ function setupKeymash(config) {
         'SPACE': 32,
         'F': 70,
         'Q': 81,
+        'W': 87,
         'R': 82,
         'T': 84,
         'Y': 89,
