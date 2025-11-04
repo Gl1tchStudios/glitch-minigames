@@ -152,9 +152,10 @@ $(document).ready(function() {
         if (!isActive || !canClick) return;
         
         canClick = false;
-        setTimeout(() => { canClick = true; }, 100);
         
         checkResult();
+
+        setTimeout(() => { canClick = true; }, 1000);
     });
     
     preloadSounds();
@@ -588,7 +589,7 @@ function startGame() {
     
     $('body').css('cursor', 'pointer');
     
-    startTimer();
+    startTimerApp();
     startPulse();
 }
 
@@ -652,7 +653,7 @@ function repositionSafeZone() {
     safeZoneRight = newPosition + safeZoneWidth;
 }
 
-function startTimer() {
+function startTimerApp() {
     timeRemaining = hackConfig.timeLimit;
     
     updateTimerDisplay();
@@ -727,7 +728,7 @@ function onSuccess() {
             $('.safe-zone').width(safeZoneWidth);
             repositionSafeZone();
             speed = Math.min(hackConfig.maxSpeed, speed + 1);
-            startTimer();
+            startTimerApp();
             startPulse();
         }, 1000);
     }
