@@ -46,6 +46,8 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ type = 'closeSequenceMemory', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endNumberedSequence', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endSymbolSearch', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -195,6 +197,19 @@ RegisterNUICallback('numberedSequenceResult', function(data, cb)
 end)
 
 RegisterNUICallback('numberedSequenceClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('symbolSearchResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('symbolSearchClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -516,6 +531,51 @@ exports('StartNumberedSequenceGame', function(gridSize, sequenceLength, rounds, 
     return Citizen.Await(p)
 end)
 
+exports('StartSymbolSearchGame', function(gridSize, shiftInterval, timeLimit, minKeyLength, maxKeyLength, symbolType)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    minKeyLength = math.max(1, math.min(6, minKeyLength or 1))
+    maxKeyLength = math.max(1, math.min(6, maxKeyLength or 1))
+    
+    if minKeyLength > maxKeyLength then
+        minKeyLength = maxKeyLength
+    end
+    
+    local symbolSearchConfig = {
+        gridSize = gridSize or 8,
+        shiftInterval = shiftInterval or 1000,
+        timeLimit = timeLimit or 30000,
+        minKeyLength = minKeyLength,
+        maxKeyLength = maxKeyLength,
+    }
+    
+    if type(symbolType) == "table" then
+        symbolSearchConfig.symbols = symbolType
+    elseif type(symbolType) == "string" then
+        symbolSearchConfig.symbolType = symbolType
+    else
+        symbolSearchConfig.symbolType = "symbols"
+    end
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startSymbolSearch',
+        config = symbolSearchConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -555,10 +615,36 @@ if config.DebugCommands then
     RegisterCommand('testverbalmemory', function()
         local result = exports['glitch-minigames']:StartVerbalMemoryGame(3, 20, 5000)
         print("Verbal Memory Game Result: Success:", result.success, "Score:", result.score, "Strikes:", result.strikes)
-    end, false)    
+    end, false)
+
     RegisterCommand('testnumberedsequence', function()
         local success = exports['glitch-minigames']:StartNumberedSequenceGame(4, 6, 3, 4000, 10000, 2)
         print("Numbered Sequence Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_letters', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "letters")
+        print("Symbol Search Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_symbols', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "symbols")
+        print("Symbol Search (Symbols) Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_numbers', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 4, 4, "numbers")
+        print("Symbol Search (Numbers) Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_emojis', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(6, 1200, 25000, 3, 3, "emojis")
+        print("Symbol Search (Emojis) Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_dots', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "dots")
+        print("Symbol Search (Dots) Result: ", success)
     end, false)
 end
 

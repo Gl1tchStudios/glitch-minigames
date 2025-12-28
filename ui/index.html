@@ -324,7 +324,44 @@
                 <div class="verbal-memory-timer-progress"></div>
             </div>            <div class="timer-text">Time: <span id="verbal-memory-time-left">5.0</span>s | Words: <span id="verbal-memory-word-count">0</span></div>
         </div>
-    </div>    <script src="js/numberedSequence.js"></script>
+    </div>
+
+    <!-- Symbol Search Game Container -->
+    <div id="symbol-search-container" class="game-container">
+        <div class="hack-title">
+            <h2>SYMBOL SCAN <span class="blink">[TARGET ACQUISITION]</span></h2>
+        </div>
+        
+        <div class="symbol-search-display">
+            <div class="symbol-search-splash">
+                <div class="symbol-search-icon">🔍</div>
+                <span class="symbol-search-text">INITIALIZING SCANNER...</span>
+            </div>
+            <div class="symbol-search-target-display">
+                <span class="symbol-search-target-label">FIND TARGET:</span>
+                <span id="symbol-search-target">◆</span>
+            </div>
+            <div class="symbol-search-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="message"><span id="symbol-search-message">Find and select the target symbol</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="symbol-search-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="symbol-search-timer">30.0</span>s</div>
+        </div>
+        
+        <div class="symbol-search-controls">
+            <span><span class="key">W A S D</span> / <span class="key">↑ ↓ ← →</span> Move</span>
+            <span><span class="key">ENTER</span> / <span class="key">SPACE</span> Select</span>
+        </div>
+    </div>
+
+    <script src="js/numberedSequence.js"></script>
     <script src="js/app.js"></script>
     <script src="js/rhythm.js"></script>
     <script src="js/keymash.js"></script>
@@ -332,5 +369,6 @@
     <script src="js/memory.js"></script>
     <script src="js/sequenceMemory.js"></script>
     <script src="js/verbalMemory.js"></script>
+    <script src="js/symbolSearch.js"></script>
 </body>
 </html>

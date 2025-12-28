@@ -154,6 +154,21 @@ $(document).ready(function() {
                 console.error('startNumberedSequenceGame function not found!');
                 $('#numbered-sequence-container').addClass('active').show();
             }
+        } else if (data.action === 'startSymbolSearch') {
+            cleanupAllContainers();
+            
+            if (typeof window.startSymbolSearchGame === 'function') {
+                window.startSymbolSearchGame(data.config);
+            } else {
+                console.error('startSymbolSearchGame function not found!');
+                $('#symbol-search-container').show();
+            }
+        } else if (data.action === 'endSymbolSearch') {
+            if (typeof window.closeSymbolSearchGame === 'function') {
+                window.closeSymbolSearchGame();
+            } else {
+                $('#symbol-search-container').fadeOut(500);
+            }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'stopKeymash') {
@@ -184,6 +199,10 @@ $(document).ready(function() {
                 if (verbalMemoryGameState.countdownTimer) {
                     clearInterval(verbalMemoryGameState.countdownTimer);
                 }
+            }
+            
+            if (typeof window.closeSymbolSearchGame === 'function') {
+                window.closeSymbolSearchGame();
             }
             
             console.log("Force closed all minigames:", data.reason || "Unknown reason");
@@ -795,7 +814,7 @@ function updateCounter() {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container')
         .removeClass('active')
         .hide();
     
