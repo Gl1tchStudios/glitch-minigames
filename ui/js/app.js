@@ -171,6 +171,10 @@ $(document).ready(function() {
             }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
+        } else if (data.action === 'keyRelease') {
+            if (window.keymashFunctions && typeof window.keymashFunctions.handleKeyRelease === 'function') {
+                window.keymashFunctions.handleKeyRelease(data.keyCode);
+            }
         } else if (data.action === 'stopKeymash') {
             window.keymashFunctions.stop(false);
         } else if (data.action === 'forceClose' || data.action === 'closeAll') {

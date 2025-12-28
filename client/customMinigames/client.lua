@@ -753,6 +753,12 @@ Citizen.CreateThread(function()
                         keyCode = jsCode
                     })
                 end
+                if IsControlJustReleased(0, fivemCode) then
+                    SendNUIMessage({
+                        action = 'keyRelease',
+                        keyCode = jsCode
+                    })
+                end
             end
         end
     end

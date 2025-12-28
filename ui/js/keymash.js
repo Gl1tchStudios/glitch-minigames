@@ -27,6 +27,7 @@ let keyCode = 69; // E key by default
 let startTime = 0; // Track when the game started
 let gracePeriod = 2000; // 2 seconds grace period before failure is possible
 let keyPressedOnce = false; // Track if player has pressed the key at least once
+let keyCurrentlyHeld = false; // Track if key is being held down (prevent hold-to-win)
 
 function setupKeymash(config) {
     let possibleKeys = ['E'];
@@ -91,6 +92,7 @@ function setupKeymash(config) {
 function resetKeymash() {
     progress = 0;
     keyPressedOnce = false;
+    keyCurrentlyHeld = false;
     updateProgressDisplay();
     $('.progress-bar').removeClass('progress-flash');
 }
@@ -148,6 +150,9 @@ function handleKeymashKeypress(keyCodeInput) {
     console.log("Key pressed:", keyCodeInput, "Target key:", keyCode);
     
     if (parseInt(keyCodeInput) === keyCode) {
+        if (keyCurrentlyHeld) return;
+        keyCurrentlyHeld = true;
+        
         keyPressedOnce = true;
         
         lastPressTime = Date.now();
@@ -163,9 +168,7 @@ function handleKeymashKeypress(keyCodeInput) {
         
         updateProgressDisplay();
         
-        if (progress >= 85 && progress < 100) {
-            $('.progress-bar').addClass('progress-flash');
-        }
+        updateProgressBarColor();
         
         if (progress >= maxProgress) {
             stopKeymash(true);
@@ -186,18 +189,27 @@ function decayProgress() {
         progress = Math.max(0, progress - (decayRate / 10));
         
         updateProgressDisplay();
-        
-        if (progress < 20) {
-            $('.progress-bar').removeClass('progress-flash');
-            $('.progress-bar').css('stroke', 'var(--danger-color)');
-        } else if (progress < 85) {
-            $('.progress-bar').removeClass('progress-flash');
-            $('.progress-bar').css('stroke', '');
-        }
+        updateProgressBarColor();
         
         if (progress <= 0) {
             stopKeymash(false);
         }
+    }
+}
+
+function updateProgressBarColor() {
+    if (progress < 25) {
+        // Danger zone - less than 1/4
+        $('.progress-bar').removeClass('progress-flash');
+        $('.progress-bar').css('stroke', 'var(--danger-color)');
+    } else if (progress >= 85) {
+        // Almost done - flash
+        $('.progress-bar').addClass('progress-flash');
+        $('.progress-bar').css('stroke', '');
+    } else {
+        // Normal state
+        $('.progress-bar').removeClass('progress-flash');
+        $('.progress-bar').css('stroke', '');
     }
 }
 
@@ -214,11 +226,25 @@ $(document).on('keydown', function(e) {
     }
 });
 
+$(document).on('keyup', function(e) {
+    if (keymashActive && parseInt(e.keyCode) === keyCode) {
+        keyCurrentlyHeld = false;
+    }
+});
+
+function handleKeymashKeyRelease(keyCodeInput) {
+    if (!keymashActive) return;
+    if (parseInt(keyCodeInput) === keyCode) {
+        keyCurrentlyHeld = false;
+    }
+}
+
 window.keymashFunctions = {
     setup: setupKeymash,
     start: startKeymash,
     stop: stopKeymash,
-    handleKeypress: handleKeymashKeypress
+    handleKeypress: handleKeymashKeypress,
+    handleKeyRelease: handleKeymashKeyRelease
 };
 
 window.addEventListener('message', (event) => {
