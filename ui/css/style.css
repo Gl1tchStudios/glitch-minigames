@@ -2593,6 +2593,25 @@ body::before, body::after,
     background: rgba(0, 40, 60, 0.8);
 }
 
+.pipe-cell.pulse-connect {
+    animation: pipeConnectPulse 0.3s ease-out;
+}
+
+@keyframes pipeConnectPulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 212, 255, 0.8);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px 5px rgba(0, 212, 255, 0.6);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(0, 212, 255, 0);
+    }
+}
+
 .pipe-pressure-timer-progress {
     height: 100%;
     background: linear-gradient(to right, var(--light-blue), var(--neon-blue));

@@ -9,7 +9,7 @@ var PipePressure = (function() {
     var startPos = { row: 0, col: 0 };
     var endPos = { row: 0, col: 0 };
 
-    // Pipe types: [top, right, bottom, left] connections
+    // pipe types: [top, right, bottom, left] connections
     var PIPES = {
         'V': [1, 0, 1, 0],  // vertical
         'H': [0, 1, 0, 1],  // horizontal
@@ -24,7 +24,7 @@ var PipePressure = (function() {
         'X': [1, 1, 1, 1]   // cross: all directions
     };
 
-    // Rotation order
+    // rotation order
     var ROTATIONS = {
         'V': 'H', 'H': 'V',
         'L1': 'L2', 'L2': 'L3', 'L3': 'L4', 'L4': 'L1',
@@ -41,23 +41,23 @@ var PipePressure = (function() {
         var svg = '<svg viewBox="0 0 50 50" width="100%" height="100%">';
         var sw = 8;
         
-        // Top connection
+        // top connection
         if (conn[0]) {
             svg += '<line x1="25" y1="0" x2="25" y2="25" stroke="' + color + '" stroke-width="' + sw + '" stroke-linecap="round"/>';
         }
-        // Right connection
+        // right connection
         if (conn[1]) {
             svg += '<line x1="25" y1="25" x2="50" y2="25" stroke="' + color + '" stroke-width="' + sw + '" stroke-linecap="round"/>';
         }
-        // Bottom connection
+        // bottom connection
         if (conn[2]) {
             svg += '<line x1="25" y1="25" x2="25" y2="50" stroke="' + color + '" stroke-width="' + sw + '" stroke-linecap="round"/>';
         }
-        // Left connection
+        // left connection
         if (conn[3]) {
             svg += '<line x1="0" y1="25" x2="25" y2="25" stroke="' + color + '" stroke-width="' + sw + '" stroke-linecap="round"/>';
         }
-        // Center node
+        // center node
         svg += '<circle cx="25" cy="25" r="5" fill="' + color + '"/>';
         svg += '</svg>';
         
@@ -79,15 +79,19 @@ var PipePressure = (function() {
         return false;
     }
 
-    function findConnected() {
+    function findConnectedWithDistance() {
         var visited = {};
-        var queue = [[startPos.row, startPos.col]];
-        visited[startPos.row + ',' + startPos.col] = true;
+        var distances = {};
+        var queue = [[startPos.row, startPos.col, 0]];
+        var key = startPos.row + ',' + startPos.col;
+        visited[key] = true;
+        distances[key] = 0;
 
         while (queue.length > 0) {
             var current = queue.shift();
             var r = current[0];
             var c = current[1];
+            var dist = current[2];
             
             var neighbors = [
                 [r - 1, c],
@@ -99,15 +103,20 @@ var PipePressure = (function() {
             for (var i = 0; i < neighbors.length; i++) {
                 var nr = neighbors[i][0];
                 var nc = neighbors[i][1];
-                var key = nr + ',' + nc;
+                var nkey = nr + ',' + nc;
                 
-                if (!visited[key] && canConnect(r, c, nr, nc)) {
-                    visited[key] = true;
-                    queue.push([nr, nc]);
+                if (!visited[nkey] && canConnect(r, c, nr, nc)) {
+                    visited[nkey] = true;
+                    distances[nkey] = dist + 1;
+                    queue.push([nr, nc, dist + 1]);
                 }
             }
         }
-        return visited;
+        return { visited: visited, distances: distances };
+    }
+
+    function findConnected() {
+        return findConnectedWithDistance().visited;
     }
 
     function isWin() {
@@ -115,8 +124,19 @@ var PipePressure = (function() {
         return connected[endPos.row + ',' + endPos.col] === true;
     }
 
-    function updateDisplay() {
-        var connected = findConnected();
+    var previousConnected = {};
+    
+    function updateDisplay(animate) {
+        var result = findConnectedWithDistance();
+        var connected = result.visited;
+        var distances = result.distances;
+        
+        var newlyConnected = {};
+        for (var key in connected) {
+            if (!previousConnected[key]) {
+                newlyConnected[key] = distances[key];
+            }
+        }
         
         $('#pipe-grid').find('.pipe-cell').each(function() {
             var $cell = $(this);
@@ -127,20 +147,41 @@ var PipePressure = (function() {
             var isConn = connected[key] === true;
             var isStart = (r === startPos.row && c === startPos.col);
             var isEnd = (r === endPos.row && c === endPos.col);
+            var isNewlyConn = newlyConnected[key] !== undefined;
             
             var color = '#4a5568'; // default gray
             if (isConn) color = '#00d4ff'; // cyan when connected
             if (isStart) color = '#00ff88'; // green for start
             if (isEnd && isConn) color = '#00d4ff'; // cyan for end when reached
             
-            $cell.find('.pipe-inner').html(createPipeSVG(type, color));
-            
-            if (isConn) {
-                $cell.addClass('connected');
+            if (animate && isNewlyConn && !isStart) {
+                var delay = newlyConnected[key] * 50; // 50ms per distance step
+                (function($c, t, col, conn) {
+                    setTimeout(function() {
+                        $c.find('.pipe-inner').html(createPipeSVG(t, col));
+                        if (conn) {
+                            $c.addClass('connected');
+                            $c.addClass('pulse-connect');
+                            setTimeout(function() {
+                                $c.removeClass('pulse-connect');
+                            }, 300);
+                        }
+                    }, delay);
+                })($cell, type, color, isConn);
             } else {
-                $cell.removeClass('connected');
+                $cell.find('.pipe-inner').html(createPipeSVG(type, color));
+                if (isConn) {
+                    $cell.addClass('connected');
+                } else {
+                    $cell.removeClass('connected');
+                }
             }
         });
+        
+        previousConnected = {};
+        for (var k in connected) {
+            previousConnected[k] = true;
+        }
     }
 
     function generateGrid() {
@@ -189,7 +230,8 @@ var PipePressure = (function() {
         }
         
         $grid.css('grid-template-columns', 'repeat(' + gridSize + ', 50px)');
-        updateDisplay();
+        previousConnected = {};
+        updateDisplay(false);
     }
 
     function handleClick() {
@@ -207,7 +249,7 @@ var PipePressure = (function() {
             playSoundSafe('sound-buttonPress');
         }
         
-        updateDisplay();
+        updateDisplay(true);
         
         if (isWin()) {
             endGame(true);
