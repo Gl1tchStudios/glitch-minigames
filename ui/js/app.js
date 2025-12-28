@@ -169,6 +169,21 @@ $(document).ready(function() {
             } else {
                 $('#symbol-search-container').fadeOut(500);
             }
+        } else if (data.action === 'startPipePressure') {
+            cleanupAllContainers();
+            
+            if (window.pipePressureFunctions && typeof window.pipePressureFunctions.start === 'function') {
+                window.pipePressureFunctions.start(data.config);
+            } else {
+                console.error('pipePressureFunctions.start not found!');
+                $('#pipe-pressure-container').show();
+            }
+        } else if (data.action === 'endPipePressure') {
+            if (window.pipePressureFunctions && typeof window.pipePressureFunctions.close === 'function') {
+                window.pipePressureFunctions.close();
+            } else {
+                $('#pipe-pressure-container').fadeOut(500);
+            }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'keyRelease') {
@@ -207,6 +222,10 @@ $(document).ready(function() {
             
             if (typeof window.closeSymbolSearchGame === 'function') {
                 window.closeSymbolSearchGame();
+            }
+            
+            if (window.pipePressureFunctions && typeof window.pipePressureFunctions.close === 'function') {
+                window.pipePressureFunctions.close();
             }
             
             console.log("Force closed all minigames:", data.reason || "Unknown reason");
@@ -818,7 +837,7 @@ function updateCounter() {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container')
         .removeClass('active')
         .hide();
     

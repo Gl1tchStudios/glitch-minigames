@@ -48,6 +48,8 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endNumberedSequence', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endSymbolSearch', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endPipePressure', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -210,6 +212,19 @@ RegisterNUICallback('symbolSearchResult', function(data, cb)
 end)
 
 RegisterNUICallback('symbolSearchClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('pipePressureResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('pipePressureClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -576,6 +591,33 @@ exports('StartSymbolSearchGame', function(gridSize, shiftInterval, timeLimit, mi
     return Citizen.Await(p)
 end)
 
+exports('StartPipePressureGame', function(gridSize, timeLimit)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local pipeConfig = {
+        gridSize = gridSize or 6,
+        timeLimit = timeLimit or 30000
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startPipePressure',
+        config = pipeConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -645,6 +687,11 @@ if config.DebugCommands then
     RegisterCommand('testsymbolsearch_dots', function()
         local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "dots")
         print("Symbol Search (Dots) Result: ", success)
+    end, false)
+
+    RegisterCommand('testpipepressure', function()
+        local success = exports['glitch-minigames']:StartPipePressureGame(6, 30000)
+        print("Pipe Pressure Game Result: ", success)
     end, false)
 end
 
