@@ -50,6 +50,8 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endSymbolSearch', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endPipePressure', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endPairs', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -225,6 +227,19 @@ RegisterNUICallback('pipePressureResult', function(data, cb)
 end)
 
 RegisterNUICallback('pipePressureClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('pairsResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.attempts, data.matchedPairs)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('pairsClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -618,6 +633,34 @@ exports('StartPipePressureGame', function(gridSize, timeLimit)
     return Citizen.Await(p)
 end)
 
+exports('StartPairsGame', function(gridSize, timeLimit, maxAttempts)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local pairsConfig = {
+        gridSize = gridSize or 4,
+        timeLimit = timeLimit or 0, -- 0 = no time limit
+        maxAttempts = maxAttempts or 0 -- 0 = unlimited attempts
+    }
+    
+    callback = function(success, attempts, matchedPairs)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startPairs',
+        config = pairsConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -692,6 +735,11 @@ if config.DebugCommands then
     RegisterCommand('testpipepressure', function()
         local success = exports['glitch-minigames']:StartPipePressureGame(6, 30000)
         print("Pipe Pressure Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testpairs', function()
+        local success = exports['glitch-minigames']:StartPairsGame(4, 0, 0) -- 4x4 grid, no time limit, no attempt limit
+        print("Pairs Game Result: ", success)
     end, false)
 end
 

@@ -42,6 +42,7 @@ files {
     'ui/js/numberedSequence.js',
     'ui/js/symbolSearch.js',
     'ui/js/pipePressure.js',
+    'ui/js/pairs.js',
     'ui/sounds/*.mp3',
     'ui/sounds/songs/*.mp3' -- Going to be used for the rhythm game later down the track
 }

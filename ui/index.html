@@ -362,7 +362,7 @@
     </div>
 
     <!-- Pipe Pressure Game Container -->
-     
+
     <div id="pipe-pressure-container" class="game-container">
         <div class="hack-title">
             <h2>PIPE PRESSURE <span class="blink">[FLOW CONNECT]</span></h2>
@@ -384,6 +384,34 @@
         </div>
     </div>
 
+    <!-- Pairs Memory Game Container -->
+    <div id="pairs-container" class="game-container">
+        <div class="hack-title">
+            <h2>PAIRS <span class="blink">[MEMORY MATCH]</span></h2>
+        </div>
+        
+        <div class="pairs-display">
+            <div id="pairs-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="message">
+                <span>Find all matching pairs. Click cards to flip them.</span>
+            </div>
+            <div class="pairs-stats">
+                <span class="pairs-pairs-info">Pairs: <span id="pairs-pairs">0 / 0</span></span>
+                <span class="pairs-attempts-info">Attempts: <span id="pairs-attempts">0</span></span>
+            </div>
+        </div>
+        
+        <div class="timer-container pairs-timer-container">
+            <div class="timer-bar">
+                <div class="pairs-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="pairs-timer">30.0</span>s</div>
+        </div>
+    </div>
+
     <script src="js/numberedSequence.js"></script>
     <script src="js/app.js"></script>
     <script src="js/rhythm.js"></script>
@@ -394,5 +422,6 @@
     <script src="js/verbalMemory.js"></script>
     <script src="js/symbolSearch.js"></script>
     <script src="js/pipePressure.js"></script>
+    <script src="js/pairs.js"></script>
 </body>
 </html>

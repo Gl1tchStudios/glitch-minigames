@@ -2667,3 +2667,180 @@ body::before, body::after,
         opacity: 1;
     }
 }
+
+/* ==========================================
+   PAIRS MEMORY GAME STYLES
+   ========================================== */
+
+#pairs-container {
+    width: auto;
+    min-width: 350px;
+    max-width: 600px;
+}
+
+.pairs-display {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+#pairs-grid {
+    display: grid;
+    gap: 8px;
+    background: rgba(10, 20, 30, 0.95);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 200, 255, 0.3);
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.pairs-cell {
+    width: 60px;
+    height: 60px;
+    perspective: 1000px;
+    cursor: pointer;
+}
+
+.pairs-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s;
+    transform-style: preserve-3d;
+}
+
+.pairs-cell.revealed .pairs-card-inner {
+    transform: rotateY(180deg);
+}
+
+.pairs-card-front,
+.pairs-card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pairs-card-front {
+    background: linear-gradient(135deg, rgba(40, 50, 60, 0.95), rgba(50, 60, 70, 0.95));
+    border: 2px solid rgba(80, 100, 120, 0.6);
+    color: rgba(100, 120, 140, 0.8);
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.pairs-card-front:hover {
+    border-color: rgba(0, 200, 255, 0.6);
+    box-shadow: 0 0 15px rgba(0, 200, 255, 0.3);
+}
+
+.pairs-card-back {
+    background: linear-gradient(135deg, rgba(0, 80, 100, 0.95), rgba(0, 100, 120, 0.95));
+    border: 2px solid #00d4ff;
+    transform: rotateY(180deg);
+    color: #00d4ff;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+}
+
+.pairs-card-back svg {
+    width: 32px;
+    height: 32px;
+}
+
+.pairs-cell.matched .pairs-card-back {
+    background: linear-gradient(135deg, rgba(0, 80, 50, 0.95), rgba(0, 100, 60, 0.95));
+    border-color: #00ff88;
+    color: #00ff88;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.pairs-cell.matched .pairs-card-back svg {
+    color: #00ff88;
+}
+
+.pairs-cell.pairs-extra {
+    visibility: hidden;
+}
+
+.pairs-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 10px;
+    font-size: 14px;
+    color: rgba(150, 180, 200, 0.9);
+}
+
+.pairs-stats span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#pairs-pairs, #pairs-attempts {
+    color: #00d4ff;
+    font-weight: bold;
+}
+
+.pairs-timer-progress {
+    height: 100%;
+    background: linear-gradient(to right, var(--light-blue), var(--neon-blue));
+    width: 100%;
+    transition: width 0.1s linear;
+    border-radius: 3px;
+    box-shadow: 0 0 10px var(--glow);
+}
+
+.pairs-timer-progress.danger {
+    background: linear-gradient(to right, #ff6600, #ff3030);
+    box-shadow: 0 0 10px rgba(255, 50, 50, 0.7);
+}
+
+.pairs-result {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 22px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    padding: 15px 30px;
+    border-radius: 8px;
+    z-index: 100;
+    animation: pairsResultPop 0.3s ease-out;
+}
+
+.pairs-result.success {
+    color: #00ff88;
+    background: rgba(0, 80, 40, 0.95);
+    border: 2px solid #00ff88;
+    box-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
+    text-shadow: 0 0 20px rgba(0, 255, 136, 0.8);
+}
+
+.pairs-result.failure {
+    color: #ff3030;
+    background: rgba(80, 20, 20, 0.95);
+    border: 2px solid #ff3030;
+    box-shadow: 0 0 40px rgba(255, 50, 50, 0.6);
+    text-shadow: 0 0 20px rgba(255, 50, 50, 0.8);
+}
+
+@keyframes pairsResultPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
