@@ -449,6 +449,66 @@
         </div>
     </div>
 
+    <!-- Untangle Container -->
+    <div id="untangle-container" class="game-container">
+        <div class="hack-title">
+            <h2>UNTANGLE <span class="blink">[NETWORK]</span></h2>
+        </div>
+        
+        <div class="untangle-display">
+            <canvas id="untangle-canvas"></canvas>
+        </div>
+
+        <div class="hack-info">
+            <div class="untangle-info-row">
+                <div class="message">
+                    <span>Drag dots to untangle. No lines should cross.</span>
+                </div>
+                <div class="untangle-stats">
+                    <span class="untangle-crossings-info">Crossings: <span id="untangle-crossings">0</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="timer-container untangle-timer-container">
+            <div class="timer-bar">
+                <div class="untangle-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="untangle-timer">60.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Fingerprint Container -->
+    <div id="fingerprint-container" class="game-container">
+        <div class="hack-title">
+            <h2>FINGERPRINT <span class="blink">[SCANNER]</span></h2>
+        </div>
+        
+        <div class="hack-info">
+            <div class="fingerprint-info-row">
+                <div class="message">
+                    <span>Align all arc segments to complete the fingerprint</span>
+                </div>
+                <div class="fingerprint-stats">
+                    <span class="fingerprint-matched-info">Aligned: <span id="fingerprint-matched">0/5</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="fingerprint-display">
+            <div id="fingerprint-row-controls" class="fp-controls-left"></div>
+            <canvas id="fingerprint-canvas"></canvas>
+            <div id="fingerprint-row-controls-right" class="fp-controls-right"></div>
+        </div>
+        
+        <div class="timer-container fingerprint-timer-container">
+            <div class="timer-bar">
+                <div class="fingerprint-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="fingerprint-timer">30.0</span>s</div>
+        </div>
+    </div>
+
     <script src="js/numberedSequence.js"></script>
     <script src="js/app.js"></script>
     <script src="js/rhythm.js"></script>
@@ -461,5 +521,7 @@
     <script src="js/pipePressure.js"></script>
     <script src="js/pairs.js"></script>
     <script src="js/memoryColors.js"></script>
+    <script src="js/untangle.js"></script>
+    <script src="js/fingerprint.js"></script>
 </body>
 </html>

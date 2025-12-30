@@ -54,6 +54,10 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endPairs', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endMemoryColors', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endUntangle', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endFingerprint', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -255,6 +259,32 @@ RegisterNUICallback('memoryColorsResult', function(data, cb)
 end)
 
 RegisterNUICallback('memoryColorsClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('untangleResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('untangleClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('fingerprintResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('fingerprintClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -705,6 +735,61 @@ exports('StartMemoryColorsGame', function(gridSize, memorizeTime, answerTime, ro
     return Citizen.Await(p)
 end)
 
+exports('StartUntangleGame', function(nodeCount, timeLimit)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local untangleConfig = {
+        nodeCount = nodeCount or 8,
+        timeLimit = timeLimit or 60000 -- 60 seconds default
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startUntangle',
+        config = untangleConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartFingerprintGame', function(timeLimit, showAlignedCount, showCorrectIndicator)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local fingerprintConfig = {
+        timeLimit = timeLimit or 30000, -- 30 seconds default
+        showAlignedCount = showAlignedCount ~= false, -- default true
+        showCorrectIndicator = showCorrectIndicator ~= false -- default true
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startFingerprint',
+        config = fingerprintConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -789,6 +874,21 @@ if config.DebugCommands then
     RegisterCommand('testmemorycolors', function()
         local success = exports['glitch-minigames']:StartMemoryColorsGame(5, 5000, 10000, 3) -- 5x5 grid, 5s memorize, 10s answer, 3 rounds
         print("Memory Colors Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testuntangle', function()
+        local success = exports['glitch-minigames']:StartUntangleGame(8, 60000) -- 8 nodes, 60 seconds
+        print("Untangle Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testfingerprint', function()
+        local success = exports['glitch-minigames']:StartFingerprintGame(30000, true, true) -- 30 seconds, show aligned count, show correct indicator
+        print("Fingerprint Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testfingerprinthard', function()
+        local success = exports['glitch-minigames']:StartFingerprintGame(30000, false, false) -- 30 seconds, no hints
+        print("Fingerprint Game Result: ", success)
     end, false)
 end
 

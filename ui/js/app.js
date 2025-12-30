@@ -214,6 +214,36 @@ $(document).ready(function() {
             } else {
                 $('#memory-colors-container').fadeOut(500);
             }
+        } else if (data.action === 'startUntangle') {
+            cleanupAllContainers();
+            
+            if (window.untangleFunctions && typeof window.untangleFunctions.start === 'function') {
+                window.untangleFunctions.start(data.config);
+            } else {
+                console.error('untangleFunctions.start not found!');
+                $('#untangle-container').show();
+            }
+        } else if (data.action === 'endUntangle') {
+            if (window.untangleFunctions && typeof window.untangleFunctions.close === 'function') {
+                window.untangleFunctions.close();
+            } else {
+                $('#untangle-container').fadeOut(500);
+            }
+        } else if (data.action === 'startFingerprint') {
+            cleanupAllContainers();
+            
+            if (window.fingerprintFunctions && typeof window.fingerprintFunctions.start === 'function') {
+                window.fingerprintFunctions.start(data.config);
+            } else {
+                console.error('fingerprintFunctions.start not found!');
+                $('#fingerprint-container').show();
+            }
+        } else if (data.action === 'endFingerprint') {
+            if (window.fingerprintFunctions && typeof window.fingerprintFunctions.close === 'function') {
+                window.fingerprintFunctions.close();
+            } else {
+                $('#fingerprint-container').fadeOut(500);
+            }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'keyRelease') {
@@ -256,6 +286,14 @@ $(document).ready(function() {
             
             if (window.pipePressureFunctions && typeof window.pipePressureFunctions.close === 'function') {
                 window.pipePressureFunctions.close();
+            }
+            
+            if (window.untangleFunctions && typeof window.untangleFunctions.close === 'function') {
+                window.untangleFunctions.close();
+            }
+            
+            if (window.fingerprintFunctions && typeof window.fingerprintFunctions.close === 'function') {
+                window.fingerprintFunctions.close();
             }
             
             console.log("Force closed all minigames:", data.reason || "Unknown reason");
@@ -867,7 +905,7 @@ function updateCounter() {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container')
         .removeClass('active')
         .hide();
     

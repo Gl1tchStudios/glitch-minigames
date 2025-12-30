@@ -3125,3 +3125,302 @@ body::before, body::after,
         opacity: 1;
     }
 }
+
+/* ===============================
+   UNTANGLE MINIGAME
+   =============================== */
+
+#untangle-container {
+    width: auto;
+    min-width: 420px;
+    max-width: 500px;
+    padding: 25px;
+}
+
+.untangle-display {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#untangle-canvas {
+    background: rgba(8, 15, 25, 0.95);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 200, 255, 0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+#untangle-container .hack-info {
+    text-align: center;
+    padding: 15px 15px 10px 15px;
+}
+
+.untangle-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.untangle-info-row .message {
+    text-align: left;
+    flex: 1;
+}
+
+.untangle-info-row .message span {
+    font-size: 13px;
+    color: rgba(180, 200, 220, 0.9);
+}
+
+.untangle-stats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(140, 170, 190, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+#untangle-crossings {
+    color: #00d4ff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.untangle-timer-container {
+    margin-top: 15px;
+}
+
+.untangle-timer-progress {
+    height: 100%;
+    background: linear-gradient(to right, var(--light-blue), var(--neon-blue));
+    width: 100%;
+    transition: width 0.1s linear;
+    border-radius: 3px;
+    box-shadow: 0 0 10px var(--glow);
+}
+
+.untangle-timer-progress.danger {
+    background: linear-gradient(to right, #ff6600, #ff3030);
+    box-shadow: 0 0 10px rgba(255, 50, 50, 0.7);
+}
+
+.untangle-result {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    padding: 18px 40px;
+    border-radius: 10px;
+    z-index: 100;
+    animation: untangleResultPop 0.3s ease-out;
+}
+
+.untangle-result.success {
+    color: #00ff88;
+    background: rgba(0, 70, 35, 0.95);
+    border: 2px solid #00ff88;
+    box-shadow: 0 0 50px rgba(0, 255, 136, 0.6), inset 0 0 30px rgba(0, 255, 136, 0.1);
+    text-shadow: 0 0 25px rgba(0, 255, 136, 0.8);
+}
+
+.untangle-result.failure {
+    color: #ff3030;
+    background: rgba(70, 15, 15, 0.95);
+    border: 2px solid #ff3030;
+    box-shadow: 0 0 50px rgba(255, 50, 50, 0.6), inset 0 0 30px rgba(255, 50, 50, 0.1);
+    text-shadow: 0 0 25px rgba(255, 50, 50, 0.8);
+}
+
+@keyframes untangleResultPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* ===============================
+   FINGERPRINT MINIGAME
+   =============================== */
+
+#fingerprint-container {
+    width: auto;
+    min-width: 620px;
+    max-width: 700px;
+    padding: 25px;
+}
+
+#fingerprint-container .hack-info {
+    text-align: center;
+    padding: 15px 15px 10px 15px;
+}
+
+.fingerprint-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.fingerprint-info-row .message {
+    text-align: left;
+    flex: 1;
+}
+
+.fingerprint-info-row .message span {
+    font-size: 13px;
+    color: rgba(180, 200, 220, 0.9);
+}
+
+.fingerprint-stats {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    color: rgba(140, 170, 190, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+
+#fingerprint-matched {
+    color: #00d4ff;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.fingerprint-display {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+#fingerprint-canvas {
+    background: rgba(8, 15, 25, 0.95);
+    border-radius: 10px;
+    border: 1px solid rgba(0, 200, 255, 0.25);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+#fingerprint-row-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 5px 0;
+    height: 400px;
+}
+
+.fp-row-control {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+    gap: 8px;
+}
+
+.fp-arrow {
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 180, 220, 0.15);
+    border: 1px solid rgba(0, 212, 255, 0.4);
+    border-radius: 6px;
+    color: #00d4ff;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fp-arrow:hover {
+    background: rgba(0, 212, 255, 0.3);
+    border-color: #00d4ff;
+    box-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
+    transform: scale(1.1);
+}
+
+.fp-arrow:active {
+    transform: scale(0.95);
+    background: rgba(0, 212, 255, 0.5);
+}
+
+.fp-arrow span {
+    line-height: 1;
+}
+
+.fingerprint-timer-container {
+    margin-top: 15px;
+}
+
+.fingerprint-timer-progress {
+    height: 100%;
+    background: linear-gradient(to right, var(--light-blue), var(--neon-blue));
+    width: 100%;
+    transition: width 0.1s linear;
+    border-radius: 3px;
+    box-shadow: 0 0 10px var(--glow);
+}
+
+.fingerprint-timer-progress.danger {
+    background: linear-gradient(to right, #ff6600, #ff3030);
+    box-shadow: 0 0 10px rgba(255, 50, 50, 0.7);
+}
+
+.fingerprint-result {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    padding: 18px 40px;
+    border-radius: 10px;
+    z-index: 100;
+    animation: fingerprintResultPop 0.3s ease-out;
+}
+
+.fingerprint-result.success {
+    color: #00ff88;
+    background: rgba(0, 70, 35, 0.95);
+    border: 2px solid #00ff88;
+    box-shadow: 0 0 50px rgba(0, 255, 136, 0.6), inset 0 0 30px rgba(0, 255, 136, 0.1);
+    text-shadow: 0 0 25px rgba(0, 255, 136, 0.8);
+}
+
+.fingerprint-result.failure {
+    color: #ff3030;
+    background: rgba(70, 15, 15, 0.95);
+    border: 2px solid #ff3030;
+    box-shadow: 0 0 50px rgba(255, 50, 50, 0.6), inset 0 0 30px rgba(255, 50, 50, 0.1);
+    text-shadow: 0 0 25px rgba(255, 50, 50, 0.8);
+}
+
+@keyframes fingerprintResultPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
