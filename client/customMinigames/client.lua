@@ -52,6 +52,8 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endPipePressure', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endPairs', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endMemoryColors', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -240,6 +242,19 @@ RegisterNUICallback('pairsResult', function(data, cb)
 end)
 
 RegisterNUICallback('pairsClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('memoryColorsResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.score, data.rounds)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('memoryColorsClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -640,7 +655,7 @@ exports('StartPairsGame', function(gridSize, timeLimit, maxAttempts)
     
     local pairsConfig = {
         gridSize = gridSize or 4,
-        timeLimit = timeLimit or 0, -- 0 = no time limit
+        timeLimit = timeLimit or 120000, -- 2 minutes default (in ms), 0 = no time limit
         maxAttempts = maxAttempts or 0 -- 0 = unlimited attempts
     }
     
@@ -655,6 +670,35 @@ exports('StartPairsGame', function(gridSize, timeLimit, maxAttempts)
     SendNUIMessage({ 
         action = 'startPairs',
         config = pairsConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartMemoryColorsGame', function(gridSize, memorizeTime, answerTime, rounds)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local mcConfig = {
+        gridSize = gridSize or 5,
+        memorizeTime = memorizeTime or 5000, -- 5 seconds to memorize
+        answerTime = answerTime or 10000,    -- 10 seconds to answer
+        rounds = rounds or 3
+    }
+    
+    callback = function(success, score, totalRounds)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startMemoryColors',
+        config = mcConfig
     })
     
     startDeathCheck()
@@ -738,8 +782,13 @@ if config.DebugCommands then
     end, false)
 
     RegisterCommand('testpairs', function()
-        local success = exports['glitch-minigames']:StartPairsGame(4, 0, 0) -- 4x4 grid, no time limit, no attempt limit
+        local success = exports['glitch-minigames']:StartPairsGame(4, nil, 0) -- 4x4 grid, 2min default time, no attempt limit
         print("Pairs Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testmemorycolors', function()
+        local success = exports['glitch-minigames']:StartMemoryColorsGame(5, 5000, 10000, 3) -- 5x5 grid, 5s memorize, 10s answer, 3 rounds
+        print("Memory Colors Game Result: ", success)
     end, false)
 end
 

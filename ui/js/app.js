@@ -199,6 +199,21 @@ $(document).ready(function() {
             } else {
                 $('#pairs-container').fadeOut(500);
             }
+        } else if (data.action === 'startMemoryColors') {
+            cleanupAllContainers();
+            
+            if (window.memoryColorsFunctions && typeof window.memoryColorsFunctions.start === 'function') {
+                window.memoryColorsFunctions.start(data.config);
+            } else {
+                console.error('memoryColorsFunctions.start not found!');
+                $('#memory-colors-container').show();
+            }
+        } else if (data.action === 'endMemoryColors') {
+            if (window.memoryColorsFunctions && typeof window.memoryColorsFunctions.close === 'function') {
+                window.memoryColorsFunctions.close();
+            } else {
+                $('#memory-colors-container').fadeOut(500);
+            }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'keyRelease') {
@@ -852,7 +867,7 @@ function updateCounter() {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container')
         .removeClass('active')
         .hide();
     
