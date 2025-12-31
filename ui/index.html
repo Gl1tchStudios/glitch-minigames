@@ -525,7 +525,74 @@
         </div>
     </div>
 
+    <!-- Word Crack Container -->
+    <div id="word-crack-container" class="game-container">
+        <div class="hack-title">
+            <h2>WORD CRACK <span class="blink">[LEXICON BREACH]</span></h2>
+        </div>
+        
+        <div class="word-crack-display"></div>
+        
+        <div class="timer-container word-crack-timer-container">
+            <div class="timer-bar">
+                <div class="word-crack-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="word-crack-timer">120.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Balance Container -->
+    <div id="balance-container" class="game-container">
+        <div class="hack-title">
+            <h2>BALANCE <span class="blink">[STABILIZATION REQUIRED]</span></h2>
+        </div>
+        
+        <div class="balance-display">
+            <canvas id="balance-gauge" width="320" height="200"></canvas>
+            <div class="balance-controls">
+                <span class="balance-key">Q</span>
+                <div class="balance-danger-bar">
+                    <div class="balance-danger-fill"></div>
+                </div>
+                <span class="balance-key">E</span>
+            </div>
+            <div class="balance-status safe">STABLE</div>
+        </div>
+        
+        <div class="balance-instruction">Keep the needle balanced by pressing Q and E - don't let it fall into the red zones!</div>
+        
+        <div class="timer-container balance-timer-container">
+            <div class="timer-bar">
+                <div class="balance-timer-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Aim Test Container -->
+    <div id="aim-test-container" class="game-container">
+        <div class="hack-title">
+            <h2>AIM TEST <span class="blink">[TARGET ACQUISITION]</span></h2>
+        </div>
+        
+        <div class="aim-test-display">
+            <div class="aim-test-info">
+                <span class="aim-test-counter">HITS: <span id="aim-test-hits">0</span>/<span id="aim-test-total">10</span></span>
+                <span class="aim-test-misses">MISSED: <span id="aim-test-misses">0</span>/<span id="aim-test-max-misses">5</span></span>
+            </div>
+            <div class="aim-test-area"></div>
+        </div>
+        
+        <div class="aim-test-instruction">Click the targets before they disappear!</div>
+        
+        <div class="timer-container aim-test-timer-container">
+            <div class="timer-bar">
+                <div class="aim-test-timer-progress"></div>
+            </div>
+        </div>
+    </div>
+
     <script src="js/numberedSequence.js"></script>
+    <script src="js/balance.js"></script>
     <script src="js/app.js"></script>
     <script src="js/rhythm.js"></script>
     <script src="js/keymash.js"></script>
@@ -540,5 +607,7 @@
     <script src="js/untangle.js"></script>
     <script src="js/fingerprint.js"></script>
     <script src="js/codeCrack.js"></script>
+    <script src="js/wordCrack.js"></script>
+    <script src="js/aimTest.js"></script>
 </body>
 </html>

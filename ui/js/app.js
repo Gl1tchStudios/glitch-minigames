@@ -259,6 +259,48 @@ $(document).ready(function() {
             } else {
                 $('#code-crack-container').fadeOut(500);
             }
+        } else if (data.action === 'startWordCrack') {
+            cleanupAllContainers();
+            
+            if (window.wordCrackFunctions && typeof window.wordCrackFunctions.start === 'function') {
+                window.wordCrackFunctions.start(data.config);
+            } else {
+                console.error('wordCrackFunctions.start not found!');
+                $('#word-crack-container').show();
+            }
+        } else if (data.action === 'endWordCrack') {
+            if (window.wordCrackFunctions && typeof window.wordCrackFunctions.close === 'function') {
+                window.wordCrackFunctions.close();
+            } else {
+                $('#word-crack-container').fadeOut(500);
+            }
+        } else if (data.action === 'startBalance') {
+            cleanupAllContainers();
+            console.log('[app.js] startBalance received, balanceGame exists:', !!window.balanceGame);
+            if (window.balanceGame && typeof window.balanceGame.start === 'function') {
+                window.balanceGame.start(data.config || {});
+            } else {
+                console.error('[app.js] balanceGame.start not found!');
+            }
+        } else if (data.action === 'endBalance') {
+            if (window.balanceGame && typeof window.balanceGame.close === 'function') {
+                window.balanceGame.close();
+            } else {
+                $('#balance-container').fadeOut(500);
+            }
+        } else if (data.action === 'startAimTest') {
+            cleanupAllContainers();
+            if (window.aimTestGame && typeof window.aimTestGame.start === 'function') {
+                window.aimTestGame.start(data.config || {});
+            } else {
+                console.error('[app.js] aimTestGame.start not found!');
+            }
+        } else if (data.action === 'endAimTest') {
+            if (window.aimTestGame && typeof window.aimTestGame.close === 'function') {
+                window.aimTestGame.close();
+            } else {
+                $('#aim-test-container').fadeOut(500);
+            }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'keyRelease') {
@@ -920,7 +962,7 @@ function updateCounter() {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container')
         .removeClass('active')
         .hide();
     

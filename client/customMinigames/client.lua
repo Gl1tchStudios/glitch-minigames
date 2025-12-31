@@ -60,6 +60,12 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endFingerprint', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endCodeCrack', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endWordCrack', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endBalance', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endAimTest', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -300,6 +306,45 @@ RegisterNUICallback('codeCrackResult', function(data, cb)
 end)
 
 RegisterNUICallback('codeCrackClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('wordCrackResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('wordCrackClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('balanceResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('balanceClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('aimTestResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.targetsHit, data.targetsMissed)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('aimTestClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -833,6 +878,98 @@ exports('StartCodeCrackGame', function(timeLimit, digitCount, maxAttempts)
     return Citizen.Await(p)
 end)
 
+exports('StartWordCrackGame', function(timeLimit, wordLength, maxAttempts)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local wordCrackConfig = {
+        timeLimit = timeLimit or 120000, -- 120 seconds default
+        wordLength = wordLength or 5, -- 5 letters default
+        maxAttempts = maxAttempts or 6 -- 6 attempts default
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startWordCrack',
+        config = wordCrackConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartBalanceGame', function(timeLimit, driftSpeed, sensitivity, greenZoneWidth, yellowZoneWidth, driftRandomness, maxDangerTime)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local balanceConfig = {
+        timeLimit = timeLimit or 10000, -- 10 seconds default
+        driftSpeed = driftSpeed or 3, -- How fast needle drifts
+        sensitivity = sensitivity or 8, -- How much Q/E moves needle
+        greenZoneWidth = greenZoneWidth or 30, -- Width of safe green zone
+        yellowZoneWidth = yellowZoneWidth or 25, -- Width of warning yellow zone
+        driftRandomness = driftRandomness or 2, -- How unpredictable the drift is
+        maxDangerTime = maxDangerTime or 1000 -- Time allowed in red before fail (ms)
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, false)
+    SendNUIMessage({ 
+        action = 'startBalance',
+        config = balanceConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartAimTestGame', function(timeLimit, targetsToHit, targetLifetime, targetSize, shrinkTarget, maxMisses, timePenalty)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local aimTestConfig = {
+        timeLimit = timeLimit or 30000, -- 30 seconds default
+        targetsToHit = targetsToHit or 10, -- Number of targets to win
+        targetLifetime = targetLifetime or 1500, -- How long target stays (ms)
+        targetSize = targetSize or 60, -- Target diameter in pixels
+        shrinkTarget = shrinkTarget ~= false, -- Whether target shrinks over time
+        maxMisses = maxMisses or 5, -- Max missed targets before fail
+        timePenalty = timePenalty or 0 -- Time removed on miss (ms), 0 = disabled
+    }
+    
+    callback = function(success, targetsHit, targetsMissed)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startAimTest',
+        config = aimTestConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -855,57 +992,57 @@ if config.DebugCommands then
     end, false)    
     
     RegisterCommand('testvarhack', function()
-        local success = exports['glitch-minigames']:StartVarHack(5, 25)
+        local success = exports['glitch-minigames']:StartVarHack(5, 25) -- 5 blocks, speed 25
         print("Result: ", success)
     end, false)    
     
     RegisterCommand('testmemory', function()
-        local success = exports['glitch-minigames']:StartMemoryGame(5, 8, 3, 3000)
+        local success = exports['glitch-minigames']:StartMemoryGame(5, 8, 3, 3000) -- 5x5 grid, 8 squares, 3 rounds, 3s show time
         print("Memory Game Result: ", success)
     end, false)    
       
     RegisterCommand('testsequencememory', function()
-        local success = exports['glitch-minigames']:StartSequenceMemoryGame(4, 5, 3, 1000, 300)
+        local success = exports['glitch-minigames']:StartSequenceMemoryGame(4, 5, 3, 1000, 300) -- 4x4 grid, max 5 rounds, 3 wrong presses, 1s show time, 300ms between
         print("Sequence Memory Game Result: ", success)
     end, false)
         
     RegisterCommand('testverbalmemory', function()
-        local result = exports['glitch-minigames']:StartVerbalMemoryGame(3, 20, 5000)
+        local result = exports['glitch-minigames']:StartVerbalMemoryGame(3, 20, 5000) -- 3 strikes, 20 words, 5s per word
         print("Verbal Memory Game Result: Success:", result.success, "Score:", result.score, "Strikes:", result.strikes)
     end, false)
 
     RegisterCommand('testnumberedsequence', function()
-        local success = exports['glitch-minigames']:StartNumberedSequenceGame(4, 6, 3, 4000, 10000, 2)
+        local success = exports['glitch-minigames']:StartNumberedSequenceGame(4, 6, 3, 4000, 10000, 2) -- 4x4 grid, 6 numbers, 3 rounds, 4s show time, 10s answer time, 2 wrong presses allowed
         print("Numbered Sequence Game Result: ", success)
     end, false)
 
     RegisterCommand('testsymbolsearch_letters', function()
-        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "letters")
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "letters") -- 8x8 grid, shift every 1s, 30s time limit, key length 3-3, letters
         print("Symbol Search Game Result: ", success)
     end, false)
 
     RegisterCommand('testsymbolsearch_symbols', function()
-        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "symbols")
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "symbols") -- 8x8 grid, shift every 1s, 30s time limit, key length 3-3, symbols
         print("Symbol Search (Symbols) Result: ", success)
     end, false)
 
     RegisterCommand('testsymbolsearch_numbers', function()
-        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 4, 4, "numbers")
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 4, 4, "numbers") -- 8x8 grid, shift every 1s, 30s time limit, key length 4-4, numbers
         print("Symbol Search (Numbers) Result: ", success)
     end, false)
 
     RegisterCommand('testsymbolsearch_emojis', function()
-        local success = exports['glitch-minigames']:StartSymbolSearchGame(6, 1200, 25000, 3, 3, "emojis")
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(6, 1200, 25000, 3, 3, "emojis") -- 6x6 grid, shift every 1.2s, 25s time limit, key length 3-3, emojis
         print("Symbol Search (Emojis) Result: ", success)
     end, false)
 
     RegisterCommand('testsymbolsearch_dots', function()
-        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "dots")
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "dots") -- 8x8 grid, shift every 1s, 30s time limit, key length 3-3, dots
         print("Symbol Search (Dots) Result: ", success)
     end, false)
 
     RegisterCommand('testpipepressure', function()
-        local success = exports['glitch-minigames']:StartPipePressureGame(6, 30000)
+        local success = exports['glitch-minigames']:StartPipePressureGame(6, 30000) -- 6x6 grid, 30 seconds
         print("Pipe Pressure Game Result: ", success)
     end, false)
 
@@ -938,6 +1075,22 @@ if config.DebugCommands then
         local success = exports['glitch-minigames']:StartCodeCrackGame(60000, 4, 6) -- 60 seconds, 4 digits, 6 attempts
         print("Code Crack Game Result: ", success)
     end, false)
+
+    RegisterCommand('testwordcrack', function()
+        local success = exports['glitch-minigames']:StartWordCrackGame(120000, 5, 6) -- 120 seconds, 5 letters, 6 attempts
+        print("Word Crack Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testbalance', function()
+        local success = exports['glitch-minigames']:StartBalanceGame(10000, 3, 8, 30, 25, 2, 1000) -- 10s, driftSpeed 3, sensitivity 8, greenZoneWidth 30, yellowZoneWidth 25, driftRandomness 2, maxDangerTime 1s
+        print("Balance Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testaimtest', function()
+        local success = exports['glitch-minigames']:StartAimTestGame(30000, 10, 1500, 60, true, 5, 0) -- 30s, 10 targets, 1.5s lifetime, 60px size, shrink, 5 max misses, no time penalty, time to remove for penalty 
+        print("Aim Test Game Result: ", success)
+    end, false)
+
 end
 
 Citizen.CreateThread(function()

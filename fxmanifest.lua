@@ -47,6 +47,9 @@ files {
     'ui/js/untangle.js',
     'ui/js/fingerprint.js',
     'ui/js/codeCrack.js',
+    'ui/js/wordCrack.js',
+    'ui/js/balance.js',
+    'ui/js/aimTest.js',
     'ui/sounds/*.mp3',
     'ui/sounds/songs/*.mp3' -- Going to be used for the rhythm game later down the track
 }
