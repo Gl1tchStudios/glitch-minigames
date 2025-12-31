@@ -244,6 +244,21 @@ $(document).ready(function() {
             } else {
                 $('#fingerprint-container').fadeOut(500);
             }
+        } else if (data.action === 'startCodeCrack') {
+            cleanupAllContainers();
+            
+            if (window.codeCrackFunctions && typeof window.codeCrackFunctions.start === 'function') {
+                window.codeCrackFunctions.start(data.config);
+            } else {
+                console.error('codeCrackFunctions.start not found!');
+                $('#code-crack-container').show();
+            }
+        } else if (data.action === 'endCodeCrack') {
+            if (window.codeCrackFunctions && typeof window.codeCrackFunctions.close === 'function') {
+                window.codeCrackFunctions.close();
+            } else {
+                $('#code-crack-container').fadeOut(500);
+            }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'keyRelease') {
@@ -905,7 +920,7 @@ function updateCounter() {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container')
         .removeClass('active')
         .hide();
     

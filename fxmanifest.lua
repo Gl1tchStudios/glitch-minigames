@@ -46,6 +46,7 @@ files {
     'ui/js/memoryColors.js',
     'ui/js/untangle.js',
     'ui/js/fingerprint.js',
+    'ui/js/codeCrack.js',
     'ui/sounds/*.mp3',
     'ui/sounds/songs/*.mp3' -- Going to be used for the rhythm game later down the track
 }

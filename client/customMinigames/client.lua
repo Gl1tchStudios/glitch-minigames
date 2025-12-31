@@ -58,6 +58,8 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endUntangle', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endFingerprint', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endCodeCrack', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -285,6 +287,19 @@ RegisterNUICallback('fingerprintResult', function(data, cb)
 end)
 
 RegisterNUICallback('fingerprintClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('codeCrackResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('codeCrackClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -790,6 +805,34 @@ exports('StartFingerprintGame', function(timeLimit, showAlignedCount, showCorrec
     return Citizen.Await(p)
 end)
 
+exports('StartCodeCrackGame', function(timeLimit, digitCount, maxAttempts)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local codeCrackConfig = {
+        timeLimit = timeLimit or 60000, -- 60 seconds default
+        digitCount = digitCount or 4, -- 4 digits default
+        maxAttempts = maxAttempts or 6 -- 6 attempts default
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startCodeCrack',
+        config = codeCrackConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -889,6 +932,11 @@ if config.DebugCommands then
     RegisterCommand('testfingerprinthard', function()
         local success = exports['glitch-minigames']:StartFingerprintGame(30000, false, false) -- 30 seconds, no hints
         print("Fingerprint Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testcodecrack', function()
+        local success = exports['glitch-minigames']:StartCodeCrackGame(60000, 4, 6) -- 60 seconds, 4 digits, 6 attempts
+        print("Code Crack Game Result: ", success)
     end, false)
 end
 
