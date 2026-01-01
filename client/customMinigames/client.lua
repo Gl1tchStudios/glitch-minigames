@@ -68,6 +68,8 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endAimTest', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endCircleClick', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endLockpick', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -360,6 +362,19 @@ RegisterNUICallback('circleClickResult', function(data, cb)
 end)
 
 RegisterNUICallback('circleClickClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('lockpickResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.successes, data.failures)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('lockpickClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -1017,6 +1032,36 @@ exports('StartCircleClickGame', function(rounds, rotationSpeed, targetZoneSize, 
     return Citizen.Await(p)
 end)
 
+exports('StartLockpickGame', function(rounds, sweetSpotSize, maxFailures, shakeRange, lockTime)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local lockpickConfig = {
+        rounds = rounds or 3, -- number of locks to pick
+        sweetSpotSize = sweetSpotSize or 30, -- sweet spot size in degrees (smaller = harder)
+        maxFailures = maxFailures or 2, -- max failures before game over
+        shakeRange = shakeRange or 40, -- how far from sweet spot shake starts (degrees)
+        lockTime = lockTime or 500 -- how long to hold to lock (ms)
+    }
+    
+    callback = function(success, successes, failures)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, false)
+    SendNUIMessage({ 
+        action = 'startLockpick',
+        config = lockpickConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -1141,6 +1186,11 @@ if config.DebugCommands then
     RegisterCommand('testcircleclick', function()
         local success = exports['glitch-minigames']:StartCircleClickGame(5, 1, 45, 3, 0.15, true, {'W', 'A', 'S', 'D'}) -- 5 rounds, speed 1, 45 degree zone, 3 max failures, 0.15 speed increase, randomize direction, keys W,A,S,D
         print("Circle Click Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testlockpick', function()
+        local success = exports['glitch-minigames']:StartLockpickGame(3, 30, 2, 40, 500) -- 3 rounds, 30 degree sweet spot, 2 max failures, 40 degree shake range, 500ms hold time
+        print("Lockpick Game Result: ", success)
     end, false)
 end
 
