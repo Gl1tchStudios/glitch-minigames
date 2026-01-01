@@ -31,10 +31,10 @@ var Fingerprint = (function() {
     var pulsePhase = 0;
     var pulseAnimationFrame = null;
 
-    var ARC_COLOR = '#00d4ff';
-    var ARC_GLOW = 'rgba(0, 212, 255, 0.5)';
-    var ARC_CORRECT_COLOR = '#00ff88';
-    var ARC_CORRECT_GLOW = 'rgba(0, 255, 136, 0.6)';
+    var ARC_COLOR = window.MinigameColors.primary;
+    var ARC_GLOW = `rgba(${window.MinigameColors.primaryRgba}, 0.5)`;
+    var ARC_CORRECT_COLOR = window.MinigameColors.success;
+    var ARC_CORRECT_GLOW = `rgba(${window.MinigameColors.successRgba}, 0.6)`;
     var CANVAS_WIDTH = 500;
     var CANVAS_HEIGHT = 400;
     var CENTER_X = CANVAS_WIDTH / 2;
@@ -178,7 +178,7 @@ var Fingerprint = (function() {
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        ctx.strokeStyle = 'rgba(0, 212, 255, 0.25)';
+        ctx.strokeStyle = `rgba(${window.MinigameColors.primaryRgba}, 0.25)`;
         ctx.lineWidth = 1;
         for (var i = 1; i < rowCount; i++) {
             var y = i * ROW_HEIGHT;
@@ -188,7 +188,7 @@ var Fingerprint = (function() {
             ctx.stroke();
         }
         
-        ctx.strokeStyle = 'rgba(0, 212, 255, 0.12)';
+        ctx.strokeStyle = `rgba(${window.MinigameColors.primaryRgba}, 0.12)`;
         for (var i = 0; i < rowCount; i++) {
             ctx.strokeRect(8, i * ROW_HEIGHT + 4, canvas.width - 16, ROW_HEIGHT - 8);
         }

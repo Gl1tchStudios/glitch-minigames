@@ -165,10 +165,10 @@ var PipePressure = (function() {
             var isEnd = (r === endPos.row && c === endPos.col);
             var isNewlyConn = newlyConnected[key] !== undefined;
             
-            var color = '#4a5568'; // default gray
-            if (isConn) color = '#00d4ff'; // cyan when connected
-            if (isStart) color = '#00ff88'; // green for start
-            if (isEnd && isConn) color = '#00d4ff'; // cyan for end when reached
+            var color = window.MinigameColors.textSecondary; // default gray
+            if (isConn) color = window.MinigameColors.primary; // cyan when connected
+            if (isStart) color = window.MinigameColors.success; // green for start
+            if (isEnd && isConn) color = window.MinigameColors.primary; // cyan for end when reached
             
             if (animate && isNewlyConn && !isStart) {
                 var delay = newlyConnected[key] * 50; // 50ms per distance step

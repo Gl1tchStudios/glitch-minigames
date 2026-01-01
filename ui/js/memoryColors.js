@@ -32,12 +32,17 @@ var MemoryColors = (function() {
     var correctAnswer = 0;
     var score = 0;
 
-    var COLORS = {
-        'blue': '#3b82f6',
-        'red': '#ef4444',
-        'green': '#22c55e',
-        'yellow': '#eab308'
-    };
+    // Use custom minigame colors from theme config
+    function getColors() {
+        return {
+            'blue': window.MinigameColors?.minigameColor1 || '#3b82f6',
+            'red': window.MinigameColors?.minigameColor2 || '#ef4444',
+            'green': window.MinigameColors?.minigameColor3 || '#22c55e',
+            'yellow': window.MinigameColors?.minigameColor4 || '#eab308'
+        };
+    }
+    
+    var COLORS = getColors();
     var COLOR_NAMES = ['blue', 'red', 'green', 'yellow'];
 
     function generateGrid() {
@@ -217,6 +222,9 @@ var MemoryColors = (function() {
 
     function startGame(config) {
         console.log('[MemoryColors] Starting', config);
+        
+        // Refresh colors based on current config
+        COLORS = getColors();
         
         gridSize = (config && config.gridSize) ? config.gridSize : 6;
         timeLimit = (config && config.memorizeTime) ? config.memorizeTime : 5000;

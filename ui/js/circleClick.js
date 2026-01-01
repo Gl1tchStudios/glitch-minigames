@@ -100,7 +100,7 @@ let circleClickGame = {
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(50, 50, 50, 1)';
+        ctx.strokeStyle = `rgba(${window.MinigameColors.borderRgba}, 1)`;
         ctx.lineWidth = 6;
         ctx.stroke();
         
@@ -108,11 +108,11 @@ let circleClickGame = {
         const targetEnd = (this.targetZoneStart + this.targetZoneSize - 90) * Math.PI / 180;
         
         ctx.save();
-        ctx.shadowColor = '#33b5e5';
+        ctx.shadowColor = window.MinigameColors.primary;
         ctx.shadowBlur = 8;
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, targetStart, targetEnd);
-        ctx.strokeStyle = '#33b5e5';
+        ctx.strokeStyle = window.MinigameColors.primary;
         ctx.lineWidth = 6;
         ctx.stroke();
         ctx.restore();
@@ -122,24 +122,24 @@ let circleClickGame = {
         const segmentEnd = (this.angle + segmentSize - 90) * Math.PI / 180;
         
         ctx.save();
-        ctx.shadowColor = '#ffffff';
+        ctx.shadowColor = window.MinigameColors.text;
         ctx.shadowBlur = 10;
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, segmentStart, segmentEnd);
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = window.MinigameColors.text;
         ctx.lineWidth = 6;
         ctx.lineCap = 'round';
         ctx.stroke();
         ctx.restore();
         
-        let innerColor = '#33b5e5';
+        let innerColor = window.MinigameColors.primary;
         let glowColor = 'rgba(0, 0, 0, 0.4)';
         if (this.flashState === 'success') {
-            innerColor = '#00ff88';
-            glowColor = 'rgba(0, 255, 136, 0.6)';
+            innerColor = window.MinigameColors.success;
+            glowColor = `rgba(${window.MinigameColors.successRgba}, 0.6)`;
         } else if (this.flashState === 'failure') {
-            innerColor = '#ff4444';
-            glowColor = 'rgba(255, 68, 68, 0.6)';
+            innerColor = window.MinigameColors.failure;
+            glowColor = `rgba(${window.MinigameColors.failureRgba}, 0.6)`;
         }
         
         ctx.save();
@@ -161,7 +161,7 @@ let circleClickGame = {
         ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
         ctx.shadowBlur = 4;
         ctx.shadowOffsetY = 2;
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = window.MinigameColors.text;
         ctx.font = 'bold 24px "Share Tech Mono", monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';

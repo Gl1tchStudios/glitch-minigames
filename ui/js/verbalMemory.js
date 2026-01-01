@@ -93,8 +93,8 @@ function startVerbalMemoryGame(config = {}) {
             });
             
             $('.verbal-memory-game').fadeIn(400, () => {
-                $('#verbal-memory-container').css('background', 'linear-gradient(135deg, rgba(15, 30, 45, 0.85) 0%, rgba(30, 60, 90, 0.85) 100%)');
-                $('.verbal-memory-word-display').css('background', 'rgba(0, 20, 40, 0.4)');
+                $('#verbal-memory-container').css('background', `linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%)`);
+                $('.verbal-memory-word-display').css('background', 'var(--background-secondary)');
                 $('.verbal-memory-top-section, .verbal-memory-bottom-section').css('background', 'transparent');verbalMemoryGameState.gameStarted = true;
                 showNextWord();
             });
@@ -167,9 +167,9 @@ function showNextWord() {
     
     verbalMemoryGameState.gameActive = false;
     
-    $('#verbal-memory-container').css('background', 'linear-gradient(135deg, rgba(15, 30, 45, 0.85) 0%, rgba(30, 60, 90, 0.85) 100%)');
+    $('#verbal-memory-container').css('background', `linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%)`);
     $('.verbal-memory-word-display').css({
-        'background': 'rgba(0, 20, 40, 0.4)',
+        'background': 'var(--background-secondary)',
         'border': 'none',
         'border-radius': '0',
         'width': '100%',
@@ -199,8 +199,8 @@ function showNextWord() {
         'margin': '0'
     });
     
-    $('.seen-btn').css('background', 'rgba(0, 100, 200, 0.4)');
-    $('.new-btn').css('background', 'rgba(0, 150, 50, 0.4)');
+    $('.seen-btn').css('background', `rgba(${window.MinigameColors.primaryRgba}, 0.4)`);
+    $('.new-btn').css('background', `rgba(${window.MinigameColors.safeRgba}, 0.4)`);
     
     let word;
     let isNewWord;
@@ -420,7 +420,7 @@ function cleanupOverlayElements() {
         'z-index': '9999',
         'isolation': 'isolate',
         'backdrop-filter': 'none',
-        'background': 'linear-gradient(135deg, rgba(15, 30, 45, 0.85) 0%, rgba(30, 60, 90, 0.85) 100%)'
+        'background': `linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%)`
     });
     
     $('.verbal-memory-display, .verbal-memory-game, .verbal-memory-splash, .verbal-memory-top-section, .verbal-memory-bottom-section').css({
@@ -429,7 +429,7 @@ function cleanupOverlayElements() {
     });
     
     $('.verbal-memory-word-display').css({
-        'background': 'rgba(0, 20, 40, 0.4)',
+        'background': 'var(--background-secondary)',
         'backdrop-filter': 'none',
         'border': 'none',
         'border-radius': '0',
@@ -438,7 +438,7 @@ function cleanupOverlayElements() {
         'padding': '0'
     });
     $('.verbal-memory-btn').css({
-        'background': 'rgba(0, 40, 80, 0.4)',
+        'background': 'var(--background-secondary)',
         'backdrop-filter': 'none',
         'border': 'none',
         'border-radius': '0',
@@ -461,13 +461,13 @@ function cleanupOverlayElements() {
     });
     
     $('.seen-btn').css({
-        'background': 'rgba(0, 100, 200, 0.4)',
+        'background': `rgba(${window.MinigameColors.primaryRgba}, 0.4)`,
         'border': 'none',
         'width': '100%',
         'height': '100%'
     });
     $('.new-btn').css({
-        'background': 'rgba(0, 150, 50, 0.4)',
+        'background': `rgba(${window.MinigameColors.safeRgba}, 0.4)`,
         'border': 'none',
         'width': '100%',
         'height': '100%'

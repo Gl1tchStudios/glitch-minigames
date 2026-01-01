@@ -119,7 +119,7 @@ let lockpickGame = {
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
-        ctx.strokeStyle = 'rgba(100, 100, 100, 0.8)';
+        ctx.strokeStyle = `rgba(${window.MinigameColors.borderRgba}, 0.8)`;
         ctx.lineWidth = 3;
         ctx.stroke();
         
@@ -137,16 +137,16 @@ let lockpickGame = {
             ctx.beginPath();
             ctx.moveTo(innerX, innerY);
             ctx.lineTo(outerX, outerY);
-            ctx.strokeStyle = isLongTick ? 'rgba(200, 200, 200, 0.9)' : 'rgba(150, 150, 150, 0.6)';
+            ctx.strokeStyle = isLongTick ? `rgba(${window.MinigameColors.textRgba}, 0.9)` : `rgba(${window.MinigameColors.textSecondaryRgba}, 0.6)`;
             ctx.lineWidth = isLongTick ? 2 : 1;
             ctx.stroke();
         }
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(30, 30, 30, 0.9)';
+        ctx.fillStyle = `rgba(${window.MinigameColors.backgroundRgba}, 0.9)`;
         ctx.fill();
-        ctx.strokeStyle = 'rgba(80, 80, 80, 0.8)';
+        ctx.strokeStyle = `rgba(${window.MinigameColors.borderRgba}, 0.8)`;
         ctx.lineWidth = 2;
         ctx.stroke();
         
@@ -159,16 +159,16 @@ let lockpickGame = {
             ctx.arc(centerX, centerY, innerRadius, 0, Math.PI * 2);
             
             if (this.flashState === 'success') {
-                ctx.fillStyle = `rgba(45, 212, 168, ${opacity})`;
+                ctx.fillStyle = `rgba(${window.MinigameColors.successRgba}, ${opacity})`;
             } else {
-                ctx.fillStyle = `rgba(255, 68, 68, ${opacity})`;
+                ctx.fillStyle = `rgba(${window.MinigameColors.failureRgba}, ${opacity})`;
             }
             ctx.fill();
         }
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, 4, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(150, 150, 150, 0.8)';
+        ctx.fillStyle = `rgba(${window.MinigameColors.textSecondaryRgba}, 0.8)`;
         ctx.fill();
         
         const needleLength = outerRadius - 5;
@@ -185,7 +185,7 @@ let lockpickGame = {
         ctx.beginPath();
         ctx.moveTo(centerX, centerY);
         ctx.lineTo(needleEndX, needleEndY);
-        ctx.strokeStyle = '#e0e0e0';
+        ctx.strokeStyle = window.MinigameColors.text;
         ctx.lineWidth = 2;
         ctx.lineCap = 'round';
         ctx.stroke();
@@ -194,11 +194,11 @@ let lockpickGame = {
         
         if (this.isInSweetSpot()) {
             ctx.save();
-            ctx.shadowColor = '#2dd4a8';
+            ctx.shadowColor = window.MinigameColors.primary;
             ctx.shadowBlur = 10;
             ctx.beginPath();
             ctx.arc(needleEndX, needleEndY, 3, 0, Math.PI * 2);
-            ctx.fillStyle = '#2dd4a8';
+            ctx.fillStyle = window.MinigameColors.primary;
             ctx.fill();
             ctx.restore();
         }
@@ -208,7 +208,7 @@ let lockpickGame = {
             
             ctx.beginPath();
             ctx.arc(centerX, centerY, 15, -Math.PI / 2, -Math.PI / 2 + (holdProgress * Math.PI * 2));
-            ctx.strokeStyle = '#2dd4a8';
+            ctx.strokeStyle = window.MinigameColors.primary;
             ctx.lineWidth = 3;
             ctx.lineCap = 'round';
             ctx.stroke();

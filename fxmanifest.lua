@@ -33,6 +33,8 @@ files {
     'ui/index.html',
     'ui/css/style.css',    
     'ui/js/app.js',
+    'ui/js/firewallPulse.js',
+    'ui/js/backdoorSequence.js',
     'ui/js/rhythm.js',
     'ui/js/keymash.js',
     'ui/js/varHack.js',

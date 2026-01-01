@@ -31,10 +31,10 @@ var Untangle = (function() {
     var intersectionCount = 0;
 
     var NODE_RADIUS = 12;
-    var NODE_COLOR = '#00d4ff';
-    var NODE_GLOW = 'rgba(0, 212, 255, 0.6)';
-    var LINE_COLOR = '#00d4ff';
-    var LINE_INTERSECT_COLOR = '#ff4444';
+    var NODE_COLOR = window.MinigameColors.primary;
+    var NODE_GLOW = `rgba(${window.MinigameColors.primaryRgba}, 0.6)`;
+    var LINE_COLOR = window.MinigameColors.primary;
+    var LINE_INTERSECT_COLOR = window.MinigameColors.failure;
     var LINE_WIDTH = 2;
 
     function generateNodes() {
@@ -201,7 +201,7 @@ var Untangle = (function() {
             ctx.lineWidth = LINE_WIDTH;
             
             if (isIntersecting) {
-                ctx.shadowColor = 'rgba(255, 68, 68, 0.6)';
+                ctx.shadowColor = `rgba(${window.MinigameColors.failureRgba}, 0.6)`;
                 ctx.shadowBlur = 8;
             } else {
                 ctx.shadowColor = NODE_GLOW;
@@ -225,7 +225,7 @@ var Untangle = (function() {
             
             ctx.beginPath();
             ctx.arc(node.x - 3, node.y - 3, NODE_RADIUS * 0.3, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.fillStyle = `rgba(${window.MinigameColors.textRgba}, 0.4)`;
             ctx.fill();
         }
         

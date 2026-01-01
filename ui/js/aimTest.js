@@ -142,11 +142,11 @@ let aimTestGame = {
             'top': y + 'px',
             'width': size + 'px',
             'height': size + 'px',
-            'background': 'radial-gradient(circle at 30% 30%, #ff4444, #cc0000 50%, #990000)',
+            'background': `radial-gradient(circle at 30% 30%, ${window.MinigameColors.failure}, ${window.MinigameColors.danger} 50%, ${window.MinigameColors.danger})`,
             'border-radius': '50%',
             'cursor': 'crosshair',
-            'box-shadow': '0 0 20px rgba(255, 0, 0, 0.8), inset 0 -5px 15px rgba(0, 0, 0, 0.3)',
-            'border': '3px solid #ff6666',
+            'box-shadow': `0 0 20px rgba(${window.MinigameColors.failureRgba}, 0.8), inset 0 -5px 15px rgba(0, 0, 0, 0.3)`,
+            'border': `3px solid ${window.MinigameColors.failure}`,
             'z-index': '1000',
             'display': 'block',
             'opacity': '1',
@@ -163,7 +163,7 @@ let aimTestGame = {
             'width': '50%',
             'height': '50%',
             'transform': 'translate(-50%, -50%)',
-            'border': '2px solid rgba(255, 255, 255, 0.5)',
+            'border': `2px solid rgba(${window.MinigameColors.textRgba}, 0.5)`,
             'border-radius': '50%',
             'pointer-events': 'none'
         });
@@ -177,7 +177,7 @@ let aimTestGame = {
             'width': '8px',
             'height': '8px',
             'transform': 'translate(-50%, -50%)',
-            'background': '#ffffff',
+            'background': window.MinigameColors.text,
             'border-radius': '50%',
             'pointer-events': 'none'
         });

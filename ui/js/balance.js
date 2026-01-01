@@ -95,22 +95,22 @@ let balanceGame = {
         const yellowHalf = this.config.yellowZoneWidth;
         
         // Red left zone
-        this.drawArc(ctx, centerX, centerY, radius, 180, 180 + (90 - greenHalf - yellowHalf), '#ff4444');
+        this.drawArc(ctx, centerX, centerY, radius, 180, 180 + (90 - greenHalf - yellowHalf), window.MinigameColors.failure);
         // Yellow left zone
-        this.drawArc(ctx, centerX, centerY, radius, 180 + (90 - greenHalf - yellowHalf), 180 + (90 - greenHalf), '#ffcc00');
+        this.drawArc(ctx, centerX, centerY, radius, 180 + (90 - greenHalf - yellowHalf), 180 + (90 - greenHalf), window.MinigameColors.warning);
         // Green center zone
-        this.drawArc(ctx, centerX, centerY, radius, 180 + (90 - greenHalf), 180 + (90 + greenHalf), '#00cc66');
+        this.drawArc(ctx, centerX, centerY, radius, 180 + (90 - greenHalf), 180 + (90 + greenHalf), window.MinigameColors.safe);
         // Yellow right zone
-        this.drawArc(ctx, centerX, centerY, radius, 180 + (90 + greenHalf), 180 + (90 + greenHalf + yellowHalf), '#ffcc00');
+        this.drawArc(ctx, centerX, centerY, radius, 180 + (90 + greenHalf), 180 + (90 + greenHalf + yellowHalf), window.MinigameColors.warning);
         // Red right zone
-        this.drawArc(ctx, centerX, centerY, radius, 180 + (90 + greenHalf + yellowHalf), 360, '#ff4444');
+        this.drawArc(ctx, centerX, centerY, radius, 180 + (90 + greenHalf + yellowHalf), 360, window.MinigameColors.failure);
         
         // Center marker
         ctx.beginPath();
         ctx.arc(centerX, centerY - radius - 5, 6, 0, Math.PI * 2);
-        ctx.fillStyle = '#00d4ff';
+        ctx.fillStyle = window.MinigameColors.primary;
         ctx.fill();
-        ctx.strokeStyle = '#fff';
+        ctx.strokeStyle = window.MinigameColors.text;
         ctx.lineWidth = 2;
         ctx.stroke();
     },
@@ -153,7 +153,7 @@ let balanceGame = {
         const needleX = centerX + Math.cos(angleRad) * needleLength;
         const needleY = centerY + Math.sin(angleRad) * needleLength;
         ctx.lineTo(needleX, needleY);
-        ctx.strokeStyle = '#00d4ff';
+        ctx.strokeStyle = window.MinigameColors.primary;
         ctx.lineWidth = 4;
         ctx.lineCap = 'round';
         ctx.stroke();
@@ -161,15 +161,15 @@ let balanceGame = {
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, 12, 0, Math.PI * 2);
-        ctx.fillStyle = '#1a3a4a';
+        ctx.fillStyle = window.MinigameColors.background;
         ctx.fill();
-        ctx.strokeStyle = '#00d4ff';
+        ctx.strokeStyle = window.MinigameColors.primary;
         ctx.lineWidth = 3;
         ctx.stroke();
         
         ctx.beginPath();
         ctx.arc(centerX, centerY, 5, 0, Math.PI * 2);
-        ctx.fillStyle = '#00d4ff';
+        ctx.fillStyle = window.MinigameColors.primary;
         ctx.fill();
     },
     

@@ -65,7 +65,7 @@ function initializeGame() {
     varHackState.gameStarted = true;
     varHackState.gamePlaying = false;
     
-    $('.var-groups').removeClass('hidden').empty();
+    $('.var-groups').removeClass('hidden plain').empty();
     console.log('Groups container cleared and shown');
     
     let numbers = Array.from({length: varHackState.config.blocks}, (_, i) => i + 1);

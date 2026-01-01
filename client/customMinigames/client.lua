@@ -23,6 +23,15 @@ local callback = nil
 
 local deathCheckThreadId = nil
 
+-- set color configuration to NUI on resource start
+Citizen.CreateThread(function()
+    Citizen.Wait(500)
+    SendNUIMessage({
+        action = 'setColors',
+        colors = config.Colors
+    })
+end)
+
 local function cleanupMinigame()
     isHacking = false
     isSequencing = false
