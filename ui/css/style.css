@@ -4336,3 +4336,20 @@ body::before, body::after,
         opacity: 1;
     }
 }
+
+/* ===== CIRCLE CLICK MINIGAME ===== */
+#circle-click-container {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    z-index: 9999;
+}
+
+#circle-click-canvas {
+    display: block;
+    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
+}

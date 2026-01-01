@@ -301,6 +301,19 @@ $(document).ready(function() {
             } else {
                 $('#aim-test-container').fadeOut(500);
             }
+        } else if (data.action === 'startCircleClick') {
+            cleanupAllContainers();
+            if (window.circleClickGame && typeof window.circleClickGame.start === 'function') {
+                window.circleClickGame.start(data.config || {});
+            } else {
+                console.error('[app.js] circleClickGame.start not found!');
+            }
+        } else if (data.action === 'endCircleClick') {
+            if (window.circleClickGame && typeof window.circleClickGame.close === 'function') {
+                window.circleClickGame.close();
+            } else {
+                $('#circle-click-container').fadeOut(500);
+            }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
         } else if (data.action === 'keyRelease') {
@@ -962,7 +975,7 @@ function updateCounter() {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container, #circle-click-container')
         .removeClass('active')
         .hide();
     

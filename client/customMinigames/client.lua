@@ -66,6 +66,8 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endBalance', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endAimTest', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endCircleClick', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -345,6 +347,19 @@ RegisterNUICallback('aimTestResult', function(data, cb)
 end)
 
 RegisterNUICallback('aimTestClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('circleClickResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.successes, data.failures)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('circleClickClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -970,6 +985,38 @@ exports('StartAimTestGame', function(timeLimit, targetsToHit, targetLifetime, ta
     return Citizen.Await(p)
 end)
 
+exports('StartCircleClickGame', function(rounds, rotationSpeed, targetZoneSize, maxFailures, speedIncrease, randomizeDirection, keys)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local circleClickConfig = {
+        rounds = rounds or 5, -- Number of rounds to complete
+        rotationSpeed = rotationSpeed or 2, -- Degrees per frame
+        targetZoneSize = targetZoneSize or 45, -- Target zone in degrees
+        maxFailures = maxFailures or 3, -- Max failures before game over
+        speedIncrease = speedIncrease or 0.3, -- Speed increase per round
+        randomizeDirection = randomizeDirection ~= false, -- Randomize rotation direction
+        keys = keys or {'1', '2', '3', '4', '5', '6', '7', '8', '9'} -- Possible keys to display
+    }
+    
+    callback = function(success, successes, failures)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, false)
+    SendNUIMessage({ 
+        action = 'startCircleClick',
+        config = circleClickConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -1087,10 +1134,14 @@ if config.DebugCommands then
     end, false)
 
     RegisterCommand('testaimtest', function()
-        local success = exports['glitch-minigames']:StartAimTestGame(30000, 10, 1500, 60, true, 5, 0) -- 30s, 10 targets, 1.5s lifetime, 60px size, shrink, 5 max misses, no time penalty, time to remove for penalty 
+        local success = exports['glitch-minigames']:StartAimTestGame(30000, 10, 1500, 60, true, 5, 0) -- 30s, 10 targets, 1.5s lifetime, 60px size, shrink, 5 max misses, no time penalty
         print("Aim Test Game Result: ", success)
     end, false)
 
+    RegisterCommand('testcircleclick', function()
+        local success = exports['glitch-minigames']:StartCircleClickGame(5, 1, 45, 3, 0.15, true, {'W', 'A', 'S', 'D'}) -- 5 rounds, speed 1, 45 degree zone, 3 max failures, 0.15 speed increase, randomize direction, keys W,A,S,D
+        print("Circle Click Game Result: ", success)
+    end, false)
 end
 
 Citizen.CreateThread(function()
