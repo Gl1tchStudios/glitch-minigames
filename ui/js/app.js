@@ -46,7 +46,30 @@ $(document).ready(function() {
         if (data.action === 'setColors' && data.colors) {
             window.MinigameColors = data.colors;
             
+            // Apply visual theme class to body
+            if (data.visualTheme) {
+                $('body').removeClass('theme-classic theme-modern').addClass('theme-' + data.visualTheme);
+                console.log('[VisualTheme] Applied theme:', data.visualTheme);
+            }
+            
             const root = document.documentElement;
+            
+            // Apply background opacity
+            if (data.backgroundOpacity !== undefined) {
+                root.style.setProperty('--background-opacity', data.backgroundOpacity);
+                
+                // Convert gradient colors to rgba with opacity
+                const opacity = data.backgroundOpacity;
+                const grad1Rgba = data.colors.backgroundGradient1Rgba;
+                const grad2Rgba = data.colors.backgroundGradient2Rgba;
+                const secondaryRgba = data.colors.backgroundSecondaryRgba;
+                const tertiaryRgba = data.colors.backgroundTertiaryRgba;
+                
+                root.style.setProperty('--background-gradient-1-alpha', `rgba(${grad1Rgba}, ${opacity})`);
+                root.style.setProperty('--background-gradient-2-alpha', `rgba(${grad2Rgba}, ${opacity})`);
+                root.style.setProperty('--background-secondary-alpha', `rgba(${secondaryRgba}, ${opacity})`);
+                root.style.setProperty('--background-tertiary-alpha', `rgba(${tertiaryRgba}, ${opacity})`);
+            }
             root.style.setProperty('--primary-color', data.colors.primary);
             root.style.setProperty('--success-color', data.colors.success);
             root.style.setProperty('--failure-color', data.colors.failure);
@@ -55,6 +78,7 @@ $(document).ready(function() {
             root.style.setProperty('--background-gradient-1', data.colors.backgroundGradient1);
             root.style.setProperty('--background-gradient-2', data.colors.backgroundGradient2);
             root.style.setProperty('--background-secondary', data.colors.backgroundSecondary);
+            root.style.setProperty('--background-tertiary', data.colors.backgroundTertiary);
             root.style.setProperty('--border-color', data.colors.border);
             root.style.setProperty('--text-color', data.colors.text);
             root.style.setProperty('--text-secondary-color', data.colors.textSecondary);

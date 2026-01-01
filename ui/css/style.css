@@ -27,11 +27,17 @@
     --background-gradient-1: #0f1e2d;
     --background-gradient-2: #1e3c5a;
     --background-secondary: #001428;
+    --background-tertiary: #002038;
     --border-color: #505050;
     --text-color: #e0e0e0;
     --text-secondary-color: #969696;
     --danger-color: #cc0000;
     --safe-color: #22c55e;
+    --background-opacity: 0.95;
+    --background-gradient-1-alpha: rgba(15, 30, 45, 0.95);
+    --background-gradient-2-alpha: rgba(30, 60, 90, 0.95);
+    --background-secondary-alpha: rgba(0, 20, 40, 0.95);
+    --background-tertiary-alpha: rgba(0, 32, 56, 0.95);
     
     /* Legacy variables for compatibility */
     --neon-blue: var(--primary-color);
@@ -67,7 +73,7 @@ body.sequence-active {
 }
 
 #hack-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 600px;
@@ -250,9 +256,9 @@ body, html {
 }
 
 .game-container {
-    display: none; /* Hidden by default */
+    display: none;
     flex-direction: column;
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border-radius: 10px;
     padding: 20px;
     width: 600px;
@@ -260,11 +266,11 @@ body, html {
 }
 
 .game-container.active {
-    display: flex !important; /* Show when active */
+    display: flex !important;
 }
 
 #verbal-memory-container.game-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 2px solid var(--border-color);
     border-radius: 15px;
     padding: 25px;
@@ -280,14 +286,21 @@ body, html {
         0 10px 40px rgba(0, 0, 0, 0.3),
         inset 0 1px 3px rgba(255, 255, 255, 0.15),
         0 0 60px rgba(0, 150, 255, 0.2);
-    backdrop-filter: none; /* Remove blur effect that might cause issues */
+    backdrop-filter: none;
     min-height: auto;
     z-index: 9999;
-    isolation: isolate; /* Creates a new stacking context */
+    isolation: isolate;
 }
 
 #sequence-container {
     display: none;
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    width: 600px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+    overflow: hidden;
 }
 
 /* Sequence display container */
@@ -298,7 +311,7 @@ body, html {
     justify-content: space-between;
     height: 250px;
     margin-bottom: 20px;
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border-radius: 8px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     overflow: hidden;
@@ -346,7 +359,7 @@ body, html {
     align-items: center;
     justify-content: center;
     margin: 0 10px;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     padding: 8px;
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
@@ -359,8 +372,8 @@ body, html {
     width: 60px;
     height: 60px;
     margin: 5px;
-    background: var(--background-secondary);
-    border: 2px solid var(--light-blue);
+    background: var(--background-secondary-alpha);
+    border: 2px solid var(--primary-color);
     color: white;
     font-size: 24px;
     text-align: center;
@@ -372,15 +385,15 @@ body, html {
 
 .key-box.pressed {
     background: rgba(0, 60, 100, 0.8);
-    border-color: var(--light-blue);
-    color: var(--light-blue);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
     transform: scale(1);
 }
 
 .key-box.current {
     background: rgba(0, 40, 80, 0.8);
-    border-color: var(--light-blue);
-    color: var(--light-blue);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
     animation: pulse-glow 1.5s infinite;
 }
 
@@ -414,7 +427,7 @@ body, html {
     width: 80px;
     height: 80px;
     background: rgba(0, 50, 100, 0.6);
-    border: 2px solid var(--neon-blue);
+    border: 2px solid var(--primary-color);
     color: white;
     font-size: 30px;
     box-shadow: 0 0 15px var(--glow);
@@ -459,7 +472,7 @@ body, html {
 }
 
 .attempt-indicator.active {
-    background: var(--light-blue);
+    background: var(--primary-color);
     border-color: white;
     box-shadow: 0 0 10px var(--glow);
 }
@@ -487,12 +500,12 @@ body, html {
     font-size: 12px;
     margin-top: 15px;
     padding: 10px;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     border-radius: 8px;
 }
 
 .key-hint {
-    color: var(--light-blue);
+    color: var(--primary-color);
     font-size: 14px;
     margin-top: 5px;
 }
@@ -549,7 +562,7 @@ body, html {
     align-items: center;
     justify-content: center;
     margin: 0 10px;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     padding: 5px;
     border-radius: 5px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
@@ -590,7 +603,7 @@ body, html {
 
 /* Circuit Rhythm Game Styles */
 #rhythm-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 600px;
@@ -622,7 +635,7 @@ body, html {
     position: relative;
     width: 60px;
     height: 100%;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     border-left: 1px solid rgba(255, 255, 255, 0.1);
     border-right: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
@@ -864,7 +877,6 @@ body, html {
     animation: progress-flash 0.5s infinite;
 }
 
-/* red flash animation */
 @keyframes failure-flash {
     0% { stroke: var(--danger-color); filter: drop-shadow(0 0 6px var(--danger-color)); }
     50% { stroke: var(--failure-color); filter: drop-shadow(0 0 15px #ff0000); }
@@ -877,7 +889,7 @@ body, html {
 
 /* VAR Hack Styles */
 #var-hack-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 600px;
@@ -1043,7 +1055,7 @@ body, html {
 
 /* Memory Game Styles */
 #memory-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 600px;
@@ -1212,7 +1224,7 @@ body, html {
 /* ===== SEQUENCE MEMORY GAME STYLES ===== */
 
 #sequence-memory-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 600px;
@@ -1385,7 +1397,7 @@ body, html {
 .numbered-sequence-display {
     position: relative;
     height: 450px;
-    background: transparent;
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     overflow: hidden;
@@ -1530,12 +1542,10 @@ body, html {
 
 /* ===== VERBAL MEMORY GAME STYLES ===== */
 
-/* Verbal Memory Container - inherits from game-container override */
-
 .verbal-memory-display {
     position: relative;
     height: 350px;
-    background: transparent;
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     overflow: hidden;
@@ -1651,7 +1661,7 @@ body, html {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--background-secondary); /* Increased opacity for better readability */
+    background: var(--background-secondary-alpha);
     border: none;
     border-radius: 0;
     padding: 0;
@@ -1660,7 +1670,7 @@ body, html {
     flex-shrink: 0;
     position: relative;
     overflow: hidden;
-    box-shadow: none; /* Removed box-shadow to ensure clean edges */
+    box-shadow: none;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: none !important;
     margin: 0;
@@ -1726,17 +1736,14 @@ body, html {
     }
 }
 
-/* Styling for the left button (SEEN) */
 .verbal-memory-left-btn {
     border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Styling for the right button (NEW) */
 .verbal-memory-right-btn {
     border-left: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Special button styling */
 .seen-btn {
     background: rgba(0, 100, 200, 0.4);
 }
@@ -1752,7 +1759,7 @@ body, html {
     font-weight: 700;
     border: none;
     border-radius: 0;
-    background: rgba(0, 40, 80, 0.4); /* Match opacity with word display */
+    background: rgba(0, 40, 80, 0.4);
     color: var(--light-blue);
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1766,8 +1773,8 @@ body, html {
     position: relative;
     overflow: hidden;
     backdrop-filter: none;
-    box-shadow: none; /* Removed box-shadow to ensure clean edges */
-    outline: none; /* Remove outline to ensure no gaps */
+    box-shadow: none;
+    outline: none;
 }
 
 .verbal-memory-btn::before {
@@ -1969,7 +1976,7 @@ body::before, body::after,
 .numbered-sequence-display {
     position: relative;
     height: 450px;
-    background: transparent;
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     overflow: hidden;
@@ -2114,12 +2121,10 @@ body::before, body::after,
 
 /* ===== VERBAL MEMORY GAME STYLES ===== */
 
-/* Verbal Memory Container - inherits from game-container override */
-
 .verbal-memory-display {
     position: relative;
     height: 350px;
-    background: transparent;
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     overflow: hidden;
@@ -2235,7 +2240,7 @@ body::before, body::after,
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     border: none;
     border-radius: 0;
     padding: 0;
@@ -2264,7 +2269,7 @@ body::before, body::after,
 /* ===== SYMBOL SEARCH GAME STYLES ===== */
 
 #symbol-search-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 550px;
@@ -2276,7 +2281,7 @@ body::before, body::after,
 
 .symbol-search-display {
     position: relative;
-    background: transparent;
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border-radius: 12px;
     border: 1px solid var(--border-color);
     overflow: hidden;
@@ -2366,7 +2371,7 @@ body::before, body::after,
 .symbol-search-grid {
     display: none;
     gap: 4px;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     padding: 10px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
@@ -2542,7 +2547,7 @@ body::before, body::after,
 #pipe-grid {
     display: grid;
     gap: 2px;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     padding: 10px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
@@ -2714,7 +2719,7 @@ body::before, body::after,
 #pairs-grid {
     display: grid;
     gap: 8px;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     padding: 15px;
     border-radius: 8px;
     border: 1px solid var(--border-color);
@@ -2894,7 +2899,7 @@ body::before, body::after,
 #memory-colors-grid {
     display: grid;
     gap: 8px;
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     padding: 20px;
     border-radius: 10px;
     border: 1px solid var(--border-color);
@@ -3171,7 +3176,7 @@ body::before, body::after,
 }
 
 #untangle-canvas {
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     border-radius: 10px;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -3336,7 +3341,7 @@ body::before, body::after,
 }
 
 #fingerprint-canvas {
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     border-radius: 10px;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
@@ -3452,7 +3457,7 @@ body::before, body::after,
 
 /* ===== CODE CRACK MINIGAME ===== */
 #code-crack-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 450px;
@@ -3511,7 +3516,7 @@ body::before, body::after,
 
 .code-crack-digit.filled {
     border-color: var(--primary-color);
-    background: var(--background-secondary);
+    background: var(--background-secondary-alpha);
     box-shadow: 0 0 15px var(--glow-color), inset 0 2px 5px rgba(0, 0, 0, 0.3);
 }
 
@@ -3718,7 +3723,7 @@ body::before, body::after,
 
 /* ===== WORD CRACK MINIGAME ===== */
 #word-crack-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 480px;
@@ -3985,7 +3990,7 @@ body::before, body::after,
 
 /* ===== BALANCE MINIGAME ===== */
 #balance-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 380px;
@@ -4174,7 +4179,7 @@ body::before, body::after,
 
 /* ===== AIM TEST MINIGAME ===== */
 #aim-test-container {
-    background: linear-gradient(135deg, var(--background-gradient-1) 0%, var(--background-gradient-2) 100%);
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     width: 500px;
@@ -4396,3 +4401,306 @@ body::before, body::after,
     display: block;
     filter: drop-shadow(0 0 25px rgba(0, 0, 0, 0.6));
 }
+
+/* ===== MODERN VISUAL THEME ===== */
+
+/* ===== MODERN VISUAL THEME ===== */
+
+.theme-modern {
+    --border-radius: 3px;
+    --border-radius-sm: 2px;
+    --border-radius-lg: 4px;
+    --box-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --box-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5);
+    --box-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+/* Classic theme (glowing, rounded style) */
+.theme-classic {
+    --border-radius: 8px;
+    --border-radius-sm: 4px;
+    --border-radius-lg: 12px;
+    --box-shadow-sm: 0 0 10px rgba(0, 0, 0, 0.3);
+    --box-shadow-md: 0 0 15px rgba(0, 0, 0, 0.4);
+    --box-shadow-lg: 0 0 25px rgba(0, 0, 0, 0.5);
+}
+
+/* Modern Theme: Main Containers - sharp, geometric */
+.theme-modern .minigame-container,
+.theme-modern #hack-container,
+.theme-modern #sequence-container,
+.theme-modern #rhythm-container,
+.theme-modern #keymash-container,
+.theme-modern #var-hack-container,
+.theme-modern #memory-container,
+.theme-modern #sequence-memory-container,
+.theme-modern #verbal-memory-container,
+.theme-modern #numbered-sequence-container,
+.theme-modern #symbol-search-container,
+.theme-modern #pipe-pressure-container,
+.theme-modern #pairs-container,
+.theme-modern #memory-colors-container,
+.theme-modern #untangle-container,
+.theme-modern #fingerprint-container,
+.theme-modern #code-crack-container,
+.theme-modern #word-crack-container,
+.theme-modern #balance-container,
+.theme-modern #aim-test-container,
+.theme-modern #circle-click-container,
+.theme-modern #lockpick-container {
+    border-radius: 4px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Modern: Interactive elements - crisp, geometric */
+.theme-modern .key-box,
+.theme-modern .sequence-key,
+.theme-modern .var-group,
+.theme-modern .memory-square,
+.theme-modern .sequence-memory-square,
+.theme-modern .numbered-sequence-square,
+.theme-modern .symbol-search-cell,
+.theme-modern .pipe-cell,
+.theme-modern .pairs-card,
+.theme-modern .mc-cell,
+.theme-modern .code-crack-digit,
+.theme-modern .word-crack-letter {
+    border-radius: 3px !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.2) !important;
+    border: none !important;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.6, 1) !important;
+    position: relative !important;
+}
+
+/* Modern: Hover states - sharp glow effect */
+.theme-modern .key-box:hover,
+.theme-modern .var-group:hover,
+.theme-modern .memory-square:hover,
+.theme-modern .sequence-memory-square:hover,
+.theme-modern .numbered-sequence-square:hover,
+.theme-modern .symbol-search-cell:hover,
+.theme-modern .pipe-cell:hover,
+.theme-modern .pairs-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 8px var(--primary-color) !important;
+    transform: scale(1.03) !important;
+    filter: brightness(1.1) !important;
+}
+
+/* Modern: Active states - sharp inset with glow */
+.theme-modern .key-box.active,
+.theme-modern .memory-square.active,
+.theme-modern .sequence-memory-square.active {
+    box-shadow: 0 0 12px var(--primary-color) inset, 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    transform: scale(0.97) !important;
+    border: 1px solid var(--primary-color) !important;
+}
+
+/* Modern: Buttons - geometric with gradient */
+.theme-modern button,
+.theme-modern .btn,
+.theme-modern .hack-button,
+.theme-modern #hack-button,
+.theme-modern .sequence-help button,
+.theme-modern .code-crack-btn,
+.theme-modern .word-crack-btn {
+    border-radius: 3px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.3) !important;
+    border: none !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-size: 0.85em !important;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.6, 1) !important;
+    background: linear-gradient(180deg, var(--background-tertiary), var(--background-secondary)) !important;
+}
+
+.theme-modern button:hover,
+.theme-modern .btn:hover,
+.theme-modern .hack-button:hover,
+.theme-modern #hack-button:hover,
+.theme-modern .sequence-help button:hover,
+.theme-modern .code-crack-btn:hover,
+.theme-modern .word-crack-btn:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5), 0 0 8px var(--primary-color) !important;
+    transform: translateY(-1px) scale(1.02) !important;
+    filter: brightness(1.15) !important;
+}
+
+.theme-modern button:active,
+.theme-modern .btn:active {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) inset !important;
+    transform: translateY(0) scale(0.98) !important;
+}
+
+/* Modern: Primary buttons - bold gradient */
+.theme-modern .hack-button,
+.theme-modern #hack-button,
+.theme-modern .code-crack-btn.crack-btn,
+.theme-modern .word-crack-btn.submit-btn {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 12px var(--primary-color) !important;
+}
+
+.theme-modern .hack-button:hover,
+.theme-modern #hack-button:hover,
+.theme-modern .code-crack-btn.crack-btn:hover,
+.theme-modern .word-crack-btn.submit-btn:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 16px var(--primary-color) !important;
+}
+
+/* Modern: Progress bars - sharp, flat */
+.theme-modern .timer-progress,
+.theme-modern .progress-bar,
+.theme-modern .keymash-progress-fill,
+.theme-modern .mc-timer-progress,
+.theme-modern .code-crack-timer-progress,
+.theme-modern .word-crack-timer-progress,
+.theme-modern .pulse-container,
+.theme-modern .pulse-bar {
+    border-radius: 2px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) inset !important;
+    border: 1px solid rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Modern: Pulse bars - sharp glow */
+.theme-modern .pulse-bar {
+    box-shadow: 0 0 8px currentColor, 0 1px 3px rgba(0, 0, 0, 0.4) inset !important;
+}
+
+/* Modern: Splash screens - bold geometric */
+.theme-modern .splash,
+.theme-modern .var-splash,
+.theme-modern .memory-splash {
+    border-radius: 4px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 1px rgba(255, 255, 255, 0.15) inset !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Modern: Input fields - sharp with inset */
+.theme-modern input[type="text"],
+.theme-modern input[type="number"],
+.theme-modern .mc-answer-input {
+    border-radius: 3px !important;
+    border: 1px solid rgba(0, 0, 0, 0.4) !important;
+    background: var(--background-secondary-alpha) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) inset, 0 0 0 1px rgba(255, 255, 255, 0.05) !important;
+    padding: 10px 12px !important;
+    transition: all 0.1s cubic-bezier(0.4, 0, 0.6, 1) !important;
+}
+
+.theme-modern input:focus {
+    background: var(--background-tertiary-alpha) !important;
+    box-shadow: 0 0 12px var(--primary-color) inset, 0 0 8px var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    outline: none !important;
+}
+
+/* Modern: Cards - geometric with shadow */
+.theme-modern .pairs-card {
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+}
+
+.theme-modern .pairs-card.flipped {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5), 0 0 10px var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+}
+
+/* Modern: Canvas containers - sharp edges */
+.theme-modern #untangle-canvas,
+.theme-modern #fingerprint-canvas,
+.theme-modern #balance-gauge,
+.theme-modern #circle-click-canvas,
+.theme-modern #lockpick-canvas {
+    border-radius: 3px !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.3) !important;
+    border: none !important;
+}
+
+/* Modern: Typography - bold, geometric */
+.theme-modern h1,
+.theme-modern h2,
+.theme-modern h3,
+.theme-modern .title,
+.theme-modern .splash h2 {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+    font-weight: 700 !important;
+    letter-spacing: 2px !important;
+    text-transform: uppercase !important;
+}
+
+/* Modern: Attempt indicators - sharp geometric */
+.theme-modern .attempt-indicator {
+    border-radius: 2px !important;
+    border: 1px solid rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset !important;
+    width: 14px !important;
+    height: 14px !important;
+}
+
+.theme-modern .attempt-indicator.active {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 8px var(--primary-color), 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+}
+
+.theme-modern .attempt-indicator.success {
+    border-color: var(--success-color) !important;
+    background: var(--success-color) !important;
+    box-shadow: 0 0 6px var(--success-color) !important;
+}
+
+.theme-modern .attempt-indicator.failure {
+    border-color: var(--failure-color) !important;
+    background: var(--failure-color) !important;
+    box-shadow: 0 0 6px var(--failure-color) !important;
+}
+
+/* Modern: Sharp glows on interactive elements */
+.theme-modern .pulse-bar,
+.theme-modern .key-box,
+.theme-modern .var-group,
+.theme-modern .memory-square,
+.theme-modern .sequence-memory-square {
+    filter: none !important;
+}
+
+/* Modern: Geometric scrollbars */
+.theme-modern ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.theme-modern ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 2px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) inset;
+}
+
+.theme-modern ::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+    border-radius: 2px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+.theme-modern ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.25));
+    box-shadow: 0 0 6px var(--primary-color);
+}
+
+/* Modern: Sharp border highlights */
+.theme-modern .minigame-container::before,
+.theme-modern #hack-container::before,
+.theme-modern #sequence-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    opacity: 0.3;
+}
+
+
+

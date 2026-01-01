@@ -26,9 +26,13 @@ local deathCheckThreadId = nil
 -- set color configuration to NUI on resource start
 Citizen.CreateThread(function()
     Citizen.Wait(500)
+    local activeOpacity = config.BackgroundOpacity[config.ActiveVisualTheme] or 0.95
+    
     SendNUIMessage({
         action = 'setColors',
-        colors = config.Colors
+        colors = config.Colors,
+        visualTheme = config.ActiveVisualTheme,
+        backgroundOpacity = activeOpacity
     })
 end)
 

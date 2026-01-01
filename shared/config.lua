@@ -20,8 +20,16 @@ config.DebugCommands = true -- This is for testing purposes only. Set to true to
 config.usingGlitchNotifications = true -- Set to true to enable glitch notifications.
 
 -- Active Color Theme
--- Options: 'cyan' or 'monochrome'
-config.ActiveTheme = 'monochrome'
+config.ActiveTheme = 'cyan' -- 'cyan' (original), 'monochrome' (black & white)
+
+-- Active Visual Theme
+config.ActiveVisualTheme = 'classic' -- 'classic' (original), 'modern' (new sleek design)
+
+-- Background Transparency (0.0 = fully transparent, 1.0 = fully opaque)
+config.BackgroundOpacity = {
+    classic = 0.70,  -- Default for classic theme
+    modern = 0.88    -- Default for modern theme
+}
 
 -- Available Color Themes
 config.Themes = {
@@ -50,6 +58,8 @@ config.Themes = {
         backgroundGradient2Rgba = '30, 60, 90',
         backgroundSecondary = '#001428', -- Secondary darker background
         backgroundSecondaryRgba = '0, 20, 40',
+        backgroundTertiary = '#002038', -- Tertiary background (for gradients)
+        backgroundTertiaryRgba = '0, 32, 56',
         border = '#505050',          -- Border/outline color
         borderRgba = '80, 80, 80',     -- RGB values for borders
         text = '#e0e0e0',            -- Primary text color
@@ -64,11 +74,11 @@ config.Themes = {
         safeRgba = '34, 197, 94',      -- RGB values for safe
         
         -- Minigame Specific Colors
-        minigameColor1 = '#33b5e5',  -- VarHack block 1, Memory Colors blue
-        minigameColor2 = '#1e90ff',  -- VarHack block 2, Memory Colors red
-        minigameColor3 = '#4169e1',  -- VarHack block 3, Memory Colors green
-        minigameColor4 = '#6495ed',  -- VarHack block 4, Memory Colors yellow
-        minigameColor5 = '#87ceeb',  -- VarHack block 5
+        minigameColor1 = '#273cfcff',  -- VarHack block 1, Memory Colors blue
+        minigameColor2 = '#2add57ff',  -- VarHack block 2, Memory Colors red
+        minigameColor3 = '#28e757ff',  -- VarHack block 3, Memory Colors green
+        minigameColor4 = '#edeb64ff',  -- VarHack block 4, Memory Colors yellow
+        minigameColor5 = '#eb87deff',  -- VarHack block 5
     },
 
     -- Black & White Monochrome Theme
@@ -96,6 +106,8 @@ config.Themes = {
         backgroundGradient2Rgba = '26, 26, 26',
         backgroundSecondary = '#0d0d0d', -- Secondary background (very dark gray)
         backgroundSecondaryRgba = '13, 13, 13',
+        backgroundTertiary = '#1a1a1a', -- Tertiary background (for gradients)
+        backgroundTertiaryRgba = '26, 26, 26',
         border = '#808080',           -- Border/outline color (medium gray)
         borderRgba = '128, 128, 128',   -- RGB values for borders
         text = '#ffffff',             -- Primary text color (white)
@@ -110,11 +122,11 @@ config.Themes = {
         safeRgba = '34, 197, 94',      -- RGB values for safe
         
         -- Minigame Specific Colors (all same for monochrome)
-        minigameColor1 = '#ffffff',  -- VarHack block 1, Memory Colors blue
-        minigameColor2 = '#ffffff',  -- VarHack block 2, Memory Colors red
-        minigameColor3 = '#ffffff',  -- VarHack block 3, Memory Colors green
-        minigameColor4 = '#ffffff',  -- VarHack block 4, Memory Colors yellow
-        minigameColor5 = '#ffffff',  -- VarHack block 5
+        minigameColor1 = '#273cfcff',  -- VarHack block 1, Memory Colors blue
+        minigameColor2 = '#2add57ff',  -- VarHack block 2, Memory Colors red
+        minigameColor3 = '#28e757ff',  -- VarHack block 3, Memory Colors green
+        minigameColor4 = '#edeb64ff',  -- VarHack block 4, Memory Colors yellow
+        minigameColor5 = '#eb87deff',  -- VarHack block 5
     }
 }
 
