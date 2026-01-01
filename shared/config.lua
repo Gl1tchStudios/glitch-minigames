@@ -38,6 +38,8 @@ config.Themes = {
         -- Primary Theme Colors
         primary = '#2dd4a8',         -- Main theme color (cyan) - used for success, highlights and accents
         primaryRgba = '45, 212, 168',  -- RGB values for rgba() usage
+        secondary = '#1a8c6f',       -- Secondary/darker variant of primary for gradients
+        secondaryRgba = '26, 140, 111', -- RGB values for secondary
         
         -- Success/Failure Colors
         success = '#2dd4a8',         -- Success feedback color (cyan)
@@ -86,6 +88,8 @@ config.Themes = {
         -- Primary Theme Colors
         primary = '#ffffff',          -- Main theme color (white) - used for highlights and accents
         primaryRgba = '255, 255, 255',  -- RGB values for rgba() usage
+        secondary = '#cccccc',        -- Secondary/darker variant of primary for gradients
+        secondaryRgba = '204, 204, 204', -- RGB values for secondary
         
         -- Success/Failure Colors (Using color for feedback)
         success = '#2dd4a8',         -- Success feedback color (cyan/green)

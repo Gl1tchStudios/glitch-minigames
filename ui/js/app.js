@@ -18,6 +18,8 @@
 window.MinigameColors = {
     primary: '#2dd4a8',
     primaryRgba: '45, 212, 168',
+    secondary: '#1a8c6f',
+    secondaryRgba: '26, 140, 111',
     success: '#2dd4a8',
     successRgba: '45, 212, 168',
     failure: '#ff4444',
@@ -71,6 +73,7 @@ $(document).ready(function() {
                 root.style.setProperty('--background-tertiary-alpha', `rgba(${tertiaryRgba}, ${opacity})`);
             }
             root.style.setProperty('--primary-color', data.colors.primary);
+            root.style.setProperty('--secondary-color', data.colors.secondary);
             root.style.setProperty('--success-color', data.colors.success);
             root.style.setProperty('--failure-color', data.colors.failure);
             root.style.setProperty('--warning-color', data.colors.warning);

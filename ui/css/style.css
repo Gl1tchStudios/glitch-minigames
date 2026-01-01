@@ -20,6 +20,7 @@
 :root {
     /* Themeable colors */
     --primary-color: #2dd4a8;
+    --secondary-color: #1a8c6f;
     --success-color: #2dd4a8;
     --failure-color: #ff4444;
     --warning-color: #fbbf24;
@@ -39,6 +40,13 @@
     --background-secondary-alpha: rgba(0, 20, 40, 0.95);
     --background-tertiary-alpha: rgba(0, 32, 56, 0.95);
     
+    /* Minigame specific colors */
+    --minigame-color-1: #273cfcff;
+    --minigame-color-2: #2add57ff;
+    --minigame-color-3: #28e757ff;
+    --minigame-color-4: #edeb64ff;
+    --minigame-color-5: #eb87deff;
+    
     /* Legacy variables for compatibility */
     --neon-blue: var(--primary-color);
     --light-blue: var(--primary-color);
@@ -46,6 +54,7 @@
     --dark-bg: var(--background-gradient-1);
     --safe-zone: var(--safe-color);
     --glow: rgba(45, 212, 168, 0.7);
+    --glow-color: var(--primary-color);
     --background: var(--background-color);
     --text: var(--text-color);
 }
@@ -413,8 +422,8 @@ body, html {
 
 .key-box.next {
     background: rgba(20, 20, 20, 0.6);
-    border-color: #777;
-    color: #777;
+    border-color: var(--text-secondary-color);
+    color: var(--text-secondary-color);
 }
 
 .current-key {
@@ -879,7 +888,7 @@ body, html {
 
 @keyframes failure-flash {
     0% { stroke: var(--danger-color); filter: drop-shadow(0 0 6px var(--danger-color)); }
-    50% { stroke: var(--failure-color); filter: drop-shadow(0 0 15px #ff0000); }
+    50% { stroke: var(--failure-color); filter: drop-shadow(0 0 15px var(--failure-color)); }
     100% { stroke: var(--danger-color); filter: drop-shadow(0 0 6px var(--danger-color)); }
 }
 
@@ -3573,7 +3582,7 @@ body::before, body::after,
 }
 
 .code-crack-btn.delete-btn {
-    background: linear-gradient(to bottom, #ff4444, var(--danger-color));
+    background: linear-gradient(to bottom, var(--failure-color), var(--danger-color));
     color: #fff;
     border: 1px solid rgba(255, 68, 68, 0.7);
     box-shadow: 0 2px 10px rgba(255, 68, 68, 0.4);
@@ -3839,7 +3848,7 @@ body::before, body::after,
 }
 
 .word-crack-btn.delete-btn {
-    background: linear-gradient(to bottom, #ff4444, var(--danger-color));
+    background: linear-gradient(to bottom, var(--failure-color), var(--danger-color));
     color: #fff;
     border: 1px solid rgba(255, 68, 68, 0.7);
     box-shadow: 0 2px 10px rgba(255, 68, 68, 0.4);
@@ -4231,7 +4240,7 @@ body::before, body::after,
 
 .aim-test-target {
     position: absolute;
-    background: radial-gradient(circle at 30% 30%, #ff4444, var(--danger-color) 40%, var(--danger-color) 70%, var(--danger-color));
+    background: radial-gradient(circle at 30% 30%, var(--failure-color), var(--danger-color) 40%, var(--danger-color) 70%, var(--danger-color));
     border-radius: 50%;
     cursor: crosshair;
     box-shadow: 0 0 20px rgba(255, 68, 68, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.3);
