@@ -29,6 +29,11 @@
             background: transparent !important;
             overflow: hidden;
         }
+        
+        body::before, body::after {
+            display: none !important;
+            content: none !important;
+        }
     </style>
 </head>
 <body>
@@ -206,10 +211,417 @@
         </div>
     </div>
 
+    <!-- Memory Game Container -->
+    <div id="memory-container" class="game-container">
+        <div class="hack-title">
+            <h2>NEURAL PATTERN <span class="blink">[MEMORY MATRIX]</span></h2>
+        </div>
+        
+        <div class="memory-display">
+            <div class="memory-splash">
+                <div class="memory-icon">🧠</div>
+                <span class="memory-text">PREPARING MEMORY MATRIX...</span>
+            </div>
+            <div class="memory-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="counter">ROUND: <span id="memory-round-current">1</span>/<span id="memory-round-total">3</span></div>
+            <div class="message"><span id="memory-message">Memorize the pattern</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="memory-timer-progress"></div>        </div>
+            <div class="timer-text">Time: <span id="memory-timer">3.0</span>s</div>
+        </div>    </div>    
+        
+    <!-- Sequence Memory Game Container -->
+    <div id="sequence-memory-container" class="game-container">
+        <div class="hack-title">
+            <h2>SEQUENCE PATTERN <span class="blink">[NEURAL SEQUENCE]</span></h2>
+        </div>
+        
+        <div class="sequence-memory-display">
+            <div class="sequence-memory-splash">
+                <div class="sequence-memory-icon">🔄</div>
+                <span class="sequence-memory-text">PREPARING SEQUENCE MATRIX...</span>
+            </div>
+            <div class="sequence-memory-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="counter">ROUND: <span id="sequence-memory-round-current">1</span>/<span id="sequence-memory-round-total">5</span></div>
+            <div class="message"><span id="sequence-memory-message">Watch the sequence</span></div>
+        </div>
+          <div class="timer-container">
+            <div class="timer-bar">
+                <div class="sequence-memory-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="sequence-memory-timer">3.0</span>s</div>
+        </div>    </div>
+        
+    <!-- Numbered Sequence Game Container -->
+    <div id="numbered-sequence-container" class="game-container">
+        <div class="hack-title">
+            <h2>NUMBERED SEQUENCE <span class="blink">[NUMERICAL MATRIX]</span></h2>
+        </div>
+        
+        <div class="numbered-sequence-display">
+            <div class="numbered-sequence-splash">
+                <div class="numbered-sequence-icon">🔢</div>
+                <span class="numbered-sequence-text">PREPARING NUMBERED MATRIX...</span>
+            </div>
+            <div class="numbered-sequence-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="counter">ROUND: <span id="numbered-sequence-round-current">1</span>/<span id="numbered-sequence-round-total">3</span></div>
+            <div class="message"><span id="numbered-sequence-message">Memorize the numbered sequence</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="numbered-sequence-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="numbered-sequence-timer">4.0</span>s</div>
+        </div>
+    </div>
+        
+    <!-- Verbal Memory Game Container -->
+    <div id="verbal-memory-container" class="game-container">
+        <div class="hack-title">
+            <h2>VERBAL MEMORY <span class="blink">[WORD RECOGNITION]</span></h2>
+        </div>
+        
+        <div class="verbal-memory-display">
+            <div class="verbal-memory-splash">
+                <div class="verbal-memory-icon">📝</div>
+                <span class="verbal-memory-text">PREPARING WORD MATRIX...</span>
+            </div>            <div class="verbal-memory-game">
+                <div class="verbal-memory-top-section">
+                    <div class="verbal-memory-word-display">
+                        <span id="verbal-memory-current-word">WORD</span>
+                    </div>
+                </div>
+                <div class="verbal-memory-bottom-section">
+                    <div class="verbal-memory-left-btn">
+                        <button id="verbal-memory-seen-btn" class="verbal-memory-btn seen-btn">SEEN</button>
+                    </div>
+                    <div class="verbal-memory-right-btn">
+                        <button id="verbal-memory-new-btn" class="verbal-memory-btn new-btn">NEW</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="hack-info">
+            <div class="counter">SCORE: <span id="verbal-memory-score">0</span> | STRIKES: <span id="verbal-memory-strikes">0</span>/<span id="verbal-memory-max-strikes">3</span></div>
+            <div class="message"><span id="verbal-memory-message">Click SEEN if you've seen this word before, or NEW if it's a new word</span></div>
+        </div>
+          <div class="timer-container">
+            <div class="timer-bar">
+                <div class="verbal-memory-timer-progress"></div>
+            </div>            <div class="timer-text">Time: <span id="verbal-memory-time-left">5.0</span>s | Words: <span id="verbal-memory-word-count">0</span></div>
+        </div>
+    </div>
+
+    <!-- Symbol Search Game Container -->
+    <div id="symbol-search-container" class="game-container">
+        <div class="hack-title">
+            <h2>SYMBOL SCAN <span class="blink">[TARGET ACQUISITION]</span></h2>
+        </div>
+        
+        <div class="symbol-search-display">
+            <div class="symbol-search-splash">
+                <div class="symbol-search-icon">🔍</div>
+                <span class="symbol-search-text">INITIALIZING SCANNER...</span>
+            </div>
+            <div class="symbol-search-target-display">
+                <span class="symbol-search-target-label">FIND TARGET:</span>
+                <span id="symbol-search-target">◆</span>
+            </div>
+            <div class="symbol-search-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="message"><span id="symbol-search-message">Find and select the target symbol</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="symbol-search-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="symbol-search-timer">30.0</span>s</div>
+        </div>
+        
+        <div class="symbol-search-controls">
+            <span><span class="key">W A S D</span> / <span class="key">↑ ↓ ← →</span> Move</span>
+            <span><span class="key">ENTER</span> / <span class="key">SPACE</span> Select</span>
+        </div>
+    </div>
+
+    <!-- Pipe Pressure Game Container -->
+
+    <div id="pipe-pressure-container" class="game-container">
+        <div class="hack-title">
+            <h2>PIPE PRESSURE <span class="blink">[FLOW CONNECT]</span></h2>
+        </div>
+        
+        <div class="pipe-pressure-display">
+            <div id="pipe-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="message"><span id="pipe-pressure-message">Click pipes to rotate. Connect START to END.</span></div>
+        </div>
+        
+        <div class="timer-container">
+            <div class="timer-bar">
+                <div class="pipe-pressure-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="pipe-pressure-timer">30.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Pairs Memory Game Container -->
+    <div id="pairs-container" class="game-container">
+        <div class="hack-title">
+            <h2>PAIRS <span class="blink">[MEMORY MATCH]</span></h2>
+        </div>
+        
+        <div class="pairs-display">
+            <div id="pairs-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="message">
+                <span>Find all matching pairs. Click cards to flip them.</span>
+            </div>
+            <div class="pairs-stats">
+                <span class="pairs-pairs-info">Pairs: <span id="pairs-pairs">0 / 0</span></span>
+                <span class="pairs-attempts-info">Attempts: <span id="pairs-attempts">0</span></span>
+            </div>
+        </div>
+        
+        <div class="timer-container pairs-timer-container">
+            <div class="timer-bar">
+                <div class="pairs-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="pairs-timer">30.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Memory Colors Container -->
+    <div id="memory-colors-container" class="game-container">
+        <div class="hack-title">
+            <h2>MEMORY COLORS <span class="blink">[MEMORIZE]</span></h2>
+        </div>
+        
+        <div class="memory-colors-display">
+            <div id="memory-colors-grid"></div>
+        </div>
+
+        <div class="hack-info">
+            <div class="mc-info-row">
+                <div class="message">
+                    <span id="mc-instruction">Memorize the colored boxes</span>
+                </div>
+            </div>
+            <div class="mc-answer-row">
+                <div id="mc-question" class="mc-question"></div>
+                <div id="mc-answer-section" class="mc-answer-section">
+                    <input type="number" id="mc-answer-input" class="mc-answer-input" placeholder="?" min="0" max="99">
+                    <button id="mc-submit-btn" class="mc-submit-btn">Submit</button>
+                </div>
+                <div class="mc-stats">
+                    <span class="mc-round-info">Round: <span id="mc-round">1 / 3</span></span>
+                    <span class="mc-score-info">Score: <span id="mc-score">0</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="timer-container mc-timer-container">
+            <div class="timer-bar">
+                <div class="mc-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="mc-timer">5.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Untangle Container -->
+    <div id="untangle-container" class="game-container">
+        <div class="hack-title">
+            <h2>UNTANGLE <span class="blink">[NETWORK]</span></h2>
+        </div>
+        
+        <div class="untangle-display">
+            <canvas id="untangle-canvas"></canvas>
+        </div>
+
+        <div class="hack-info">
+            <div class="untangle-info-row">
+                <div class="message">
+                    <span>Drag dots to untangle. No lines should cross.</span>
+                </div>
+                <div class="untangle-stats">
+                    <span class="untangle-crossings-info">Crossings: <span id="untangle-crossings">0</span></span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="timer-container untangle-timer-container">
+            <div class="timer-bar">
+                <div class="untangle-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="untangle-timer">60.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Fingerprint Container -->
+    <div id="fingerprint-container" class="game-container">
+        <div class="hack-title">
+            <h2>FINGERPRINT <span class="blink">[SCANNER]</span></h2>
+        </div>
+        
+        <div class="hack-info">
+            <div class="fingerprint-info-row">
+                <div class="message">
+                    <span>Align all arc segments to complete the fingerprint</span>
+                </div>
+                <div class="fingerprint-stats">
+                    <span class="fingerprint-matched-info">Aligned: <span id="fingerprint-matched">0/5</span></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="fingerprint-display">
+            <div id="fingerprint-row-controls" class="fp-controls-left"></div>
+            <canvas id="fingerprint-canvas"></canvas>
+            <div id="fingerprint-row-controls-right" class="fp-controls-right"></div>
+        </div>
+        
+        <div class="timer-container fingerprint-timer-container">
+            <div class="timer-bar">
+                <div class="fingerprint-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="fingerprint-timer">30.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Code Crack Container -->
+    <div id="code-crack-container" class="game-container">
+        <div class="hack-title">
+            <h2>CODE CRACK <span class="blink">[PIN BREACH]</span></h2>
+        </div>
+        
+        <div class="code-crack-display"></div>
+        
+        <div class="timer-container code-crack-timer-container">
+            <div class="timer-bar">
+                <div class="code-crack-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="code-crack-timer">60.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Word Crack Container -->
+    <div id="word-crack-container" class="game-container">
+        <div class="hack-title">
+            <h2>WORD CRACK <span class="blink">[LEXICON BREACH]</span></h2>
+        </div>
+        
+        <div class="word-crack-display"></div>
+        
+        <div class="timer-container word-crack-timer-container">
+            <div class="timer-bar">
+                <div class="word-crack-timer-progress"></div>
+            </div>
+            <div class="timer-text">Time: <span id="word-crack-timer">120.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Balance Container -->
+    <div id="balance-container" class="game-container">
+        <div class="hack-title">
+            <h2>BALANCE <span class="blink">[STABILIZATION REQUIRED]</span></h2>
+        </div>
+        
+        <div class="balance-display">
+            <canvas id="balance-gauge" width="320" height="200"></canvas>
+            <div class="balance-controls">
+                <span class="balance-key">Q</span>
+                <div class="balance-danger-bar">
+                    <div class="balance-danger-fill"></div>
+                </div>
+                <span class="balance-key">E</span>
+            </div>
+            <div class="balance-status safe">STABLE</div>
+        </div>
+        
+        <div class="balance-instruction">Keep the needle balanced by pressing Q and E - don't let it fall into the red zones!</div>
+        
+        <div class="timer-container balance-timer-container">
+            <div class="timer-bar">
+                <div class="balance-timer-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Circle Click Container -->
+    <div id="circle-click-container">
+        <canvas id="circle-click-canvas" width="160" height="160"></canvas>
+    </div>
+
+    <!-- Lockpick Container -->
+    <div id="lockpick-container">
+        <canvas id="lockpick-canvas" width="180" height="180"></canvas>
+    </div>
+
+    <!-- Aim Test Container -->
+    <div id="aim-test-container" class="game-container">
+        <div class="hack-title">
+            <h2>AIM TEST <span class="blink">[TARGET ACQUISITION]</span></h2>
+        </div>
+        
+        <div class="aim-test-display">
+            <div class="aim-test-info">
+                <span class="aim-test-counter">HITS: <span id="aim-test-hits">0</span>/<span id="aim-test-total">10</span></span>
+                <span class="aim-test-misses">MISSED: <span id="aim-test-misses">0</span>/<span id="aim-test-max-misses">5</span></span>
+            </div>
+            <div class="aim-test-area"></div>
+        </div>
+        
+        <div class="aim-test-instruction">Click the targets before they disappear!</div>
+        
+        <div class="timer-container aim-test-timer-container">
+            <div class="timer-bar">
+                <div class="aim-test-timer-progress"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/numberedSequence.js"></script>
+    <script src="js/balance.js"></script>
+    <script src="js/firewallPulse.js"></script>
+    <script src="js/backdoorSequence.js"></script>
     <script src="js/app.js"></script>
-    <script src="js/sequence.js"></script>
     <script src="js/rhythm.js"></script>
     <script src="js/keymash.js"></script>
     <script src="js/varhack.js"></script>
+    <script src="js/memory.js"></script>
+    <script src="js/sequenceMemory.js"></script>
+    <script src="js/verbalMemory.js"></script>
+    <script src="js/symbolSearch.js"></script>
+    <script src="js/pipePressure.js"></script>
+    <script src="js/pairs.js"></script>
+    <script src="js/memoryColors.js"></script>
+    <script src="js/untangle.js"></script>
+    <script src="js/fingerprint.js"></script>
+    <script src="js/codeCrack.js"></script>
+    <script src="js/wordCrack.js"></script>
+    <script src="js/aimTest.js"></script>
+    <script src="js/circleClick.js"></script>
+    <script src="js/lockpick.js"></script>
 </body>
 </html>

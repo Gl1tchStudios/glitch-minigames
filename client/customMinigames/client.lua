@@ -23,6 +23,19 @@ local callback = nil
 
 local deathCheckThreadId = nil
 
+-- set color configuration to NUI on resource start
+Citizen.CreateThread(function()
+    Citizen.Wait(500)
+    local activeOpacity = config.BackgroundOpacity[config.ActiveVisualTheme] or 0.95
+    
+    SendNUIMessage({
+        action = 'setColors',
+        colors = config.Colors,
+        visualTheme = config.ActiveVisualTheme,
+        backgroundOpacity = activeOpacity
+    })
+end)
+
 local function cleanupMinigame()
     isHacking = false
     isSequencing = false
@@ -39,10 +52,37 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endSequence', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endRhythm', forced = true })
+    Citizen.Wait(50)    SendNUIMessage({ action = 'endKeymash', forced = true })
+    Citizen.Wait(50)    SendNUIMessage({ action = 'endVarHack', forced = true })
+    Citizen.Wait(50)    SendNUIMessage({ action = 'endMemory', forced = true })
     Citizen.Wait(50)
-    SendNUIMessage({ action = 'endKeymash', forced = true })
+    SendNUIMessage({ type = 'closeSequenceMemory', forced = true })
     Citizen.Wait(50)
-    SendNUIMessage({ action = 'endVarHack', forced = true })
+    SendNUIMessage({ action = 'endNumberedSequence', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endSymbolSearch', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endPipePressure', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endPairs', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endMemoryColors', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endUntangle', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endFingerprint', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endCodeCrack', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endWordCrack', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endBalance', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endAimTest', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endCircleClick', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endLockpick', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -130,6 +170,14 @@ RegisterNUICallback('varHackResult', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('memoryResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
 RegisterNUICallback('playerDied', function(_, cb)
     cb('ok')
 end)
@@ -140,6 +188,206 @@ RegisterNUICallback('surgeClose', function(data, cb)
 end)
 
 RegisterNUICallback('varHackClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('memoryClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('sequenceMemoryResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('sequenceMemoryClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('verbalMemoryResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.score, data.strikes)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('verbalMemoryClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('numberedSequenceResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('numberedSequenceClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('symbolSearchResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('symbolSearchClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('pipePressureResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('pipePressureClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('pairsResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.attempts, data.matchedPairs)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('pairsClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('memoryColorsResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.score, data.rounds)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('memoryColorsClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('untangleResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('untangleClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('fingerprintResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('fingerprintClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('codeCrackResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('codeCrackClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('wordCrackResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('wordCrackClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('balanceResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('balanceClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('aimTestResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.targetsHit, data.targetsMissed)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('aimTestClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('circleClickResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.successes, data.failures)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('circleClickClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('lockpickResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.successes, data.failures)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('lockpickClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -346,7 +594,488 @@ exports('StartVarHack', function(blocks, speed)
     return Citizen.Await(p)
 end)
 
-if config.DebugCommands then 
+exports('StartMemoryGame', function(gridSize, squareCount, rounds, showTime, maxWrongPresses)
+    local p = promise.new()
+    
+    if isHacking then return false end
+      local memoryConfig = {
+        gridSize = gridSize or 5,
+        squareCount = squareCount or 8,
+        rounds = rounds or 3,
+        showTime = showTime or 3000,
+        maxWrongPresses = maxWrongPresses or 3
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startMemory',
+        config = memoryConfig
+    })
+      startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartSequenceMemoryGame', function(gridSize, maxRounds, maxWrongPresses, showTime, delayBetween)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local sequenceConfig = {
+        gridSize = gridSize or 4,
+        maxRounds = maxRounds or 5,
+        maxWrongPresses = maxWrongPresses or 3,
+        showTime = showTime or 1000,
+        delayBetween = delayBetween or 300
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)    SendNUIMessage({ 
+        type = 'startSequenceMemory',
+        config = sequenceConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartVerbalMemoryGame', function(maxStrikes, wordsToShow, wordDuration)
+    local p = promise.new()
+    
+    if isHacking then return false end
+      local verbalConfig = {
+        maxStrikes = maxStrikes or 3,
+        wordsToShow = wordsToShow or 50,
+        wordDuration = wordDuration or 5000 
+    }
+    
+    callback = function(success, score, strikes)
+        p:resolve({success = success, score = score, strikes = strikes})
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startVerbalMemory',
+        config = verbalConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartNumberedSequenceGame', function(gridSize, sequenceLength, rounds, showTime, guessTime, maxWrongPresses)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local numberedConfig = {
+        gridSize = gridSize or 4,
+        sequenceLength = sequenceLength or 6,
+        rounds = rounds or 3,
+        showTime = showTime or 4000,
+        guessTime = guessTime or 10000,
+        maxWrongPresses = maxWrongPresses or 3
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startNumberedSequence',
+        config = numberedConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartSymbolSearchGame', function(gridSize, shiftInterval, timeLimit, minKeyLength, maxKeyLength, symbolType)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    minKeyLength = math.max(1, math.min(6, minKeyLength or 1))
+    maxKeyLength = math.max(1, math.min(6, maxKeyLength or 1))
+    
+    if minKeyLength > maxKeyLength then
+        minKeyLength = maxKeyLength
+    end
+    
+    local symbolSearchConfig = {
+        gridSize = gridSize or 8,
+        shiftInterval = shiftInterval or 1000,
+        timeLimit = timeLimit or 30000,
+        minKeyLength = minKeyLength,
+        maxKeyLength = maxKeyLength,
+    }
+    
+    if type(symbolType) == "table" then
+        symbolSearchConfig.symbols = symbolType
+    elseif type(symbolType) == "string" then
+        symbolSearchConfig.symbolType = symbolType
+    else
+        symbolSearchConfig.symbolType = "symbols"
+    end
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startSymbolSearch',
+        config = symbolSearchConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartPipePressureGame', function(gridSize, timeLimit)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local pipeConfig = {
+        gridSize = gridSize or 6,
+        timeLimit = timeLimit or 30000
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startPipePressure',
+        config = pipeConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartPairsGame', function(gridSize, timeLimit, maxAttempts)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local pairsConfig = {
+        gridSize = gridSize or 4,
+        timeLimit = timeLimit or 120000, -- Time limit (in ms) or 0 for unlimited
+        maxAttempts = maxAttempts or 0 -- Max attempts or 0 for unlimited
+    }
+    
+    callback = function(success, attempts, matchedPairs)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startPairs',
+        config = pairsConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartMemoryColorsGame', function(gridSize, memorizeTime, answerTime, rounds)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local mcConfig = {
+        gridSize = gridSize or 5,
+        memorizeTime = memorizeTime or 5000,
+        answerTime = answerTime or 10000,
+        rounds = rounds or 3
+    }
+    
+    callback = function(success, score, totalRounds)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startMemoryColors',
+        config = mcConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartUntangleGame', function(nodeCount, timeLimit)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local untangleConfig = {
+        nodeCount = nodeCount or 8,
+        timeLimit = timeLimit or 60000 -- 60 seconds default
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startUntangle',
+        config = untangleConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartFingerprintGame', function(timeLimit, showAlignedCount, showCorrectIndicator)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local fingerprintConfig = {
+        timeLimit = timeLimit or 30000, -- 30 seconds default
+        showAlignedCount = showAlignedCount ~= false, -- default true
+        showCorrectIndicator = showCorrectIndicator ~= false -- default true
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startFingerprint',
+        config = fingerprintConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartCodeCrackGame', function(timeLimit, digitCount, maxAttempts)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local codeCrackConfig = {
+        timeLimit = timeLimit or 60000, -- 60 seconds default
+        digitCount = digitCount or 4, -- 4 digits default
+        maxAttempts = maxAttempts or 6 -- 6 attempts default
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startCodeCrack',
+        config = codeCrackConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartWordCrackGame', function(timeLimit, wordLength, maxAttempts)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local wordCrackConfig = {
+        timeLimit = timeLimit or 120000, -- 120 seconds default
+        wordLength = wordLength or 5, -- 5 letters default
+        maxAttempts = maxAttempts or 6 -- 6 attempts default
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startWordCrack',
+        config = wordCrackConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartBalanceGame', function(timeLimit, driftSpeed, sensitivity, greenZoneWidth, yellowZoneWidth, driftRandomness, maxDangerTime)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local balanceConfig = {
+        timeLimit = timeLimit or 10000, -- 10 seconds default
+        driftSpeed = driftSpeed or 3, -- How fast needle drifts
+        sensitivity = sensitivity or 8, -- How much Q/E moves needle
+        greenZoneWidth = greenZoneWidth or 30, -- Width of safe green zone
+        yellowZoneWidth = yellowZoneWidth or 25, -- Width of warning yellow zone
+        driftRandomness = driftRandomness or 2, -- How unpredictable the drift is
+        maxDangerTime = maxDangerTime or 1000 -- Time allowed in red before fail (ms)
+    }
+    
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, false)
+    SendNUIMessage({ 
+        action = 'startBalance',
+        config = balanceConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartAimTestGame', function(timeLimit, targetsToHit, targetLifetime, targetSize, shrinkTarget, maxMisses, timePenalty)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local aimTestConfig = {
+        timeLimit = timeLimit or 30000, -- 30 seconds default
+        targetsToHit = targetsToHit or 10, -- Number of targets to win
+        targetLifetime = targetLifetime or 1500, -- How long target stays (ms)
+        targetSize = targetSize or 60, -- Target diameter in pixels
+        shrinkTarget = shrinkTarget ~= false, -- Whether target shrinks over time
+        maxMisses = maxMisses or 5, -- Max missed targets before fail
+        timePenalty = timePenalty or 0 -- Time removed on miss (ms), 0 = disabled
+    }
+    
+    callback = function(success, targetsHit, targetsMissed)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ 
+        action = 'startAimTest',
+        config = aimTestConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartCircleClickGame', function(rounds, rotationSpeed, targetZoneSize, maxFailures, speedIncrease, randomizeDirection, keys)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local circleClickConfig = {
+        rounds = rounds or 5, -- Number of rounds to complete
+        rotationSpeed = rotationSpeed or 2, -- Degrees per frame
+        targetZoneSize = targetZoneSize or 45, -- Target zone in degrees
+        maxFailures = maxFailures or 3, -- Max failures before game over
+        speedIncrease = speedIncrease or 0.15, -- Speed increase per round
+        randomizeDirection = randomizeDirection ~= false, -- Randomize rotation direction
+        keys = keys or {'W', 'A', 'S', 'D'} -- Possible keys to display
+    }
+    
+    callback = function(success, successes, failures)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, false)
+    SendNUIMessage({ 
+        action = 'startCircleClick',
+        config = circleClickConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartLockpickGame', function(rounds, sweetSpotSize, maxFailures, shakeRange, lockTime)
+    local p = promise.new()
+    
+    if isHacking then return false end
+    
+    local lockpickConfig = {
+        rounds = rounds or 3, -- number of locks to pick
+        sweetSpotSize = sweetSpotSize or 30, -- sweet spot size in degrees (smaller = harder)
+        maxFailures = maxFailures or 2, -- max failures before game over
+        shakeRange = shakeRange or 40, -- how far from sweet spot shake starts (degrees)
+        lockTime = lockTime or 500 -- how long to hold to lock (ms)
+    }
+    
+    callback = function(success, successes, failures)
+        p:resolve(success)
+        callback = nil
+    end
+    
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, false)
+    SendNUIMessage({ 
+        action = 'startLockpick',
+        config = lockpickConfig
+    })
+    
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
         print("Result: ", success)
@@ -365,13 +1094,118 @@ if config.DebugCommands then
     RegisterCommand('testrhythm', function()
         local result = exports['glitch-minigames']:StartCircuitRhythm(4, {'A','S','D','F'}, 150, 800, 15, "normal", 5, 3)
         print("Result: ", result)
+    end, false)    
+    
+    RegisterCommand('testvarhack', function()
+        local success = exports['glitch-minigames']:StartVarHack(5, 25) -- 5 blocks, speed 25
+        print("Result: ", success)
+    end, false)    
+    
+    RegisterCommand('testmemory', function()
+        local success = exports['glitch-minigames']:StartMemoryGame(5, 8, 3, 3000) -- 5x5 grid, 8 squares, 3 rounds, 3s show time
+        print("Memory Game Result: ", success)
+    end, false)    
+      
+    RegisterCommand('testsequencememory', function()
+        local success = exports['glitch-minigames']:StartSequenceMemoryGame(4, 5, 3, 1000, 300) -- 4x4 grid, max 5 rounds, 3 wrong presses, 1s show time, 300ms between
+        print("Sequence Memory Game Result: ", success)
+    end, false)
+    
+    RegisterCommand('testverbalmemory', function()
+        local result = exports['glitch-minigames']:StartVerbalMemoryGame(3, 20, 5000) -- 3 strikes, 20 words, 5s per word
+        print("Verbal Memory Game Result: Success:", result.success, "Score:", result.score, "Strikes:", result.strikes)
     end, false)
 
-    RegisterCommand('testvarhack', function()
-        local success = exports['glitch-minigames']:StartVarHack(5, 25)
-        print("Result: ", success)
+    RegisterCommand('testnumberedsequence', function()
+        local success = exports['glitch-minigames']:StartNumberedSequenceGame(4, 6, 3, 4000, 10000, 2) -- 4x4 grid, 6 numbers, 3 rounds, 4s show time, 10s answer time, 2 wrong presses allowed
+        print("Numbered Sequence Game Result: ", success)
     end, false)
-end 
+
+    RegisterCommand('testsymbolsearch_letters', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "letters") -- 8x8 grid, shift every 1s, 30s time limit, key length 3-3, letters
+        print("Symbol Search Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_symbols', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "symbols") -- 8x8 grid, shift every 1s, 30s time limit, key length 3-3, symbols
+        print("Symbol Search (Symbols) Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_numbers', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 4, 4, "numbers") -- 8x8 grid, shift every 1s, 30s time limit, key length 4-4, numbers
+        print("Symbol Search (Numbers) Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_emojis', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(6, 1200, 25000, 3, 3, "emojis") -- 6x6 grid, shift every 1.2s, 25s time limit, key length 3-3, emojis
+        print("Symbol Search (Emojis) Result: ", success)
+    end, false)
+
+    RegisterCommand('testsymbolsearch_dots', function()
+        local success = exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "dots") -- 8x8 grid, shift every 1s, 30s time limit, key length 3-3, dots
+        print("Symbol Search (Dots) Result: ", success)
+    end, false)
+
+    RegisterCommand('testpipepressure', function()
+        local success = exports['glitch-minigames']:StartPipePressureGame(6, 30000) -- 6x6 grid, 30 seconds
+        print("Pipe Pressure Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testpairs', function()
+        local success = exports['glitch-minigames']:StartPairsGame(4, nil, 0) -- 4x4 grid, 2min default time, no attempt limit
+        print("Pairs Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testmemorycolors', function()
+        local success = exports['glitch-minigames']:StartMemoryColorsGame(5, 5000, 10000, 3) -- 5x5 grid, 5s memorize, 10s answer, 3 rounds
+        print("Memory Colors Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testuntangle', function()
+        local success = exports['glitch-minigames']:StartUntangleGame(8, 60000) -- 8 nodes, 60 seconds
+        print("Untangle Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testfingerprint', function()
+        local success = exports['glitch-minigames']:StartFingerprintGame(30000, true, true) -- 30 seconds, show aligned count, show correct indicator
+        print("Fingerprint Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testfingerprinthard', function()
+        local success = exports['glitch-minigames']:StartFingerprintGame(30000, false, false) -- 30 seconds, no hints
+        print("Fingerprint Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testcodecrack', function()
+        local success = exports['glitch-minigames']:StartCodeCrackGame(60000, 4, 6) -- 60 seconds, 4 digits, 6 attempts
+        print("Code Crack Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testwordcrack', function()
+        local success = exports['glitch-minigames']:StartWordCrackGame(120000, 5, 6) -- 120 seconds, 5 letters, 6 attempts
+        print("Word Crack Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testbalance', function()
+        local success = exports['glitch-minigames']:StartBalanceGame(10000, 3, 8, 30, 25, 2, 1000) -- 10s, driftSpeed 3, sensitivity 8, greenZoneWidth 30, yellowZoneWidth 25, driftRandomness 2, maxDangerTime 1s
+        print("Balance Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testaimtest', function()
+        local success = exports['glitch-minigames']:StartAimTestGame(30000, 10, 1500, 60, true, 5, 0) -- 30s, 10 targets, 1.5s lifetime, 60px size, shrink, 5 max misses, no time penalty
+        print("Aim Test Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testcircleclick', function()
+        local success = exports['glitch-minigames']:StartCircleClickGame(5, 1, 45, 3, 0.15, true, {'W', 'A', 'S', 'D'}) -- 5 rounds, speed 1, 45 degree zone, 3 max failures, 0.15 speed increase, randomize direction, keys W,A,S,D
+        print("Circle Click Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testlockpick', function()
+        local success = exports['glitch-minigames']:StartLockpickGame(3, 30, 2, 40, 500) -- 3 rounds, 30 degree sweet spot, 2 max failures, 40 degree shake range, 500ms hold time
+        print("Lockpick Game Result: ", success)
+    end, false)
+end
 
 Citizen.CreateThread(function()
     while true do
@@ -450,7 +1284,7 @@ Citizen.CreateThread(function()
                 [47] = 71,  -- G
                 [74] = 72,  -- H
                 [311] = 74, -- J
-                [311] = 75, -- K
+                [168] = 75, -- K (using different control code)
                 [182] = 76, -- L
                 [20] = 90,  -- Z
                 [73] = 88,  -- X
@@ -468,13 +1302,19 @@ Citizen.CreateThread(function()
                 [161] = 55, -- 7
                 [162] = 56, -- 8
                 [163] = 57, -- 9
-                [163] = 48  -- 0
+                [307] = 48  -- 0 (using different control code)
             }
             
             for fivemCode, jsCode in pairs(keyMap) do
                 if IsControlJustPressed(0, fivemCode) then
                     SendNUIMessage({
                         action = 'keyPress',
+                        keyCode = jsCode
+                    })
+                end
+                if IsControlJustReleased(0, fivemCode) then
+                    SendNUIMessage({
+                        action = 'keyRelease',
                         keyCode = jsCode
                     })
                 end
