@@ -658,7 +658,7 @@ exports('StartVerbalMemoryGame', function(maxStrikes, wordsToShow, wordDuration)
       local verbalConfig = {
         maxStrikes = maxStrikes or 3,
         wordsToShow = wordsToShow or 50,
-        wordDuration = wordDuration or 5000
+        wordDuration = wordDuration or 5000 
     }
     
     callback = function(success, score, strikes)
@@ -788,8 +788,8 @@ exports('StartPairsGame', function(gridSize, timeLimit, maxAttempts)
     
     local pairsConfig = {
         gridSize = gridSize or 4,
-        timeLimit = timeLimit or 120000, -- 2 minutes default (in ms), 0 = no time limit
-        maxAttempts = maxAttempts or 0 -- 0 = unlimited attempts
+        timeLimit = timeLimit or 120000, -- Time limit (in ms) or 0 for unlimited
+        maxAttempts = maxAttempts or 0 -- Max attempts or 0 for unlimited
     }
     
     callback = function(success, attempts, matchedPairs)
@@ -816,8 +816,8 @@ exports('StartMemoryColorsGame', function(gridSize, memorizeTime, answerTime, ro
     
     local mcConfig = {
         gridSize = gridSize or 5,
-        memorizeTime = memorizeTime or 5000, -- 5 seconds to memorize
-        answerTime = answerTime or 10000,    -- 10 seconds to answer
+        memorizeTime = memorizeTime or 5000,
+        answerTime = answerTime or 10000,
         rounds = rounds or 3
     }
     
@@ -1023,9 +1023,9 @@ exports('StartCircleClickGame', function(rounds, rotationSpeed, targetZoneSize, 
         rotationSpeed = rotationSpeed or 2, -- Degrees per frame
         targetZoneSize = targetZoneSize or 45, -- Target zone in degrees
         maxFailures = maxFailures or 3, -- Max failures before game over
-        speedIncrease = speedIncrease or 0.3, -- Speed increase per round
+        speedIncrease = speedIncrease or 0.15, -- Speed increase per round
         randomizeDirection = randomizeDirection ~= false, -- Randomize rotation direction
-        keys = keys or {'1', '2', '3', '4', '5', '6', '7', '8', '9'} -- Possible keys to display
+        keys = keys or {'W', 'A', 'S', 'D'} -- Possible keys to display
     }
     
     callback = function(success, successes, failures)
@@ -1110,7 +1110,7 @@ if config.DebugCommands then
         local success = exports['glitch-minigames']:StartSequenceMemoryGame(4, 5, 3, 1000, 300) -- 4x4 grid, max 5 rounds, 3 wrong presses, 1s show time, 300ms between
         print("Sequence Memory Game Result: ", success)
     end, false)
-        
+    
     RegisterCommand('testverbalmemory', function()
         local result = exports['glitch-minigames']:StartVerbalMemoryGame(3, 20, 5000) -- 3 strikes, 20 words, 5s per word
         print("Verbal Memory Game Result: Success:", result.success, "Score:", result.score, "Strikes:", result.strikes)
