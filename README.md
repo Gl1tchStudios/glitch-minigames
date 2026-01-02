@@ -1,13 +1,3 @@
-# Upcoming Minigames (UNSTABLE DO NOT USE LIVE)
-
-Memeory Game (Remeber the Pattern) - <img width="636" height="719" alt="image" src="https://github.com/user-attachments/assets/a20ccecc-4d8f-4488-a8d0-04faf81f36c4" />
-Sequence Memory Game (Remember the Sequence) - <img width="646" height="724" alt="image" src="https://github.com/user-attachments/assets/ef369e24-5dec-4884-9eef-4ec48b9c5594" />
-Verbal Memory Game (New or Seen Word) - <img width="731" height="640" alt="image" src="https://github.com/user-attachments/assets/e6546ff6-8827-4295-adbe-4a54bddfd180" />
-Numbered Sequence Game (Press the Buttons in the Sequence) - <img width="635" height="729" alt="image" src="https://github.com/user-attachments/assets/015e6ca8-f1db-4228-85ab-f67fd96f37eb" />
-Symbol Match [Not Complete] (Find Code in Grid) - <img width="748" height="663" alt="image" src="https://github.com/user-attachments/assets/31b37423-9617-48a0-b65e-0ff98d03c025" />
-
----
-
 # Glitch Minigames
 
 Welcome to the official repository for **Glitch Minigames**! This is a collection of unique and engaging minigames designed for FiveM servers. Each minigame can be easily triggered through simple exports, making integration seamless and straightforward.
