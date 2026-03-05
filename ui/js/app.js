@@ -445,6 +445,36 @@ $(document).ready(function() {
             if (window.barHitGame && typeof window.barHitGame.close === 'function') {
                 window.barHitGame.close();
             }
+            if (window.skillCheckGame && typeof window.skillCheckGame.close === 'function') {
+                window.skillCheckGame.close();
+            }
+            if (window.circleClickGame && typeof window.circleClickGame.close === 'function') {
+                window.circleClickGame.close();
+            }
+            if (window.lockpickGame && typeof window.lockpickGame.close === 'function') {
+                window.lockpickGame.close();
+            }
+            if (window.comboInputGame && typeof window.comboInputGame.close === 'function') {
+                window.comboInputGame.close();
+            }
+            if (window.holdZoneGame && typeof window.holdZoneGame.close === 'function') {
+                window.holdZoneGame.close();
+            }
+            if (window.numberUpGame && typeof window.numberUpGame.close === 'function') {
+                window.numberUpGame.close();
+            }
+            if (window.wireConnectGame && typeof window.wireConnectGame.close === 'function') {
+                window.wireConnectGame.close();
+            }
+            if (window.simonSaysGame && typeof window.simonSaysGame.close === 'function') {
+                window.simonSaysGame.close();
+            }
+            if (window.aimTestGame && typeof window.aimTestGame.close === 'function') {
+                window.aimTestGame.close();
+            }
+            if (window.balanceGame && typeof window.balanceGame.close === 'function') {
+                window.balanceGame.close();
+            }
             cleanupAllContainers();
             
             // Reset all game states
