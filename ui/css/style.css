@@ -4711,5 +4711,1001 @@ body::before, body::after,
     opacity: 0.3;
 }
 
+/* ===== Bar Hit Minigame ===== */
+
+#bar-hit-container {
+    display: none;
+    position: fixed;
+    bottom: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 680px;
+    padding: 14px 22px 16px;
+    background: rgba(8, 12, 20, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+    z-index: 9999;
+    font-family: 'Share Tech Mono', monospace;
+    transition: box-shadow 0.15s ease;
+}
+
+#bar-hit-container.flash-success {
+    box-shadow: 0 0 28px rgba(var(--success-rgba, 51,181,229), 0.55);
+    border-color: var(--success-color);
+}
+
+#bar-hit-container.flash-fail {
+    box-shadow: 0 0 28px rgba(255, 68, 68, 0.55);
+    border-color: var(--failure-color);
+}
+
+.bar-hit-label {
+    font-size: 14px;
+    color: var(--text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+}
+
+.bar-hit-label span {
+    color: var(--primary-color);
+}
+
+/* The track */
+.bar-hit-track {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+
+/* The moving fill */
+.bar-hit-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background: var(--primary-color);
+    border-radius: 4px;
+    transition: none;
+    box-shadow: 2px 0 10px rgba(var(--primary-rgba, 51,181,229), 0.6);
+    z-index: 1;
+}
+
+/* The target zone highlight */
+.bar-hit-zone {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: rgba(var(--safe-rgba, 34,197,94), 0.25);
+    border: 2px solid var(--safe-color);
+    border-radius: 3px;
+    z-index: 2;
+    transition: box-shadow 0.1s ease;
+}
+
+.bar-hit-zone.active-zone {
+    background: rgba(var(--safe-rgba, 34,197,94), 0.55);
+    box-shadow: 0 0 14px rgba(var(--safe-rgba, 34,197,94), 0.7);
+}
+
+/* Bottom info row */
+.bar-hit-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bar-hit-stats {
+    font-size: 12px;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.bar-hit-stats span {
+    color: var(--text-color);
+}
+
+#bar-hit-message {
+    font-size: 12px;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    text-align: right;
+}
+
+/* Thin timer bar under container */
+.bar-hit-timer-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.bar-hit-timer-progress {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+}
+
+.bar-hit-timer-progress.danger {
+    background: var(--failure-color);
+}
+
+/* ===== Skill Check Minigame ===== */
+
+#skill-check-container {
+    width: 800px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 6px 28px rgba(0, 0, 0, 0.6);
+}
+
+#skill-check-container.sc-flash-success {
+    box-shadow: 0 0 32px rgba(var(--success-rgba, 51,181,229), 0.5), 0 6px 28px rgba(0,0,0,0.6);
+    border-color: var(--success-color);
+}
+
+#skill-check-container.sc-flash-fail {
+    box-shadow: 0 0 32px rgba(255, 68, 68, 0.5), 0 6px 28px rgba(0,0,0,0.6);
+    border-color: var(--failure-color);
+}
+
+/* The striped track area */
+.skill-check-track-wrapper {
+    position: relative;
+    width: 100%;
+    height: 180px;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 14px 0;
+    cursor: none;
+}
+
+.skill-check-track-bg {
+    position: absolute;
+    inset: 0;
+    /* Vertical stripes matching the image: dark crimson columns with thin gaps */
+    background: repeating-linear-gradient(
+        to right,
+        rgba(80, 10, 10, 0.92) 0px,
+        rgba(80, 10, 10, 0.92) 28px,
+        rgba(5, 5, 10, 0.7) 28px,
+        rgba(5, 5, 10, 0.7) 32px
+    );
+    z-index: 0;
+}
+
+/* Normal (wider) zone — primary/blue */
+.skill-check-zone {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: rgba(var(--primary-rgba, 51,181,229), 0.30);
+    border-left: 2px solid var(--primary-color);
+    border-right: 2px solid var(--primary-color);
+    z-index: 1;
+    transition: background 0.08s ease, box-shadow 0.08s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.skill-check-zone.in-range {
+    background: rgba(var(--primary-rgba, 51,181,229), 0.55);
+    box-shadow: 0 0 20px rgba(var(--primary-rgba, 51,181,229), 0.6) inset;
+}
+
+/* Key label inside zone */
+.skill-check-key-label {
+    font-size: 36px;
+    color: var(--text-color);
+    text-shadow: 0 0 12px rgba(255,255,255,0.5);
+    font-family: 'Share Tech Mono', monospace;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    z-index: 3;
+    pointer-events: none;
+    user-select: none;
+}
+
+/* Perfect (narrower) zone — safe/green */
+.skill-check-perfect {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: rgba(var(--safe-rgba, 34,197,94), 0.35);
+    border-left: 2px solid var(--safe-color);
+    border-right: 2px solid var(--safe-color);
+    z-index: 2;
+    transition: background 0.08s ease;
+    pointer-events: none;
+}
+
+.skill-check-perfect.in-range {
+    background: rgba(var(--safe-rgba, 34,197,94), 0.65);
+    box-shadow: 0 0 18px rgba(var(--safe-rgba, 34,197,94), 0.65) inset;
+}
+
+/* Moving indicator */
+.skill-check-indicator {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 4px;
+    margin-left: -2px;
+    background: var(--text-color);
+    box-shadow: 0 0 12px rgba(255,255,255,0.9), 0 0 4px rgba(255,255,255,1);
+    z-index: 4;
+    pointer-events: none;
+    border-radius: 2px;
+}
+
+/* Bottom info row */
+.skill-check-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 10px;
+}
+
+.skill-check-info span {
+    color: var(--text-color);
+}
+
+/* Timer text below bar */
+.skill-check-timer-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+#skill-check-time {
+    font-size: 13px;
+    color: var(--text-secondary-color);
+    letter-spacing: 0.08em;
+}
+
+.skill-check-timer-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.skill-check-timer-progress {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+}
+
+.skill-check-timer-progress.danger { background: var(--failure-color); }
+
+#skill-check-message {
+    font-size: 12px;
+    color: var(--text-secondary-color);
+    text-align: right;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+/* ===== Number Up Minigame ===== */
+
+#number-up-container {
+    width: 520px;
+    border: 1px solid rgba(255,255,255,0.12);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.6);
+}
+
+.number-up-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.number-up-next-label {
+    font-size: 13px;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.number-up-next-value {
+    font-size: 26px;
+    color: var(--primary-color);
+    text-shadow: 0 0 12px var(--primary-color);
+    letter-spacing: 0.12em;
+    margin-left: 8px;
+}
+
+.number-up-stats {
+    font-size: 12px;
+    color: var(--text-secondary-color);
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.number-up-stats span { color: var(--text-color); }
+
+/* Completion progress bar (not timer) */
+.number-up-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 12px;
+}
+
+.number-up-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: width 0.15s ease;
+}
+
+/* Number grid */
+#number-up-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.number-up-cell {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(var(--background-secondary-rgba, 0,20,40), 0.8);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 5px;
+    font-size: 15px;
+    color: var(--text-color);
+    cursor: pointer;
+    user-select: none;
+    font-family: 'Share Tech Mono', monospace;
+    letter-spacing: 0.05em;
+    transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+}
+
+.number-up-cell:hover {
+    background: rgba(var(--primary-rgba, 51,181,229), 0.1);
+    border-color: rgba(var(--primary-rgba, 51,181,229), 0.4);
+}
+
+.number-up-cell.nu-clicked {
+    background: rgba(var(--primary-rgba, 51,181,229), 0.18);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    cursor: default;
+    opacity: 0.55;
+}
+
+.number-up-cell.nu-wrong {
+    background: rgba(255, 68, 68, 0.25);
+    border-color: var(--failure-color);
+    color: var(--failure-color);
+}
+
+/* Bottom info row */
+.number-up-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 12px;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.number-up-bottom span { color: var(--text-color); }
+
+#number-up-message {
+    font-size: 12px;
+    color: var(--text-secondary-color);
+    text-align: right;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.number-up-timer-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.number-up-timer-progress {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+}
+
+.number-up-timer-progress.danger { background: var(--failure-color); }
 
 
+/* ===== Combo Input Minigame ===== */
+#combo-input-container {
+    display: none;
+    position: fixed;
+    bottom: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+}
+.ci-hud {
+    background: rgba(10, 10, 10, 0.88);
+    border: 1px solid rgba(var(--primary-rgba, 45,212,168), 0.35);
+    border-radius: 8px;
+    padding: 10px 18px 8px;
+    min-width: 300px;
+    box-shadow: 0 0 14px rgba(var(--primary-rgba, 45,212,168), 0.12);
+}
+.ci-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Courier New', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+#ci-arrows {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 9px;
+}
+.ci-arrow {
+    font-size: 1.5rem;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    border: 1.5px solid rgba(var(--border-rgba, 80,80,80), 0.5);
+    background: rgba(30,30,30,0.8);
+    color: var(--text-secondary-color);
+    transition: all 0.12s ease;
+}
+.ci-arrow.ci-pending {
+    color: rgba(var(--text-secondary-rgba, 150,150,150), 0.5);
+    border-color: rgba(var(--border-rgba, 80,80,80), 0.3);
+}
+.ci-arrow.ci-active {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    background: rgba(var(--primary-rgba, 45,212,168), 0.1);
+    box-shadow: 0 0 10px rgba(var(--primary-rgba, 45,212,168), 0.3);
+}
+.ci-arrow.ci-done {
+    color: var(--safe-color);
+    border-color: var(--safe-color);
+    background: rgba(34,197,94, 0.08);
+    opacity: 0.5;
+}
+.ci-timer-bar {
+    width: 100%;
+    height: 3px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.ci-timer-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: width 0.1s linear, background 0.3s ease;
+}
+#combo-input-container.ci-flash-success .ci-hud {
+    border-color: var(--safe-color);
+    box-shadow: 0 0 20px rgba(34,197,94, 0.4);
+}
+#combo-input-container.ci-flash-fail .ci-hud,
+#combo-input-container.ci-flash-wrong .ci-hud {
+    border-color: var(--failure-color);
+    box-shadow: 0 0 18px rgba(255,68,68, 0.35);
+}
+
+
+/* ===== Hold Zone Minigame ===== */
+#hold-zone-container {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
+}
+.hz-hud {
+    background: rgba(10, 10, 10, 0.90);
+    border: 1px solid rgba(var(--primary-rgba, 45,212,168), 0.3);
+    border-radius: 12px;
+    padding: 18px 22px 14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 0 24px rgba(0,0,0,0.65);
+    min-width: 270px;
+}
+.hz-ring-wrapper {
+    position: relative;
+    width: 220px;
+    height: 220px;
+}
+#hz-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 3px solid var(--primary-color);
+    box-sizing: border-box;
+    transition: border-color 0.1s ease;
+    box-shadow: 0 0 8px rgba(var(--primary-rgba, 45,212,168), 0.25);
+}
+#hz-zone {
+    position: absolute;
+    border-radius: 50%;
+    border-style: solid;
+    border-color: rgba(34,197,94, 0.55);
+    box-sizing: border-box;
+    background: rgba(34,197,94, 0.04);
+    box-shadow: 0 0 14px rgba(34,197,94, 0.15) inset;
+    pointer-events: none;
+}
+#hz-perfect {
+    position: absolute;
+    border-radius: 50%;
+    border-style: solid;
+    border-color: rgba(34,197,94, 0.9);
+    box-sizing: border-box;
+    background: transparent;
+    box-shadow: 0 0 10px rgba(34,197,94, 0.4) inset;
+    pointer-events: none;
+}
+.hz-center {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 8px rgba(var(--primary-rgba, 45,212,168), 0.7);
+}
+.hz-key-hint {
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    text-align: center;
+}
+.hz-key-badge {
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 3px;
+    padding: 0 5px;
+    font-size: 0.8rem;
+}
+.hz-round {
+    font-family: 'Courier New', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+}
+#hold-zone-container.hz-flash-success .hz-hud {
+    border-color: var(--safe-color);
+    box-shadow: 0 0 24px rgba(34,197,94, 0.45);
+}
+#hold-zone-container.hz-flash-fail .hz-hud {
+    border-color: var(--failure-color);
+    box-shadow: 0 0 22px rgba(255,68,68, 0.45);
+}
+
+
+/* ===== Wire Connect Minigame ===== */
+#wire-connect-container { display: none; width: 600px; }
+.wc-board {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border: 1px solid rgba(var(--border-rgba, 80,80,80), 0.3);
+    margin-bottom: 10px;
+}
+.wc-svg {
+    position: absolute;
+    top: 0; left: 0;
+    pointer-events: none;
+    overflow: visible;
+}
+.wc-dot {
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    border: 2.5px solid transparent;
+    box-sizing: border-box;
+    transition: transform 0.1s ease, box-shadow 0.12s ease;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.wc-dot:hover { transform: translate(-50%, -50%) scale(1.2); }
+.wc-dot.wc-selected {
+    border-color: #fff;
+    box-shadow: 0 0 14px rgba(255,255,255,0.5);
+    transform: translate(-50%, -50%) scale(1.25);
+}
+.wc-dot.wc-connected { opacity: 0.75; }
+.wc-label {
+    position: absolute;
+    font-family: 'Courier New', monospace;
+    font-size: 0.55rem;
+    font-weight: bold;
+    color: rgba(255,255,255,0.65);
+    pointer-events: none;
+    white-space: nowrap;
+}
+.wc-label.right { left: calc(100% + 7px); }
+.wc-label.left  { right: calc(100% + 7px); }
+.wc-footer { display: flex; flex-direction: column; gap: 6px; }
+.wc-status {
+    font-family: 'Courier New', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.07em;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    text-align: center;
+}
+.wc-status.wc-status-ok { color: var(--safe-color); }
+.wc-timer-row { display: flex; align-items: center; gap: 8px; }
+.wc-timer-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.wc-timer-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    transition: width 0.1s linear;
+}
+.wc-time-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.65rem;
+    color: var(--text-secondary-color);
+    min-width: 28px;
+    text-align: right;
+}
+
+
+/* ===== Simon Says Minigame ===== */
+#simon-says-container { display: none; width: 480px; }
+.ss-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'Courier New', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.07em;
+    color: var(--text-secondary-color);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+.ss-status     { color: var(--text-color); }
+.ss-status.ss-ok   { color: var(--safe-color); }
+.ss-status.ss-fail { color: var(--failure-color); }
+.ss-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.ss-button {
+    height: 120px;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Courier New', monospace;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: rgba(0,0,0,0.45);
+    border: 2px solid transparent;
+    transition: filter 0.12s ease, transform 0.1s ease, box-shadow 0.15s ease;
+    user-select: none;
+    filter: brightness(0.5);
+}
+.ss-button.ss-disabled { cursor: default; pointer-events: none; }
+.ss-button:not(.ss-disabled):hover { filter: brightness(0.72); transform: scale(0.97); }
+.ss-btn-0 { background: var(--minigame-color-1, #e74c3c); }
+.ss-btn-1 { background: var(--minigame-color-2, #3498db); }
+.ss-btn-2 { background: var(--minigame-color-3, #2ecc71); }
+.ss-btn-3 { background: var(--minigame-color-4, #f39c12); }
+.ss-active-0 { filter: brightness(1.1) !important; box-shadow: 0 0 22px var(--minigame-color-1, #e74c3c); transform: scale(1.03) !important; }
+.ss-active-1 { filter: brightness(1.1) !important; box-shadow: 0 0 22px var(--minigame-color-2, #3498db); transform: scale(1.03) !important; }
+.ss-active-2 { filter: brightness(1.1) !important; box-shadow: 0 0 22px var(--minigame-color-3, #2ecc71); transform: scale(1.03) !important; }
+.ss-active-3 { filter: brightness(1.1) !important; box-shadow: 0 0 22px var(--minigame-color-4, #f39c12); transform: scale(1.03) !important; }
+.ss-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.ss-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--safe-color);
+    border-radius: 2px;
+    transition: width 0.18s ease;
+}
+.ss-timer-row { display: flex; align-items: center; gap: 8px; }
+.ss-timer-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+}
+.ss-timer-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    transition: width 0.1s linear;
+}
+.ss-time-text {
+    font-family: 'Courier New', monospace;
+    font-size: 0.65rem;
+    color: var(--text-secondary-color);
+    min-width: 28px;
+    text-align: right;
+}
+
+
+
+/* ===== Bar Hit Minigame ===== */
+#bar-hit-container {
+    display: none;
+    width: 380px;
+    /* No card — naked HUD elements only */
+}
+
+.bar-hit-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary-color);
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+.bar-hit-label #bar-hit-key {
+    color: var(--primary-color);
+}
+
+.bar-hit-track {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 4px;
+    overflow: visible;
+    margin-bottom: 10px;
+}
+
+.bar-hit-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 0%;
+    background: var(--primary-color);
+    border-radius: 4px;
+    box-shadow: 0 0 6px var(--primary-color);
+}
+
+.bar-hit-zone {
+    position: absolute;
+    top: -4px;
+    height: calc(100% + 8px);
+    background: rgba(34,197,94,0.15);
+    border: 1.5px solid var(--safe-color);
+    border-radius: 3px;
+    transition: background 0.08s ease, box-shadow 0.08s ease;
+}
+
+.bar-hit-zone.active-zone {
+    background: rgba(34,197,94,0.3);
+    box-shadow: 0 0 10px rgba(34,197,94,0.5);
+}
+
+.bar-hit-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.bar-hit-stats {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary-color);
+    opacity: 0.7;
+}
+
+#bar-hit-message {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.64rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-color);
+}
+
+.bar-hit-timer-bar {
+    width: 100%;
+    height: 2px;
+    background: rgba(255,255,255,0.06);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+.bar-hit-timer-progress {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    transition: width 0.05s linear, background 0.3s ease;
+}
+
+.bar-hit-timer-progress.danger {
+    background: var(--failure-color);
+}
+
+#bar-hit-container.flash-success .bar-hit-track {
+    box-shadow: 0 0 18px rgba(34,197,94,0.5);
+}
+
+#bar-hit-container.flash-fail .bar-hit-track {
+    box-shadow: 0 0 18px rgba(255,68,68,0.5);
+}
+
+
+/* ===== Hold Zone Minigame ===== */
+#hold-zone-container {
+    display: none;
+    text-align: center;
+    width: auto;
+    /* No card — naked HUD elements only */
+}
+
+.hz-hud {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+}
+
+.hz-ring-wrapper {
+    position: relative;
+    width: 220px;
+    height: 220px;
+}
+
+.hz-ring {
+    position: absolute;
+    border: 3px solid var(--primary-color);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(45,212,168,0.25);
+    transition: border-color 0.08s ease, box-shadow 0.08s ease;
+}
+
+.hz-zone {
+    position: absolute;
+    border-style: solid;
+    border-color: var(--safe-color);
+    border-radius: 50%;
+    background: rgba(34,197,94,0.1);
+    opacity: 0;
+}
+
+.hz-perfect {
+    position: absolute;
+    border-style: solid;
+    border-color: var(--warning-color);
+    border-radius: 50%;
+    background: rgba(251,191,36,0.12);
+    opacity: 0;
+}
+
+.hz-center {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.hz-key-hint {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary-color);
+}
+
+.hz-key-badge {
+    display: inline-block;
+    padding: 1px 6px;
+    background: rgba(45,212,168,0.1);
+    border: 1px solid rgba(45,212,168,0.45);
+    border-radius: 4px;
+    color: var(--primary-color);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.8rem;
+}
+
+.hz-round {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text-secondary-color);
+    opacity: 0.65;
+}
+
+#hold-zone-container.hz-flash-success .hz-ring-wrapper {
+    filter: drop-shadow(0 0 14px rgba(34,197,94,0.55));
+}
+
+#hold-zone-container.hz-flash-fail .hz-ring-wrapper {
+    filter: drop-shadow(0 0 14px rgba(255,68,68,0.55));
+}

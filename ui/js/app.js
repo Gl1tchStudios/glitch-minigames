@@ -326,11 +326,117 @@ $(document).ready(function() {
             } else {
                 $('#lockpick-container').fadeOut(500);
             }
+        } else if (data.action === 'startBarHit') {
+            cleanupAllContainers();
+            if (window.barHitGame && typeof window.barHitGame.start === 'function') {
+                window.barHitGame.start(data.config || {});
+            } else {
+                console.error('[app.js] barHitGame.start not found!');
+            }
+        } else if (data.action === 'endBarHit') {
+            if (window.barHitGame && typeof window.barHitGame.close === 'function') {
+                window.barHitGame.close();
+            } else {
+                $('#bar-hit-container').fadeOut(500);
+            }
+        } else if (data.action === 'startSkillCheck') {
+            cleanupAllContainers();
+            if (window.skillCheckGame && typeof window.skillCheckGame.start === 'function') {
+                window.skillCheckGame.start(data.config || {});
+            } else {
+                console.error('[app.js] skillCheckGame.start not found!');
+            }
+        } else if (data.action === 'endSkillCheck') {
+            if (window.skillCheckGame && typeof window.skillCheckGame.close === 'function') {
+                window.skillCheckGame.close();
+            } else {
+                $('#skill-check-container').fadeOut(500);
+            }
+        } else if (data.action === 'startNumberUp') {
+            cleanupAllContainers();
+            if (window.numberUpGame && typeof window.numberUpGame.start === 'function') {
+                window.numberUpGame.start(data.config || {});
+            } else {
+                console.error('[app.js] numberUpGame.start not found!');
+            }
+        } else if (data.action === 'endNumberUp') {
+            if (window.numberUpGame && typeof window.numberUpGame.close === 'function') {
+                window.numberUpGame.close();
+            } else {
+                $('#number-up-container').fadeOut(500);
+            }
+        } else if (data.action === 'startComboInput') {
+            cleanupAllContainers();
+            if (window.comboInputGame && typeof window.comboInputGame.start === 'function') {
+                window.comboInputGame.start(data.config || {});
+            } else {
+                console.error('[app.js] comboInputGame.start not found!');
+            }
+        } else if (data.action === 'endComboInput') {
+            if (window.comboInputGame && typeof window.comboInputGame.close === 'function') {
+                window.comboInputGame.close();
+            } else {
+                $('#combo-input-container').fadeOut(500);
+            }
+        } else if (data.action === 'startHoldZone') {
+            cleanupAllContainers();
+            if (window.holdZoneGame && typeof window.holdZoneGame.start === 'function') {
+                window.holdZoneGame.start(data.config || {});
+            } else {
+                console.error('[app.js] holdZoneGame.start not found!');
+            }
+        } else if (data.action === 'endHoldZone') {
+            if (window.holdZoneGame && typeof window.holdZoneGame.close === 'function') {
+                window.holdZoneGame.close();
+            } else {
+                $('#hold-zone-container').fadeOut(500);
+            }
+        } else if (data.action === 'startWireConnect') {
+            cleanupAllContainers();
+            if (window.wireConnectGame && typeof window.wireConnectGame.start === 'function') {
+                window.wireConnectGame.start(data.config || {});
+            } else {
+                console.error('[app.js] wireConnectGame.start not found!');
+            }
+        } else if (data.action === 'endWireConnect') {
+            if (window.wireConnectGame && typeof window.wireConnectGame.close === 'function') {
+                window.wireConnectGame.close();
+            } else {
+                $('#wire-connect-container').fadeOut(500);
+            }
+        } else if (data.action === 'startSimonSays') {
+            cleanupAllContainers();
+            if (window.simonSaysGame && typeof window.simonSaysGame.start === 'function') {
+                window.simonSaysGame.start(data.config || {});
+            } else {
+                console.error('[app.js] simonSaysGame.start not found!');
+            }
+        } else if (data.action === 'endSimonSays') {
+            if (window.simonSaysGame && typeof window.simonSaysGame.close === 'function') {
+                window.simonSaysGame.close();
+            } else {
+                $('#simon-says-container').fadeOut(500);
+            }
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
+            if (window.barHitGame && window.barHitGame.active) {
+                window.barHitGame.handleKeyByCode(data.keyCode);
+            }
+            if (window.skillCheckGame && window.skillCheckGame.active) {
+                window.skillCheckGame.handleKeyByCode(data.keyCode);
+            }
+            if (window.comboInputGame && window.comboInputGame.active) {
+                window.comboInputGame.handleKeyByCode(data.keyCode);
+            }
+            if (window.holdZoneGame && window.holdZoneGame.active) {
+                window.holdZoneGame.handleKeyByCode(data.keyCode);
+            }
         } else if (data.action === 'keyRelease') {
             if (window.keymashFunctions && typeof window.keymashFunctions.handleKeyRelease === 'function') {
                 window.keymashFunctions.handleKeyRelease(data.keyCode);
+            }
+            if (window.holdZoneGame && window.holdZoneGame.active) {
+                window.holdZoneGame.handleKeyRelease(data.keyCode);
             }
         } else if (data.action === 'stopKeymash') {
             window.keymashFunctions.stop(false);
@@ -474,7 +580,7 @@ function playSoundSafe(soundId) {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container, #circle-click-container, #lockpick-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container, #circle-click-container, #lockpick-container, #bar-hit-container, #skill-check-container, #number-up-container, #combo-input-container, #hold-zone-container, #wire-connect-container, #simon-says-container')
         .removeClass('active')
         .hide();
     

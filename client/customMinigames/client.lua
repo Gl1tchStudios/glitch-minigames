@@ -83,6 +83,20 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endCircleClick', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endLockpick', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endBarHit', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endSkillCheck', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endNumberUp', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endComboInput', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endHoldZone', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endWireConnect', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endSimonSays', forced = true })
     
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
@@ -388,6 +402,97 @@ RegisterNUICallback('lockpickResult', function(data, cb)
 end)
 
 RegisterNUICallback('lockpickClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('barHitResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.rounds, data.failures)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('barHitClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('skillCheckResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.rounds, data.failures)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('skillCheckClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('numberUpResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.reached, data.total, data.mistakes)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('numberUpClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('comboInputResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('comboInputClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('holdZoneResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('holdZoneClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('wireConnectResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('wireConnectClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
+RegisterNUICallback('simonSaysResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('simonSaysClose', function(data, cb)
     cleanupMinigame()
     cb('ok')
 end)
@@ -1075,6 +1180,221 @@ exports('StartLockpickGame', function(rounds, sweetSpotSize, maxFailures, shakeR
     return Citizen.Await(p)
 end)
 
+exports('StartBarHitGame', function(key, rounds, speed, zoneSize, zoneStart, maxFailures, timeLimit)
+    local p = promise.new()
+
+    if isHacking then return false end
+
+    local barHitConfig = {
+        key = key or 'E',             -- key the player must press
+        rounds = rounds or 3,         -- rounds to win
+        speed = speed or 55,          -- bar speed (% per second, higher = faster)
+        zoneSize = zoneSize or 20,    -- target zone width in % (10-40)
+        zoneStart = zoneStart,        -- fixed zone position %, nil = random each round
+        maxFailures = maxFailures or 3, -- wrong presses before fail
+        timeLimit = timeLimit or 30000  -- overall time limit in ms
+    }
+
+    callback = function(success, roundsCompleted, failures)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(false, false)        -- bar hit uses key forwarding (isHacking thread), not NUI focus
+    SendNUIMessage({
+        action = 'startBarHit',
+        config = barHitConfig
+    })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartSkillCheckGame', function(keys, speed, timeLimit, zoneSize, perfectZoneSize, maxFailures, randomizeZone)
+    local p = promise.new()
+
+    if isHacking then return false end
+
+    if not keys or #keys == 0 then
+        keys = {'E', 'F', 'R'}
+    end
+
+    local skillCheckConfig = {
+        keys = keys,                            -- array of keys, one per round (length = number of rounds)
+        speed = speed or 65,                    -- bar speed (% per second)
+        timeLimit = timeLimit or 15000,         -- total time limit (ms)
+        zoneSize = zoneSize or 18,              -- normal zone width % (10–35)
+        perfectZoneSize = perfectZoneSize or 5, -- perfect inner zone width % (0 = disabled)
+        maxFailures = maxFailures or 1,         -- misses/wrong keys before fail
+        randomizeZone = randomizeZone ~= false  -- randomise zone position each round
+    }
+
+    callback = function(success, rounds, failures)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(false, false) -- key forwarding via isHacking thread
+    SendNUIMessage({
+        action = 'startSkillCheck',
+        config = skillCheckConfig
+    })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartNumberUpGame', function(count, timeLimit, gridCols, maxMistakes)
+    local p = promise.new()
+
+    if isHacking then return false end
+
+    local numberUpConfig = {
+        count = count or 20,            -- highest number (1 to N)
+        timeLimit = timeLimit or 30000, -- time limit in ms
+        gridCols = gridCols or 4,       -- number of grid columns
+        maxMistakes = maxMistakes or 3  -- wrong clicks before fail
+    }
+
+    callback = function(success, reached, total, mistakes)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true) -- needs mouse clicks
+    SendNUIMessage({
+        action = 'startNumberUp',
+        config = numberUpConfig
+    })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartComboInputGame', function(rounds, comboLength, timePerCombo, maxFailures, lengthIncrease)
+    local p = promise.new()
+
+    if isHacking then return false end
+
+    local comboConfig = {
+        rounds         = rounds or 3,        -- number of combos to complete
+        comboLength    = comboLength or 4,   -- arrows in first combo
+        timePerCombo   = timePerCombo or 6,  -- seconds per combo
+        maxFailures    = maxFailures or 2,   -- failed combos before lose
+        lengthIncrease = lengthIncrease or 0 -- extra arrow added per round
+    }
+
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(false, false) -- key forwarding via isHacking thread (WASD as arrows)
+    SendNUIMessage({
+        action = 'startComboInput',
+        config = comboConfig
+    })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartHoldZoneGame', function(key, rounds, speed, zoneSize, perfectZoneSize, maxFailures)
+    local p = promise.new()
+
+    if isHacking then return false end
+
+    local holdConfig = {
+        key             = key or 'E',           -- key to hold and release
+        rounds          = rounds or 3,          -- rounds to win
+        speed           = speed or 18,          -- ring shrink speed (% per second when held)
+        zoneSize        = zoneSize or 18,       -- success zone width %
+        perfectZoneSize = perfectZoneSize or 0, -- inner perfect zone % (0 = disabled)
+        maxFailures     = maxFailures or 2      -- failed releases before lose
+    }
+
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(false, false) -- key forwarding via isHacking thread
+    SendNUIMessage({
+        action = 'startHoldZone',
+        config = holdConfig
+    })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartWireConnectGame', function(wireCount, timeLimit)
+    local p = promise.new()
+
+    if isHacking then return false end
+
+    local wireConfig = {
+        wireCount = wireCount or 4, -- number of wire pairs (3–5)
+        timeLimit = timeLimit or 0  -- seconds, 0 = no time limit
+    }
+
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true) -- needs mouse for clicking terminals
+    SendNUIMessage({
+        action = 'startWireConnect',
+        config = wireConfig
+    })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
+exports('StartSimonSaysGame', function(rounds, flashSpeed, timeLimit, maxMistakes)
+    local p = promise.new()
+
+    if isHacking then return false end
+
+    local simonConfig = {
+        rounds      = rounds or 5,        -- rounds (sequence length) to win
+        flashSpeed  = flashSpeed or 550,  -- button flash duration ms (lower = harder)
+        flashGap    = 250,                -- gap between flashes ms
+        timeLimit   = timeLimit or 0,     -- seconds to input each round, 0 = no limit
+        maxMistakes = maxMistakes or 1    -- wrong presses before fail
+    }
+
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, true) -- needs mouse clicks
+    SendNUIMessage({
+        action = 'startSimonSays',
+        config = simonConfig
+    })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
         local success = exports['glitch-minigames']:StartSurgeOverride({'E', 'F'}, 30, 2)
@@ -1204,6 +1524,41 @@ if config.DebugCommands then
     RegisterCommand('testlockpick', function()
         local success = exports['glitch-minigames']:StartLockpickGame(3, 30, 2, 40, 500) -- 3 rounds, 30 degree sweet spot, 2 max failures, 40 degree shake range, 500ms hold time
         print("Lockpick Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testbarhit', function()
+        local success = exports['glitch-minigames']:StartBarHitGame('E', 3, 55, 20, nil, 3, 30000) -- key E, 3 rounds, speed 55, zone 20%, random zone, 3 max failures, 30s
+        print("Bar Hit Game Result: ", success)
+    end, false)
+
+    RegisterCommand('testskillcheck', function()
+        local success = exports['glitch-minigames']:StartSkillCheckGame({'E','F','R','D'}, 65, 15000, 18, 5, 1, true) -- 4 rounds, speed 65, 15s, normal zone 18%, perfect 5%, 1 max failure
+        print("Skill Check Result: ", success)
+    end, false)
+
+    RegisterCommand('testnumberup', function()
+        local success = exports['glitch-minigames']:StartNumberUpGame(20, 30000, 4, 3) -- 20 numbers, 30s, 4 columns, 3 max mistakes
+        print("Number Up Result: ", success)
+    end, false)
+
+    RegisterCommand('testcomboinput', function()
+        local success = exports['glitch-minigames']:StartComboInputGame(3, 4, 6, 2, 1) -- 3 rounds, 4 arrows (grows by 1), 6s per combo, 2 failures
+        print("Combo Input Result: ", success)
+    end, false)
+
+    RegisterCommand('tetsholdzone', function()
+        local success = exports['glitch-minigames']:StartHoldZoneGame('E', 3, 18, 18, 5, 2) -- key E, 3 rounds, speed 18, zone 18%, perfect 5%, 2 failures
+        print("Hold Zone Result: ", success)
+    end, false)
+
+    RegisterCommand('testwireconnect', function()
+        local success = exports['glitch-minigames']:StartWireConnectGame(4, 0) -- 4 wires, no time limit
+        print("Wire Connect Result: ", success)
+    end, false)
+
+    RegisterCommand('testsimonsays', function()
+        local success = exports['glitch-minigames']:StartSimonSaysGame(5, 550, 0, 1) -- 5 rounds, 550ms flash, no limit, 1 mistake
+        print("Simon Says Result: ", success)
     end, false)
 end
 

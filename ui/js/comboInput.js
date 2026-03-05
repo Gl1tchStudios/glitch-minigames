@@ -1,0 +1,169 @@
+// -- Glitch Minigames — Combo Input
+// -- Minimal HUD: directional combo (W/A/S/D shown as ↑←↓→) type it fast
+
+window.comboInputGame = (function () {
+
+    // Direction key map: JS keyCode → display symbol & axis label
+    const DIR_MAP = {
+        87: { sym: '↑', label: 'W' },
+        65: { sym: '←', label: 'A' },
+        83: { sym: '↓', label: 'S' },
+        68: { sym: '→', label: 'D' }
+    };
+    const DIR_KEYS = [87, 65, 83, 68];
+
+    let config   = {};
+    let active   = false;
+    let combo    = [];      // keyCode array for this round
+    let cursor   = 0;       // how many keys correctly pressed
+    let round    = 0;
+    let failures = 0;
+    let timeLeft = 0;
+    let timerInt = null;
+
+    // ── helpers ─────────────────────────────────────────────
+
+    function generateCombo(length) {
+        const arr = [];
+        let last = -1;
+        for (let i = 0; i < length; i++) {
+            let pick;
+            do { pick = DIR_KEYS[Math.floor(Math.random() * DIR_KEYS.length)]; }
+            while (pick === last && length <= DIR_KEYS.length * 2);
+            arr.push(pick);
+            last = pick;
+        }
+        return arr;
+    }
+
+    function renderArrows() {
+        const $wrap = $('#ci-arrows');
+        $wrap.empty();
+        combo.forEach((k, i) => {
+            const state = i < cursor ? 'ci-done' : i === cursor ? 'ci-active' : 'ci-pending';
+            $wrap.append(`<span class="ci-arrow ${state}">${DIR_MAP[k].sym}</span>`);
+        });
+    }
+
+    function clearTimer() {
+        if (timerInt) { clearInterval(timerInt); timerInt = null; }
+    }
+
+    // ── round/game flow ──────────────────────────────────────
+
+    function startRound() {
+        round++;
+        if (round > (config.rounds || 3)) { endGame(true); return; }
+
+        cursor = 0;
+        const baseLen    = config.comboLength    || 4;
+        const increase   = config.lengthIncrease || 1;
+        const comboLen   = baseLen + (round - 1) * increase;
+        combo = generateCombo(comboLen);
+
+        clearTimer();
+        timeLeft = config.timePerCombo || 6;
+        setTimerUI(timeLeft, timeLeft);
+
+        $('#ci-round').text('CMD ' + round + ' / ' + (config.rounds || 3));
+        renderArrows();
+
+        timerInt = setInterval(() => {
+            timeLeft -= 0.1;
+            if (timeLeft < 0) timeLeft = 0;
+            setTimerUI(timeLeft, config.timePerCombo || 6);
+            if (timeLeft <= 0) {
+                clearTimer();
+                handleFailure();
+            }
+        }, 100);
+    }
+
+    function setTimerUI(current, max) {
+        const pct = (current / max) * 100;
+        $('#ci-timer-fill').css('width', pct + '%');
+        $('#ci-time-text').text(current.toFixed(1) + 's');
+    }
+
+    function handleFailure() {
+        failures++;
+        const $c = $('#combo-input-container');
+        $c.addClass('ci-flash-fail');
+        setTimeout(() => {
+            $c.removeClass('ci-flash-fail');
+            if (failures >= (config.maxFailures || 2)) {
+                endGame(false);
+            } else {
+                startRound();
+            }
+        }, 450);
+    }
+
+    function endGame(success) {
+        clearTimer();
+        active        = false;
+        window.comboInputGame.active = false;
+
+        const $c = $('#combo-input-container');
+        $c.addClass(success ? 'ci-flash-success' : 'ci-flash-fail');
+        setTimeout(() => {
+            $.post('https://glitch-minigames/comboInputResult', JSON.stringify({ success: success }));
+        }, success ? 600 : 450);
+    }
+
+    // ── key handler ──────────────────────────────────────────
+
+    function handleKey(keyCode) {
+        if (!active) return;
+        const k = parseInt(keyCode);
+        if (!DIR_MAP[k]) return; // not a direction key
+
+        if (k === combo[cursor]) {
+            cursor++;
+            renderArrows();
+            if (cursor >= combo.length) {
+                clearTimer();
+                const $c = $('#combo-input-container');
+                $c.addClass('ci-flash-success');
+                setTimeout(() => {
+                    $c.removeClass('ci-flash-success');
+                    startRound();
+                }, 330);
+            }
+        } else {
+            // Wrong key — reset combo progress (not a full failure)
+            cursor = 0;
+            renderArrows();
+            const $c = $('#combo-input-container');
+            $c.addClass('ci-flash-wrong');
+            setTimeout(() => $c.removeClass('ci-flash-wrong'), 200);
+        }
+    }
+
+    // ── public API ───────────────────────────────────────────
+
+    return {
+        active: false,
+
+        start: function (cfg) {
+            config   = cfg || {};
+            active   = true;
+            this.active = true;
+            round    = 0;
+            failures = 0;
+
+            $('#combo-input-container').show().removeClass('ci-flash-success ci-flash-fail ci-flash-wrong');
+            startRound();
+        },
+
+        close: function () {
+            clearTimer();
+            active      = false;
+            this.active = false;
+            $('#combo-input-container').fadeOut(300);
+        },
+
+        handleKeyByCode: handleKey
+    };
+
+})();

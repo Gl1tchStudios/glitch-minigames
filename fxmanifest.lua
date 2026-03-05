@@ -54,6 +54,13 @@ files {
     'ui/js/aimTest.js',
     'ui/js/circleClick.js',
     'ui/js/lockpick.js',
+    'ui/js/barHit.js',
+    'ui/js/skillCheck.js',
+    'ui/js/numberUp.js',
+    'ui/js/comboInput.js',
+    'ui/js/holdZone.js',
+    'ui/js/wireConnect.js',
+    'ui/js/simonSays.js',
     'ui/sounds/*.mp3',
     'ui/sounds/songs/*.mp3' -- Going to be used for the rhythm game later down the track
 }

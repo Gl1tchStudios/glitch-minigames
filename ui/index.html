@@ -578,6 +578,155 @@
         <canvas id="lockpick-canvas" width="180" height="180"></canvas>
     </div>
 
+    <!-- Bar Hit Minigame Container -->
+    <div id="bar-hit-container">
+        <div class="bar-hit-label">Press [<span id="bar-hit-key">E</span>] when bar hits highlighted area</div>
+        <div class="bar-hit-track">
+            <div class="bar-hit-fill"></div>
+            <div class="bar-hit-zone"></div>
+        </div>
+        <div class="bar-hit-bottom">
+            <div class="bar-hit-stats">
+                Round: <span id="bar-hit-round">1</span>/<span id="bar-hit-rounds">3</span>
+                &nbsp;|&nbsp;
+                Misses: <span id="bar-hit-failures">0</span>/<span id="bar-hit-max-failures">3</span>
+            </div>
+            <div id="bar-hit-message">Press the key!</div>
+        </div>
+        <div class="bar-hit-timer-bar">
+            <div class="bar-hit-timer-progress"></div>
+        </div>
+    </div>
+
+    <!-- Skill Check Minigame Container -->
+    <div id="skill-check-container" class="game-container">
+        <div class="hack-title">
+            <h2>SKILL CHECK <span class="blink">[BREACH WINDOW]</span></h2>
+        </div>
+
+        <div class="skill-check-track-wrapper">
+            <div class="skill-check-track-bg"></div>
+            <div class="skill-check-zone">
+                <span class="skill-check-key-label" id="skill-check-key">E</span>
+            </div>
+            <div class="skill-check-perfect"></div>
+            <div class="skill-check-indicator"></div>
+        </div>
+
+        <div class="skill-check-info">
+            <span>ROUND: <span id="skill-check-round">1</span>/<span id="skill-check-total">3</span> &nbsp;|&nbsp; MISSES: <span id="skill-check-failures">0</span>/<span id="skill-check-max-failures">1</span></span>
+            <span id="skill-check-message">Press the key in the zone!</span>
+        </div>
+
+        <div class="skill-check-timer-row">
+            <div class="skill-check-timer-bar">
+                <div class="skill-check-timer-progress"></div>
+            </div>
+            <span id="skill-check-time">15.00s / 15.00s</span>
+        </div>
+    </div>
+
+    <!-- Number Up Minigame Container -->
+    <div id="number-up-container" class="game-container">
+        <div class="hack-title">
+            <h2>NUMBER UP <span class="blink">[SEQUENCE LOCK]</span></h2>
+        </div>
+
+        <div class="number-up-header">
+            <div>
+                <span class="number-up-next-label">NEXT:</span>
+                <span class="number-up-next-value" id="number-up-next">1</span>
+            </div>
+            <div class="number-up-stats">
+                Done: <span id="number-up-progress-text">0 / 20</span> &nbsp;|&nbsp;
+                Errors: <span id="number-up-mistakes">0</span>/<span id="number-up-max-mistakes">3</span>
+            </div>
+        </div>
+
+        <div class="number-up-progress-bar">
+            <div class="number-up-progress-fill"></div>
+        </div>
+
+        <div id="number-up-grid"></div>
+
+        <div class="number-up-bottom">
+            <span>Click numbers in order from 1 upward</span>
+            <span id="number-up-message">Find the next number!</span>
+        </div>
+
+        <div class="number-up-timer-bar">
+            <div class="number-up-timer-progress"></div>
+        </div>
+    </div>
+
+    <!-- Combo Input Minigame Container -->
+    <div id="combo-input-container">
+        <div class="ci-hud">
+            <div class="ci-header">
+                <span id="ci-round">CMD 1 / 3</span>
+                <span id="ci-time-text">6.0s</span>
+            </div>
+            <div id="ci-arrows"></div>
+            <div class="ci-timer-bar">
+                <div id="ci-timer-fill" class="ci-timer-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hold Zone Minigame Container -->
+    <div id="hold-zone-container">
+        <div class="hz-hud">
+            <div class="hz-ring-wrapper">
+                <div id="hz-ring" class="hz-ring"></div>
+                <div id="hz-zone" class="hz-zone"></div>
+                <div id="hz-perfect" class="hz-perfect"></div>
+                <div class="hz-center"></div>
+            </div>
+            <div id="hz-key-hint" class="hz-key-hint">Hold <span class="hz-key-badge">E</span> &amp; release in zone</div>
+            <div id="hz-round" class="hz-round">Round 1 / 3</div>
+        </div>
+    </div>
+
+    <!-- Wire Connect Minigame Container -->
+    <div id="wire-connect-container" class="game-container">
+        <div class="hack-title">
+            <h2>WIRE CONNECT <span class="blink">[CIRCUIT MAPPING]</span></h2>
+        </div>
+        <div id="wc-board" class="wc-board"></div>
+        <div class="wc-footer">
+            <span id="wc-status" class="wc-status">Select a left terminal to begin</span>
+            <div class="wc-timer-row">
+                <div class="wc-timer-bar"><div id="wc-timer-fill" class="wc-timer-fill"></div></div>
+                <span id="wc-time-text" class="wc-time-text"></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Simon Says Minigame Container -->
+    <div id="simon-says-container" class="game-container">
+        <div class="hack-title">
+            <h2>SIGNAL SYNC <span class="blink">[PATTERN LOCK]</span></h2>
+        </div>
+        <div class="ss-info-row">
+            <span id="ss-round">Round 1 / 5</span>
+            <span id="ss-status" class="ss-status">Watch carefully…</span>
+            <span id="ss-progress-text">0 / 1</span>
+        </div>
+        <div class="ss-grid">
+            <div id="ss-btn-0" class="ss-button ss-btn-0">1</div>
+            <div id="ss-btn-1" class="ss-button ss-btn-1">2</div>
+            <div id="ss-btn-2" class="ss-button ss-btn-2">3</div>
+            <div id="ss-btn-3" class="ss-button ss-btn-3">4</div>
+        </div>
+        <div class="ss-progress-bar">
+            <div id="ss-progress-fill" class="ss-progress-fill"></div>
+        </div>
+        <div class="ss-timer-row">
+            <div class="ss-timer-bar"><div id="ss-timer-fill" class="ss-timer-fill"></div></div>
+            <span id="ss-time-text" class="ss-time-text"></span>
+        </div>
+    </div>
+
     <!-- Aim Test Container -->
     <div id="aim-test-container" class="game-container">
         <div class="hack-title">
@@ -623,5 +772,12 @@
     <script src="js/aimTest.js"></script>
     <script src="js/circleClick.js"></script>
     <script src="js/lockpick.js"></script>
+    <script src="js/barHit.js"></script>
+    <script src="js/skillCheck.js"></script>
+    <script src="js/numberUp.js"></script>
+    <script src="js/comboInput.js"></script>
+    <script src="js/holdZone.js"></script>
+    <script src="js/wireConnect.js"></script>
+    <script src="js/simonSays.js"></script>
 </body>
 </html>
