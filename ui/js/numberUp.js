@@ -90,6 +90,7 @@ let numberUpGame = {
         if ($cell.hasClass('nu-clicked')) return;
 
         if (n === this.nextNumber) {
+            playSoundSafe('sound-buttonPress');
             $cell.addClass('nu-clicked').off('click');
             this.nextNumber++;
             this.updateDisplay();
@@ -99,6 +100,7 @@ let numberUpGame = {
             }
         } else {
             // Wrong number
+            playSoundSafe('sound-penalty');
             this.mistakes++;
             $cell.addClass('nu-wrong');
             const self = this;
@@ -130,6 +132,7 @@ let numberUpGame = {
         clearInterval(this.timerInterval);
         this.timerInterval = null;
 
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         $('#number-up-message').text(success ? 'SEQUENCE COMPLETE' : 'SEQUENCE FAILED');
 
         const resultData = {

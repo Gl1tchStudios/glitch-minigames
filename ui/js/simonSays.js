@@ -19,12 +19,25 @@ window.simonSaysGame = (function () {
     let timerInt    = null;
     let timeLeft    = 0;
     let showTimeout = null;
+    let buttonPool  = [];   // cycling pool — each colour used once before any repeats
 
     // ── sequences ────────────────────────────────────────────
 
     function extendSequence() {
-        const next = Math.floor(Math.random() * BUTTONS.length);
-        sequence.push(next);
+        if (config.allowRepeats) {
+            sequence.push(Math.floor(Math.random() * BUTTONS.length));
+            return;
+        }
+        // Cycle through a shuffled pool of all buttons before any colour repeats.
+        // Refill when empty, ensuring the new pool's first entry != last added.
+        if (buttonPool.length === 0) {
+            const last = sequence.length > 0 ? sequence[sequence.length - 1] : -1;
+            do {
+                buttonPool = [...Array(BUTTONS.length).keys()]
+                    .sort(() => Math.random() - 0.5);
+            } while (last !== -1 && buttonPool[0] === last);
+        }
+        sequence.push(buttonPool.shift());
     }
 
     // ── playback ─────────────────────────────────────────────
@@ -61,6 +74,7 @@ window.simonSaysGame = (function () {
     function flashButton(btnId, duration, cb) {
         const $btn = $('#ss-btn-' + btnId);
         $btn.addClass(BUTTONS[btnId].activeClass);
+        playSoundSafe('sound-click');
         setTimeout(() => {
             $btn.removeClass(BUTTONS[btnId].activeClass);
             cb && cb();
@@ -81,6 +95,7 @@ window.simonSaysGame = (function () {
     function onButtonClick(btnId) {
         if (!active || phase !== 'input') return;
 
+        playSoundSafe('sound-buttonPress');
         flashButton(btnId, 200);
         playerInput.push(btnId);
         updateProgress();
@@ -182,7 +197,6 @@ window.simonSaysGame = (function () {
 
     function endGame(success) {
         active      = false;
-        this_active = false;
         window.simonSaysGame.active = false;
         clearInterval(timerInt);
         clearTimeout(showTimeout);
@@ -190,8 +204,11 @@ window.simonSaysGame = (function () {
 
         const $c = $('#simon-says-container');
         $c.addClass(success ? 'flash-success' : 'flash-fail');
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         setTimeout(() => {
-            $.post('https://glitch-minigames/simonSaysResult', JSON.stringify({ success: success }));
+            $c.fadeOut(300, function() {
+                $.post('https://glitch-minigames/simonSaysResult', JSON.stringify({ success: success }));
+            });
         }, 600);
     }
 
@@ -207,6 +224,9 @@ window.simonSaysGame = (function () {
             sequence  = [];
             playerInput = [];
             phase     = 'idle';
+            buttonPool = [];
+            // allowRepeats: default false — use cycling pool (each colour once per 4 before repeating)
+            if (config.allowRepeats === undefined) config.allowRepeats = false;
 
             clearInterval(timerInt);
             clearTimeout(showTimeout);

@@ -1546,7 +1546,7 @@ if config.DebugCommands then
         print("Combo Input Result: ", success)
     end, false)
 
-    RegisterCommand('tetsholdzone', function()
+    RegisterCommand('testholdzone', function()
         local success = exports['glitch-minigames']:StartHoldZoneGame('E', 3, 18, 18, 5, 2) -- key E, 3 rounds, speed 18, zone 18%, perfect 5%, 2 failures
         print("Hold Zone Result: ", success)
     end, false)
@@ -1634,8 +1634,9 @@ Citizen.CreateThread(function()
                 [24] = 79,  -- O
                 [25] = 80,  -- P
                 [34] = 65,  -- A
-                [8] = 83,   -- S
-                [9] = 68,   -- D
+                [32] = 87,  -- W (INPUT_MOVE_UP_ONLY)
+                [33] = 83,  -- S (INPUT_MOVE_DOWN_ONLY)
+                [35] = 68,  -- D (INPUT_MOVE_RIGHT_ONLY)
                 [47] = 71,  -- G
                 [74] = 72,  -- H
                 [311] = 74, -- J
@@ -1661,13 +1662,13 @@ Citizen.CreateThread(function()
             }
             
             for fivemCode, jsCode in pairs(keyMap) do
-                if IsControlJustPressed(0, fivemCode) then
+                if IsDisabledControlJustPressed(0, fivemCode) then
                     SendNUIMessage({
                         action = 'keyPress',
                         keyCode = jsCode
                     })
                 end
-                if IsControlJustReleased(0, fivemCode) then
+                if IsDisabledControlJustReleased(0, fivemCode) then
                     SendNUIMessage({
                         action = 'keyRelease',
                         keyCode = jsCode

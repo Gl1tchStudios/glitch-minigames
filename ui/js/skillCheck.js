@@ -169,6 +169,7 @@ let skillCheckGame = {
                               this.position <= (this.perfectStart + this.config.perfectZoneSize);
 
             if (inZone) {
+                playSoundSafe(inPerfect ? 'sound-click' : 'sound-buttonPress');
                 $('#skill-check-container').addClass('sc-flash-success');
                 $('#skill-check-message').text(inPerfect ? 'PERFECT!' : 'LOCKED IN');
                 const self = this;
@@ -192,6 +193,7 @@ let skillCheckGame = {
 
     recordFailure: function(reason) {
         this.failures++;
+        playSoundSafe('sound-penalty');
         $('#skill-check-failures').text(this.failures);
         $('#skill-check-container').addClass('sc-flash-fail');
         const left = this.config.maxFailures - this.failures;
@@ -232,6 +234,7 @@ let skillCheckGame = {
         this.timerInterval = null;
         if (this.animFrame) cancelAnimationFrame(this.animFrame);
         this.animFrame = null;
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         $('#skill-check-message').text(success ? 'BREACH SUCCESSFUL' : 'BREACH FAILED');
         const resultData = { success: success, rounds: this.currentRound, failures: this.failures };
         setTimeout(function() {

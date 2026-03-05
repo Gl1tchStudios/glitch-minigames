@@ -580,10 +580,17 @@
 
     <!-- Bar Hit Minigame Container -->
     <div id="bar-hit-container">
-        <div class="bar-hit-label">Press [<span id="bar-hit-key">E</span>] When Bar Hits Highlighted Area</div>
+        <div class="bar-hit-label">
+            <span>PRESS <span class="bar-hit-key-badge" id="bar-hit-key">E</span></span>
+            <span class="bar-hit-stats">ROUND <span id="bar-hit-round">1</span>/<span id="bar-hit-rounds">3</span> &nbsp;|&nbsp; ✕<span id="bar-hit-failures">0</span>/<span id="bar-hit-max-failures">3</span></span>
+        </div>
         <div class="bar-hit-track">
             <div class="bar-hit-fill"></div>
             <div class="bar-hit-zone"></div>
+        </div>
+        <div class="bar-hit-bottom">
+            <span id="bar-hit-message" class="bar-hit-msg">—</span>
+            <div class="bar-hit-timer-bar"><div class="bar-hit-timer-progress"></div></div>
         </div>
     </div>
 

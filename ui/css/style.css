@@ -4711,137 +4711,6 @@ body::before, body::after,
     opacity: 0.3;
 }
 
-/* ===== Bar Hit Minigame ===== */
-
-#bar-hit-container {
-    display: none;
-    position: static;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    width: auto;
-    padding: 0;
-    background: none;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
-    z-index: auto;
-    font-family: inherit;
-    transition: none;
-}
-
-#bar-hit-container.flash-success {
-    box-shadow: 0 0 28px rgba(var(--success-rgba, 51,181,229), 0.55);
-    border-color: var(--success-color);
-}
-
-#bar-hit-container.flash-fail {
-    box-shadow: 0 0 28px rgba(255, 68, 68, 0.55);
-    border-color: var(--failure-color);
-}
-
-.bar-hit-label {
-    font-size: 14px;
-    color: var(--text-color);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 10px;
-}
-
-.bar-hit-label span {
-    color: var(--primary-color);
-}
-
-/* The track */
-.bar-hit-track {
-    position: relative;
-    width: 100%;
-    height: 20px;
-    background: rgba(255, 255, 255, 0.06);
-    border-radius: 4px;
-    overflow: hidden;
-    margin-bottom: 10px;
-}
-
-/* The moving fill */
-.bar-hit-fill {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 0%;
-    background: var(--primary-color);
-    border-radius: 4px;
-    transition: none;
-    box-shadow: 2px 0 10px rgba(var(--primary-rgba, 51,181,229), 0.6);
-    z-index: 1;
-}
-
-/* The target zone highlight */
-.bar-hit-zone {
-    position: absolute;
-    top: 0;
-    height: 100%;
-    background: rgba(var(--safe-rgba, 34,197,94), 0.25);
-    border: 2px solid var(--safe-color);
-    border-radius: 3px;
-    z-index: 2;
-    transition: box-shadow 0.1s ease;
-}
-
-.bar-hit-zone.active-zone {
-    background: rgba(var(--safe-rgba, 34,197,94), 0.55);
-    box-shadow: 0 0 14px rgba(var(--safe-rgba, 34,197,94), 0.7);
-}
-
-/* Bottom info row */
-.bar-hit-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.bar-hit-stats {
-    font-size: 12px;
-    color: var(--text-secondary-color);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.bar-hit-stats span {
-    color: var(--text-color);
-}
-
-#bar-hit-message {
-    font-size: 12px;
-    color: var(--text-secondary-color);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    text-align: right;
-}
-
-/* Thin timer bar under container */
-.bar-hit-timer-bar {
-    width: 100%;
-    height: 3px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 2px;
-    margin-top: 10px;
-    overflow: hidden;
-}
-
-.bar-hit-timer-progress {
-    height: 100%;
-    width: 100%;
-    background: var(--primary-color);
-    border-radius: 2px;
-    transition: background 0.3s ease;
-}
-
-.bar-hit-timer-progress.danger {
-    background: var(--failure-color);
-}
-
 /* ===== Skill Check Minigame ===== */
 
 #skill-check-container {
@@ -5240,28 +5109,6 @@ body::before, body::after,
 
 
 /* ===== Hold Zone Minigame ===== */
-#hold-zone-container {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 9999;
-    pointer-events: none;
-    user-select: none;
-}
-.hz-hud {
-    background: rgba(10, 10, 10, 0.90);
-    border: 1px solid rgba(var(--primary-rgba, 45,212,168), 0.3);
-    border-radius: 12px;
-    padding: 18px 22px 14px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 0 24px rgba(0,0,0,0.65);
-    min-width: 270px;
-}
 .hz-ring-wrapper {
     position: relative;
     width: 220px;
@@ -5519,36 +5366,68 @@ body::before, body::after,
 /* ===== Bar Hit Minigame ===== */
 #bar-hit-container {
     display: none;
-    position: static !important;
-    transform: none !important;
-    width: 560px;
-    padding: 0 !important;
-    background: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+    position: fixed;
+    bottom: 7vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    width: 400px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-family: 'Share Tech Mono', monospace;
+    user-select: none;
+}
+
+#bar-hit-container.flash-success .bar-hit-track {
+    box-shadow: 0 0 20px rgba(34,197,94, 0.75), 0 2px 8px rgba(0,0,0,0.5) inset;
+}
+
+#bar-hit-container.flash-fail .bar-hit-track {
+    box-shadow: 0 0 20px rgba(255,68,68, 0.75), 0 2px 8px rgba(0,0,0,0.5) inset;
 }
 
 .bar-hit-label {
-    font-size: 0.72rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.68rem;
     font-weight: 500;
-    color: rgba(255,255,255,0.85);
-    text-align: left;
-    margin-bottom: 8px;
-    letter-spacing: 0.02em;
+    color: rgba(255,255,255,0.92);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 9px;
+    text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.7);
 }
 
-.bar-hit-label #bar-hit-key {
+.bar-hit-key-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    background: rgba(var(--primary-rgba, 45,212,168), 0.12);
+    border: 1px solid rgba(var(--primary-rgba, 45,212,168), 0.5);
+    border-radius: 4px;
     color: var(--primary-color);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+}
+
+.bar-hit-stats {
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.78);
+    letter-spacing: 0.06em;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.95);
 }
 
 .bar-hit-track {
     position: relative;
     width: 100%;
-    height: 14px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 3px;
+    height: 16px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 4px;
     overflow: visible;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5) inset;
 }
 
 .bar-hit-fill {
@@ -5558,39 +5437,80 @@ body::before, body::after,
     height: 100%;
     width: 0%;
     background: var(--primary-color);
-    border-radius: 3px;
+    border-radius: 4px;
+    box-shadow: 2px 0 10px rgba(var(--primary-rgba, 45,212,168), 0.55);
+    z-index: 1;
 }
 
 .bar-hit-zone {
     position: absolute;
     top: 0;
     height: 100%;
-    background: var(--safe-color);
-    border-radius: 3px;
-    opacity: 0.85;
-    transition: opacity 0.08s ease;
+    background: rgba(var(--safe-rgba, 34,197,94), 0.5);
+    border: 1.5px solid var(--safe-color);
+    border-radius: 4px;
+    z-index: 2;
+    box-shadow: 0 0 8px rgba(34,197,94, 0.4);
+    transition: opacity 0.08s ease, box-shadow 0.08s ease;
 }
 
 .bar-hit-zone.active-zone {
-    opacity: 1;
-    box-shadow: 0 0 8px rgba(34,197,94,0.6);
+    background: rgba(var(--safe-rgba, 34,197,94), 0.75);
+    box-shadow: 0 0 16px rgba(34,197,94, 0.7);
 }
 
-#bar-hit-container.flash-success .bar-hit-track {
-    box-shadow: 0 0 14px rgba(34,197,94,0.5);
+.bar-hit-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 7px;
+    gap: 10px;
 }
 
-#bar-hit-container.flash-fail .bar-hit-track {
-    box-shadow: 0 0 14px rgba(255,68,68,0.5);
+.bar-hit-msg {
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.78);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-shadow: 0 1px 6px rgba(0,0,0,0.95);
 }
+
+.bar-hit-timer-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.bar-hit-timer-progress {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
+    transition: background 0.3s ease;
+}
+
+.bar-hit-timer-progress.danger { background: var(--failure-color); }
+}
+
+/* bar-hit track flash handled by flash-success/fail rules above */
 
 
 /* ===== Hold Zone Minigame ===== */
 #hold-zone-container {
     display: none;
+    position: fixed;
+    bottom: 6vh;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    pointer-events: none;
+    user-select: none;
     text-align: center;
     width: auto;
-    /* No card — naked HUD elements only */
 }
 
 .hz-hud {
@@ -5604,6 +5524,7 @@ body::before, body::after,
     padding: 0 !important;
     box-shadow: none !important;
     min-width: 0 !important;
+    filter: drop-shadow(0 4px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 10px rgba(0,0,0,0.6));
 }
 
 .hz-ring-wrapper {
@@ -5651,10 +5572,11 @@ body::before, body::after,
 
 .hz-key-hint {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--text-secondary-color);
+    color: rgba(255,255,255,0.92);
+    text-shadow: 0 1px 8px rgba(0,0,0,0.95), 0 0 12px rgba(0,0,0,0.7);
 }
 
 .hz-key-badge {
@@ -5670,11 +5592,11 @@ body::before, body::after,
 
 .hz-round {
     font-family: 'Share Tech Mono', monospace;
-    font-size: 0.58rem;
+    font-size: 0.6rem;
     letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--text-secondary-color);
-    opacity: 0.65;
+    color: rgba(255,255,255,0.82);
+    text-shadow: 0 1px 6px rgba(0,0,0,0.95);
 }
 
 #hold-zone-container.hz-flash-success .hz-ring-wrapper {

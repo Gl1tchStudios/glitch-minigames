@@ -168,6 +168,7 @@ let barHitGame = {
         const inZone = this.barPosition >= this.zoneStart && this.barPosition <= this.zoneEnd;
 
         if (inZone) {
+            playSoundSafe('sound-buttonPress');
             $('#bar-hit-container').addClass('flash-success');
             $('#bar-hit-message').text('LOCKED IN');
 
@@ -186,6 +187,7 @@ let barHitGame = {
         } else {
             this.failures++;
             $('#bar-hit-failures').text(this.failures);
+            playSoundSafe('sound-penalty');
             $('#bar-hit-container').addClass('flash-fail');
             $('#bar-hit-message').text('MISSED — ' + (this.config.maxFailures - this.failures) + ' LEFT');
 
@@ -225,6 +227,7 @@ let barHitGame = {
         if (this.animationFrame) cancelAnimationFrame(this.animationFrame);
         this.animationFrame = null;
 
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         $('#bar-hit-message').text(success ? 'ACCESS GRANTED' : 'ACCESS DENIED');
 
         const resultData = {

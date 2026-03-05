@@ -109,8 +109,11 @@ window.comboInputGame = (function () {
 
         const $c = $('#combo-input-container');
         $c.addClass(success ? 'ci-flash-success' : 'ci-flash-fail');
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         setTimeout(() => {
-            $.post('https://glitch-minigames/comboInputResult', JSON.stringify({ success: success }));
+            $c.fadeOut(300, function() {
+                $.post('https://glitch-minigames/comboInputResult', JSON.stringify({ success: success }));
+            });
         }, success ? 600 : 450);
     }
 
@@ -122,10 +125,12 @@ window.comboInputGame = (function () {
         if (!DIR_MAP[k]) return; // not a direction key
 
         if (k === combo[cursor]) {
+            playSoundSafe('sound-buttonPress');
             cursor++;
             renderArrows();
             if (cursor >= combo.length) {
                 clearTimer();
+                playSoundSafe('sound-click');
                 const $c = $('#combo-input-container');
                 $c.addClass('ci-flash-success');
                 setTimeout(() => {
@@ -135,6 +140,7 @@ window.comboInputGame = (function () {
             }
         } else {
             // Wrong key — reset combo progress (not a full failure)
+            playSoundSafe('sound-penalty');
             cursor = 0;
             renderArrows();
             const $c = $('#combo-input-container');

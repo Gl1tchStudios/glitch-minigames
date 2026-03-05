@@ -137,6 +137,7 @@ window.wireConnectGame = (function () {
             wires.push({ from: selectedId, to: t.id });
             _newWire   = { from: selectedId, to: t.id };
             selectedId = null;
+            playSoundSafe('sound-click');
             renderBoard();
             checkWin();
         }
@@ -185,8 +186,11 @@ window.wireConnectGame = (function () {
 
         const $c = $('#wire-connect-container');
         $c.addClass(success ? 'flash-success' : 'flash-fail');
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         setTimeout(() => {
-            $.post('https://glitch-minigames/wireConnectResult', JSON.stringify({ success: success }));
+            $c.fadeOut(300, function() {
+                $.post('https://glitch-minigames/wireConnectResult', JSON.stringify({ success: success }));
+            });
         }, 550);
     }
 

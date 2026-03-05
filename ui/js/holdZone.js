@@ -148,6 +148,7 @@ window.holdZoneGame = (function () {
         const $c = $('#hold-zone-container');
         if (!success) {
             failures++;
+            playSoundSafe('sound-penalty');
             $c.addClass('hz-flash-fail');
             setTimeout(() => {
                 $c.removeClass('hz-flash-fail');
@@ -158,6 +159,7 @@ window.holdZoneGame = (function () {
                 }
             }, 500);
         } else {
+            playSoundSafe('sound-buttonPress');
             $c.addClass('hz-flash-success');
             setTimeout(() => {
                 $c.removeClass('hz-flash-success');
@@ -168,14 +170,16 @@ window.holdZoneGame = (function () {
 
     function endGame(success) {
         active      = false;
-        this_active = false;
         window.holdZoneGame.active = false;
         if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
 
         const $c = $('#hold-zone-container');
         $c.addClass(success ? 'hz-flash-success' : 'hz-flash-fail');
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         setTimeout(() => {
-            $.post('https://glitch-minigames/holdZoneResult', JSON.stringify({ success: success }));
+            $c.fadeOut(300, function() {
+                $.post('https://glitch-minigames/holdZoneResult', JSON.stringify({ success: success }));
+            });
         }, 400);
     }
 
