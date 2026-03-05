@@ -12,6 +12,9 @@ window.comboInputGame = (function () {
     };
     const DIR_KEYS = [87, 65, 83, 68];
 
+    // Arrow key aliases → WASD equivalents
+    const ARROW_MAP = { 38: 87, 37: 65, 40: 83, 39: 68 };
+
     let config   = {};
     let active   = false;
     let combo    = [];      // keyCode array for this round
@@ -115,7 +118,7 @@ window.comboInputGame = (function () {
 
     function handleKey(keyCode) {
         if (!active) return;
-        const k = parseInt(keyCode);
+        const k = ARROW_MAP[parseInt(keyCode)] || parseInt(keyCode);
         if (!DIR_MAP[k]) return; // not a direction key
 
         if (k === combo[cursor]) {

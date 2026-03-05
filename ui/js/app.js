@@ -442,6 +442,9 @@ $(document).ready(function() {
             window.keymashFunctions.stop(false);
         } else if (data.action === 'forceClose' || data.action === 'closeAll') {
             // Clean up everything and hide all containers
+            if (window.barHitGame && typeof window.barHitGame.close === 'function') {
+                window.barHitGame.close();
+            }
             cleanupAllContainers();
             
             // Reset all game states

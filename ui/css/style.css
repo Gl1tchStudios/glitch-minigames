@@ -4715,19 +4715,19 @@ body::before, body::after,
 
 #bar-hit-container {
     display: none;
-    position: fixed;
-    bottom: 18%;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 680px;
-    padding: 14px 22px 16px;
-    background: rgba(8, 12, 20, 0.88);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
-    z-index: 9999;
-    font-family: 'Share Tech Mono', monospace;
-    transition: box-shadow 0.15s ease;
+    position: static;
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: auto;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    z-index: auto;
+    font-family: inherit;
+    transition: none;
 }
 
 #bar-hit-container.flash-success {
@@ -5511,18 +5511,23 @@ body::before, body::after,
 /* ===== Bar Hit Minigame ===== */
 #bar-hit-container {
     display: none;
-    width: 380px;
-    /* No card — naked HUD elements only */
+    position: static !important;
+    transform: none !important;
+    width: 560px;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
 }
 
 .bar-hit-label {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-secondary-color);
-    text-align: center;
-    margin-bottom: 14px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: rgba(255,255,255,0.85);
+    text-align: left;
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
 }
 
 .bar-hit-label #bar-hit-key {
@@ -5532,11 +5537,10 @@ body::before, body::after,
 .bar-hit-track {
     position: relative;
     width: 100%;
-    height: 8px;
-    background: rgba(255,255,255,0.08);
-    border-radius: 4px;
+    height: 14px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
     overflow: visible;
-    margin-bottom: 10px;
 }
 
 .bar-hit-fill {
@@ -5546,73 +5550,30 @@ body::before, body::after,
     height: 100%;
     width: 0%;
     background: var(--primary-color);
-    border-radius: 4px;
-    box-shadow: 0 0 6px var(--primary-color);
+    border-radius: 3px;
 }
 
 .bar-hit-zone {
     position: absolute;
-    top: -4px;
-    height: calc(100% + 8px);
-    background: rgba(34,197,94,0.15);
-    border: 1.5px solid var(--safe-color);
+    top: 0;
+    height: 100%;
+    background: var(--safe-color);
     border-radius: 3px;
-    transition: background 0.08s ease, box-shadow 0.08s ease;
+    opacity: 0.85;
+    transition: opacity 0.08s ease;
 }
 
 .bar-hit-zone.active-zone {
-    background: rgba(34,197,94,0.3);
-    box-shadow: 0 0 10px rgba(34,197,94,0.5);
-}
-
-.bar-hit-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.bar-hit-stats {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.58rem;
-    letter-spacing: 0.06em;
-    color: var(--text-secondary-color);
-    opacity: 0.7;
-}
-
-#bar-hit-message {
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 0.64rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--text-color);
-}
-
-.bar-hit-timer-bar {
-    width: 100%;
-    height: 2px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 1px;
-    overflow: hidden;
-}
-
-.bar-hit-timer-progress {
-    height: 100%;
-    width: 100%;
-    background: var(--primary-color);
-    transition: width 0.05s linear, background 0.3s ease;
-}
-
-.bar-hit-timer-progress.danger {
-    background: var(--failure-color);
+    opacity: 1;
+    box-shadow: 0 0 8px rgba(34,197,94,0.6);
 }
 
 #bar-hit-container.flash-success .bar-hit-track {
-    box-shadow: 0 0 18px rgba(34,197,94,0.5);
+    box-shadow: 0 0 14px rgba(34,197,94,0.5);
 }
 
 #bar-hit-container.flash-fail .bar-hit-track {
-    box-shadow: 0 0 18px rgba(255,68,68,0.5);
+    box-shadow: 0 0 14px rgba(255,68,68,0.5);
 }
 
 
@@ -5629,6 +5590,12 @@ body::before, body::after,
     flex-direction: column;
     align-items: center;
     gap: 18px;
+    background: none !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    min-width: 0 !important;
 }
 
 .hz-ring-wrapper {
