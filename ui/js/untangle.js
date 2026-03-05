@@ -68,33 +68,15 @@ var Untangle = (function() {
     }
 
     function generateEdges() {
+        // Fan triangulation — always a planar graph, so the puzzle is always solvable.
+        // Outer cycle: 0-1-2-..-(n-1)-0, plus diagonals from node 0 to nodes 2..n-2.
         edges = [];
-        
-
-        var connected = [0];
-        var unconnected = [];
-        for (var i = 1; i < nodeCount; i++) {
-            unconnected.push(i);
+        for (var i = 0; i < nodeCount - 1; i++) {
+            edges.push({ from: i, to: i + 1 });
         }
-        
-        while (unconnected.length > 0) {
-            var fromIdx = connected[Math.floor(Math.random() * connected.length)];
-            var toIdx = unconnected.splice(Math.floor(Math.random() * unconnected.length), 1)[0];
-            edges.push({ from: fromIdx, to: toIdx });
-            connected.push(toIdx);
-        }
-        
-        var extraEdges = Math.floor(nodeCount * 0.8);
-        var attempts = 0;
-        
-        while (edges.length < nodeCount + extraEdges && attempts < 100) {
-            var from = Math.floor(Math.random() * nodeCount);
-            var to = Math.floor(Math.random() * nodeCount);
-            
-            if (from !== to && !edgeExists(from, to)) {
-                edges.push({ from: from, to: to });
-            }
-            attempts++;
+        edges.push({ from: nodeCount - 1, to: 0 });
+        for (var i = 2; i < nodeCount - 1; i++) {
+            edges.push({ from: 0, to: i });
         }
     }
 

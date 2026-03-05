@@ -13,6 +13,7 @@ window.wireConnectGame = (function () {
     let selectedId  = null; // currently selected left terminal
     let timerInt    = null;
     let timeLeft    = 0;
+    let _newWire    = null; // wire to animate on next renderBoard
 
     // ── board construction ───────────────────────────────────
 
@@ -59,20 +60,26 @@ window.wireConnectGame = (function () {
             const rT = terminals.find(t => t.id === w.to);
             if (!lT || !rT) return;
 
-            const ly  = (lT.row + 0.5) * rowH;
-            const ry  = (rT.row + 0.5) * rowH;
-            const crossed = checkCross(w, wires);
-            const stroke  = crossed ? '#ff4444' : lT.color;
-
-            // Cubic bezier for a natural wire curve
+            const ly        = (lT.row + 0.5) * rowH;
+            const ry        = (rT.row + 0.5) * rowH;
+            const crossed   = checkCross(w, wires);
+            const baseColor = crossed ? '#ff4444' : lT.color;
+            const isNew     = _newWire && _newWire.from === w.from && _newWire.to === w.to;
             const cx = W / 2;
-            $svg.append(
-                `<path d="M${LX},${ly} C${cx},${ly} ${cx},${ry} ${RX},${ry}"
-                    stroke="${stroke}" stroke-width="3.5"
-                    fill="none" stroke-linecap="round"
-                    opacity="${crossed ? 0.9 : 1}"/>`
-            );
+            const d  = `M${LX},${ly} C${cx},${ly} ${cx},${ry} ${RX},${ry}`;
+            const cls = isNew ? ' class="wc-wire-new"' : '';
+
+            // Outer glow halo
+            $svg.append(`<path pathLength="1" d="${d}" stroke="${baseColor}" stroke-width="16"
+                fill="none" stroke-linecap="round" opacity="0.18"${cls}/>`);
+            // Main cable body
+            $svg.append(`<path pathLength="1" d="${d}" stroke="${baseColor}" stroke-width="6"
+                fill="none" stroke-linecap="round" opacity="${crossed ? 0.8 : 1}"${cls}/>`);
+            // Center highlight sheen
+            $svg.append(`<path pathLength="1" d="${d}" stroke="rgba(255,255,255,0.45)" stroke-width="1.5"
+                fill="none" stroke-linecap="round"${cls}/>`);
         });
+        _newWire = null;
 
         // ─ terminals ─
         terminals.forEach(t => {
@@ -98,16 +105,20 @@ window.wireConnectGame = (function () {
         });
 
         // ─ status line ─
-        const crossed = wires.some(w => checkCross(w, wires));
-        const total   = terminals.filter(t => t.side === 'left').length;
-        const done    = wires.length;
+        const total      = terminals.filter(t => t.side === 'left').length;
+        const done       = wires.length;
+        const allCorrect = done === total && wires.every(w => {
+            const lT = terminals.find(t => t.id === w.from);
+            const rT = terminals.find(t => t.id === w.to);
+            return lT && rT && lT.colorIdx === rT.colorIdx;
+        });
         $('#wc-status').text(
             done < total
                 ? `Connect ${total - done} more wire${total - done > 1 ? 's' : ''}`
-                : crossed
-                    ? 'Wires are crossing — fix them!'
-                    : 'All connected! ✓'
-        ).toggleClass('wc-status-ok', done === total && !crossed);
+                : allCorrect
+                    ? 'All connected! ✓'
+                    : 'Wrong colours — check your connections'
+        ).toggleClass('wc-status-ok', allCorrect);
     }
 
     function onDotClick(t) {
@@ -124,6 +135,7 @@ window.wireConnectGame = (function () {
             // Remove any existing wire to this right terminal or from this left terminal
             wires = wires.filter(w => w.to !== t.id && w.from !== selectedId);
             wires.push({ from: selectedId, to: t.id });
+            _newWire   = { from: selectedId, to: t.id };
             selectedId = null;
             renderBoard();
             checkWin();
@@ -155,12 +167,11 @@ window.wireConnectGame = (function () {
         const count = terminals.filter(t => t.side === 'left').length;
         if (wires.length < count) return;
 
-        // All left terminals wired to correct colour with no crossings
+        // All left terminals wired to correct colour
         for (const w of wires) {
             const lT = terminals.find(t => t.id === w.from);
             const rT = terminals.find(t => t.id === w.to);
             if (!lT || !rT || lT.colorIdx !== rT.colorIdx) return; // wrong colour
-            if (checkCross(w, wires)) return; // crossing
         }
 
         endGame(true);

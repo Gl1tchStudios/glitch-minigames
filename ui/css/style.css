@@ -5419,6 +5419,14 @@ body::before, body::after,
     min-width: 28px;
     text-align: right;
 }
+@keyframes wc-draw {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+}
+.wc-wire-new {
+    stroke-dasharray: 1;
+    animation: wc-draw 0.4s cubic-bezier(.22,.8,.36,1) forwards;
+}
 
 
 /* ===== Simon Says Minigame ===== */
