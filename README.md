@@ -13,7 +13,9 @@ Welcome to the official repository for **Glitch Minigames**! This is a collectio
 
 ## 📚 Documentation
 
-https://glitchstudios.gitbook.io/glitch-studios/free-resources/glitch-minigames
+**https://minigames.glitchstudios.dev/**
+
+We moved away from GitBook to our own dedicated docs site. The new site is purpose-built for Glitch Minigames — it includes an interactive minigame preview so you can play every minigame directly in your browser before integrating it, a full parameter reference for each game, a developer guide, difficulty preset examples, and a live GitHub star and Discord member count. It loads faster, is fully self-hosted, and gives us complete control over layout and content without the limitations and branding of a third-party docs platform.
 
 ---
 
