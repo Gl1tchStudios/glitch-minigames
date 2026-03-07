@@ -4,7 +4,7 @@
 
 **A collection of 28+ interactive minigames built for FiveM servers**
 
-Skill checks · Hacking sequences · Memory games · Rhythm · Lockpicking · and more
+Skill Checks · Hacking Sequences · Memory Games · Rhythm · Lockpicking · and more
 
 [![Docs](https://img.shields.io/badge/DOCS-minigames.glitchstudios.dev-6366f1?style=flat-square)](https://minigames.glitchstudios.dev/)
 [![Version](https://img.shields.io/badge/VERSION-2.1.0-a855f7?style=flat-square)](https://github.com/Gl1tchStudios/glitch-minigames/releases)
@@ -13,7 +13,7 @@ Skill checks · Hacking sequences · Memory games · Rhythm · Lockpicking · an
 [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-22c55e?style=flat-square)](LICENSE)
 [![Discord](https://img.shields.io/badge/DISCORD-JOIN-5865f2?style=flat-square&logo=discord&logoColor=white)](https://discord.gg/3DsNKxq2DQ)
 
-> If this resource saved you time or you just enjoy using it, consider leaving a ⭐ star — it helps others find the project and motivates continued development.
+> If this resource saved you time or you just enjoy using it, consider leaving a ⭐ star it helps others find the project and motivates continued development.
 
 </div>
 
