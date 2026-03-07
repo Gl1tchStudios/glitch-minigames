@@ -36,8 +36,8 @@ window.MinigameColors = {
     textSecondaryRgba: '150, 150, 150',
     danger: '#cc0000',
     dangerRgba: '204, 0, 0',
-    safe: '#2dd4a8',
-    safeRgba: '45, 212, 168'
+    safe: '#22c55e',
+    safeRgba: '34, 197, 94'
 };
 
 $(document).ready(function() {
