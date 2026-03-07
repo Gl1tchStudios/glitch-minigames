@@ -148,7 +148,12 @@ window.simonSaysGame = (function () {
     }
 
     function startInputTimer() {
-        if (!config.timeLimit) return;
+        if (!config.timeLimit) {
+            // No time limit — hide the bar entirely
+            $('.ss-timer-row').hide();
+            return;
+        }
+        $('.ss-timer-row').show();
         timeLeft = config.timeLimit;
         $('#ss-timer-fill').css('width', '100%');
         $('#ss-time-text').text(timeLeft + 's');
@@ -232,6 +237,9 @@ window.simonSaysGame = (function () {
             clearTimeout(showTimeout);
 
             $('#simon-says-container').show().removeClass('flash-success flash-fail');
+
+            // Hide timer bar by default — startInputTimer() shows it if timeLimit is set
+            $('.ss-timer-row').hide();
 
             // Bind button clicks
             BUTTONS.forEach(b => {

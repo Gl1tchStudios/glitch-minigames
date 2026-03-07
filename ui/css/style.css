@@ -5030,12 +5030,12 @@ body::before, body::after,
     user-select: none;
 }
 .ci-hud {
-    background: rgba(10, 10, 10, 0.88);
-    border: 1px solid rgba(var(--primary-rgba, 45,212,168), 0.35);
-    border-radius: 8px;
-    padding: 10px 18px 8px;
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 12px 18px 10px;
     min-width: 300px;
-    box-shadow: 0 0 14px rgba(var(--primary-rgba, 45,212,168), 0.12);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.6);
 }
 .ci-header {
     display: flex;
@@ -5105,83 +5105,6 @@ body::before, body::after,
 #combo-input-container.ci-flash-wrong .ci-hud {
     border-color: var(--failure-color);
     box-shadow: 0 0 18px rgba(255,68,68, 0.35);
-}
-
-
-/* ===== Hold Zone Minigame ===== */
-.hz-ring-wrapper {
-    position: relative;
-    width: 220px;
-    height: 220px;
-}
-#hz-ring {
-    position: absolute;
-    border-radius: 50%;
-    border: 3px solid var(--primary-color);
-    box-sizing: border-box;
-    transition: border-color 0.1s ease;
-    box-shadow: 0 0 8px rgba(var(--primary-rgba, 45,212,168), 0.25);
-}
-#hz-zone {
-    position: absolute;
-    border-radius: 50%;
-    border-style: solid;
-    border-color: rgba(34,197,94, 0.55);
-    box-sizing: border-box;
-    background: rgba(34,197,94, 0.04);
-    box-shadow: 0 0 14px rgba(34,197,94, 0.15) inset;
-    pointer-events: none;
-}
-#hz-perfect {
-    position: absolute;
-    border-radius: 50%;
-    border-style: solid;
-    border-color: rgba(34,197,94, 0.9);
-    box-sizing: border-box;
-    background: transparent;
-    box-shadow: 0 0 10px rgba(34,197,94, 0.4) inset;
-    pointer-events: none;
-}
-.hz-center {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--primary-color);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 8px rgba(var(--primary-rgba, 45,212,168), 0.7);
-}
-.hz-key-hint {
-    font-family: 'Courier New', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.06em;
-    color: var(--text-secondary-color);
-    text-transform: uppercase;
-    text-align: center;
-}
-.hz-key-badge {
-    color: var(--primary-color);
-    border: 1px solid var(--primary-color);
-    border-radius: 3px;
-    padding: 0 5px;
-    font-size: 0.8rem;
-}
-.hz-round {
-    font-family: 'Courier New', monospace;
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    color: var(--text-secondary-color);
-    text-transform: uppercase;
-}
-#hold-zone-container.hz-flash-success .hz-hud {
-    border-color: var(--safe-color);
-    box-shadow: 0 0 24px rgba(34,197,94, 0.45);
-}
-#hold-zone-container.hz-flash-fail .hz-hud {
-    border-color: var(--failure-color);
-    box-shadow: 0 0 22px rgba(255,68,68, 0.45);
 }
 
 
@@ -5372,11 +5295,12 @@ body::before, body::after,
     transform: translateX(-50%);
     z-index: 9999;
     width: 400px;
-    padding: 0;
-    background: none;
-    border: none;
-    border-radius: 0;
-    box-shadow: none;
+    box-sizing: border-box;
+    padding: 14px 18px 12px;
+    background: linear-gradient(135deg, var(--background-gradient-1-alpha) 0%, var(--background-gradient-2-alpha) 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.6);
     font-family: 'Share Tech Mono', monospace;
     user-select: none;
 }
@@ -5494,7 +5418,6 @@ body::before, body::after,
 }
 
 .bar-hit-timer-progress.danger { background: var(--failure-color); }
-}
 
 /* bar-hit track flash handled by flash-success/fail rules above */
 
@@ -5517,46 +5440,68 @@ body::before, body::after,
     display: inline-flex;
     flex-direction: column;
     align-items: center;
-    gap: 18px;
-    background: none !important;
-    border: none !important;
-    border-radius: 0 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-    min-width: 0 !important;
+    gap: 14px;
+    background: none;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+    width: 220px;
     filter: drop-shadow(0 4px 28px rgba(0,0,0,0.85)) drop-shadow(0 0 10px rgba(0,0,0,0.6));
+}
+
+.hz-progress-bar {
+    width: 100%;
+    align-self: stretch;
+    height: 4px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.hz-progress-fill {
+    height: 100%;
+    width: 100%;
+    background: var(--primary-color);
+    border-radius: 2px;
 }
 
 .hz-ring-wrapper {
     position: relative;
     width: 220px;
     height: 220px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.35);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05) inset;
 }
 
 .hz-ring {
     position: absolute;
     border: 3px solid var(--primary-color);
     border-radius: 50%;
-    box-shadow: 0 0 10px rgba(45,212,168,0.25);
+    box-shadow: 0 0 8px rgba(45, 212, 168, 0.25), 0 0 2px rgba(45, 212, 168, 0.45);
     transition: border-color 0.08s ease, box-shadow 0.08s ease;
+    z-index: 2;
 }
 
 .hz-zone {
     position: absolute;
     border-style: solid;
-    border-color: var(--safe-color);
+    border-color: rgba(34, 197, 94, 0.55);
     border-radius: 50%;
-    background: rgba(34,197,94,0.1);
+    background: rgba(34, 197, 94, 0.06);
     opacity: 0;
+    z-index: 1;
 }
 
 .hz-perfect {
     position: absolute;
     border-style: solid;
-    border-color: var(--warning-color);
+    border-color: rgba(251, 191, 36, 0.55);
     border-radius: 50%;
-    background: rgba(251,191,36,0.12);
+    background: rgba(251, 191, 36, 0.06);
     opacity: 0;
+    z-index: 1;
 }
 
 .hz-center {
@@ -5600,9 +5545,9 @@ body::before, body::after,
 }
 
 #hold-zone-container.hz-flash-success .hz-ring-wrapper {
-    filter: drop-shadow(0 0 14px rgba(34,197,94,0.55));
+    filter: drop-shadow(0 0 10px rgba(34,197,94,0.35));
 }
 
 #hold-zone-container.hz-flash-fail .hz-ring-wrapper {
-    filter: drop-shadow(0 0 14px rgba(255,68,68,0.55));
+    filter: drop-shadow(0 0 10px rgba(220,38,38,0.35));
 }

@@ -1297,7 +1297,7 @@ exports('StartComboInputGame', function(rounds, comboLength, timePerCombo, maxFa
 
     isHacking = true
     disableMovementControls = true
-    SetNuiFocus(false, false) -- key forwarding via isHacking thread (WASD as arrows)
+    SetNuiFocus(true, false) -- NUI gets keyboard focus so WASD/arrow keys fire natively in browser
     SendNUIMessage({
         action = 'startComboInput',
         config = comboConfig
@@ -1307,7 +1307,7 @@ exports('StartComboInputGame', function(rounds, comboLength, timePerCombo, maxFa
     return Citizen.Await(p)
 end)
 
-exports('StartHoldZoneGame', function(key, rounds, speed, zoneSize, perfectZoneSize, maxFailures)
+exports('StartHoldZoneGame', function(key, rounds, speed, zoneSize, perfectZoneSize, maxFailures, idleTimeout)
     local p = promise.new()
 
     if isHacking then return false end
@@ -1318,7 +1318,8 @@ exports('StartHoldZoneGame', function(key, rounds, speed, zoneSize, perfectZoneS
         speed           = speed or 18,          -- ring shrink speed (% per second when held)
         zoneSize        = zoneSize or 18,       -- success zone width %
         perfectZoneSize = perfectZoneSize or 0, -- inner perfect zone % (0 = disabled)
-        maxFailures     = maxFailures or 2      -- failed releases before lose
+        maxFailures     = maxFailures or 2,     -- failed releases before lose
+        idleTimeout     = idleTimeout or 10     -- seconds before auto-fail if player never presses key (0 = disabled)
     }
 
     callback = function(success)
@@ -1374,7 +1375,7 @@ exports('StartSimonSaysGame', function(rounds, flashSpeed, timeLimit, maxMistake
         rounds      = rounds or 5,        -- rounds (sequence length) to win
         flashSpeed  = flashSpeed or 550,  -- button flash duration ms (lower = harder)
         flashGap    = 250,                -- gap between flashes ms
-        timeLimit   = timeLimit or 0,     -- seconds to input each round, 0 = no limit
+        timeLimit   = timeLimit or 20,    -- seconds to input each round, 0 = no limit
         maxMistakes = maxMistakes or 1    -- wrong presses before fail
     }
 

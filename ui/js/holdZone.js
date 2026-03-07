@@ -29,6 +29,7 @@ window.holdZoneGame = (function () {
     let animFrame    = null;
     let lastTs       = null;
     let targetKeyCode = 69;  // resolved JS keyCode
+    let idleTimer    = null;
 
     // ── helpers ──────────────────────────────────────────────
 
@@ -48,7 +49,7 @@ window.holdZoneGame = (function () {
             borderColor: inZone
                 ? 'var(--safe-color)'
                 : closing
-                    ? 'var(--warning-color)'
+                    ? 'var(--danger-color)'
                     : 'var(--primary-color)'
         });
     }
@@ -118,7 +119,10 @@ window.holdZoneGame = (function () {
     function startRound() {
         round++;
         if (round > (config.rounds || 3)) { endGame(true); return; }
+        runRound();
+    }
 
+    function runRound() {
         holding  = false;
         resolved = false;
         ringPct  = 100;
@@ -136,13 +140,38 @@ window.holdZoneGame = (function () {
             'Hold <span class="hz-key-badge">' + label + '</span> &amp; release in zone'
         );
         $('#hz-round').text('Round ' + round + ' / ' + (config.rounds || 3));
-
         if (animFrame) cancelAnimationFrame(animFrame);
         animFrame = requestAnimationFrame(tick);
+
+        // Idle timeout — auto-fail if the player never presses the key
+        clearTimeout(idleTimer);
+        idleTimer = null;
+        const _idleMs = (config.idleTimeout !== undefined && config.idleTimeout !== null)
+            ? config.idleTimeout * 1000
+            : 10000;
+        if (_idleMs > 0) {
+            idleTimer = setTimeout(function () {
+                if (!active || resolved || holding) return;
+                onResult(false);
+            }, _idleMs);
+        }
+
+        // Progress bar counts down over the idle timeout duration
+        const $fill = $('#hz-progress-fill');
+        $fill.css({ transition: 'none', width: '100%' });
+        $fill[0].offsetWidth; // force reflow so CSS transition restarts
+        if (_idleMs > 0) {
+            $fill.css({ transition: 'width ' + (_idleMs / 1000) + 's linear', width: '0%' });
+        }
     }
 
     function onResult(success) {
         resolved = true;
+        clearTimeout(idleTimer);
+        idleTimer = null;
+        // Freeze countdown bar at its current animated position
+        const $fill = $('#hz-progress-fill');
+        $fill.css({ transition: 'none', width: window.getComputedStyle($fill[0]).width });
         if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
 
         const $c = $('#hold-zone-container');
@@ -152,10 +181,10 @@ window.holdZoneGame = (function () {
             $c.addClass('hz-flash-fail');
             setTimeout(() => {
                 $c.removeClass('hz-flash-fail');
-                if (failures >= (config.maxFailures || 2)) {
+                if (failures >= (config.maxFailures || 1)) {
                     endGame(false);
                 } else {
-                    startRound();
+                    runRound(); // retry same round number, don't advance past total
                 }
             }, 500);
         } else {
@@ -171,9 +200,17 @@ window.holdZoneGame = (function () {
     function endGame(success) {
         active      = false;
         window.holdZoneGame.active = false;
+        clearTimeout(idleTimer);
+        idleTimer = null;
         if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
 
         const $c = $('#hold-zone-container');
+        const $pfill = $('#hz-progress-fill');
+        $pfill.css({ transition: 'none', width: window.getComputedStyle($pfill[0]).width });
+        if (success) {
+            $pfill[0].offsetWidth;
+            $pfill.css({ transition: 'width 0.3s ease', width: '100%' });
+        }
         $c.addClass(success ? 'hz-flash-success' : 'hz-flash-fail');
         playSoundSafe(success ? 'sound-success' : 'sound-failure');
         setTimeout(() => {
@@ -204,6 +241,8 @@ window.holdZoneGame = (function () {
         close: function () {
             active      = false;
             this.active = false;
+            clearTimeout(idleTimer);
+            idleTimer = null;
             if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
             $('#hold-zone-container').fadeOut(300);
         },
@@ -211,6 +250,9 @@ window.holdZoneGame = (function () {
         handleKeyByCode: function (kc) {
             if (!active || resolved) return;
             if (parseInt(kc) !== targetKeyCode) return;
+            // Player interacted — cancel the idle timeout
+            clearTimeout(idleTimer);
+            idleTimer = null;
             holding = true;
             // start animation if it isn't already running
             if (!animFrame) {
