@@ -1565,7 +1565,6 @@ end
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(0)
         if isHacking or isSequencing then
             if IsControlJustPressed(0, 177) then -- BACKSPACE key
                 if isHacking then
@@ -1580,13 +1579,15 @@ Citizen.CreateThread(function()
                     TriggerServerEvent('backdoor-sequence:completeHack', false)
                 end
             end
+            Citizen.Wait(0)
+        else
+            Citizen.Wait(500)
         end
     end
 end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(0)
         if disableMovementControls or isHacking then
             -- Disable player movement controls
             DisableControlAction(0, 1, true) -- LookLeftRight
@@ -1613,55 +1614,57 @@ Citizen.CreateThread(function()
             DisableControlAction(0, 167, true) -- F6 Menu
             DisableControlAction(0, 168, true) -- F7 Menu
             DisableControlAction(0, 169, true) -- F8 Menu
+            Citizen.Wait(0)
+        else
+            Citizen.Wait(500)
         end
     end
 end)
 
+-- Key map built once at module level — avoids allocating a new table every frame
+local keyMap = {
+    [38] = 69,  -- E
+    [22] = 32,  -- SPACE
+    [23] = 70,  -- F
+    [44] = 81,  -- Q
+    [45] = 82,  -- R
+    [245] = 84, -- T
+    [246] = 89, -- Y
+    [303] = 85, -- U
+    [304] = 73, -- I
+    [24] = 79,  -- O
+    [25] = 80,  -- P
+    [34] = 65,  -- A
+    [32] = 87,  -- W (INPUT_MOVE_UP_ONLY)
+    [33] = 83,  -- S (INPUT_MOVE_DOWN_ONLY)
+    [35] = 68,  -- D (INPUT_MOVE_RIGHT_ONLY)
+    [47] = 71,  -- G
+    [74] = 72,  -- H
+    [311] = 74, -- J
+    [168] = 75, -- K (using different control code)
+    [182] = 76, -- L
+    [20] = 90,  -- Z
+    [73] = 88,  -- X
+    [26] = 67,  -- C
+    [0] = 86,   -- V
+    [29] = 66,  -- B
+    [249] = 78, -- N
+    [244] = 77, -- M
+    [157] = 49, -- 1
+    [158] = 50, -- 2
+    [160] = 51, -- 3
+    [164] = 52, -- 4
+    [165] = 53, -- 5
+    [159] = 54, -- 6
+    [161] = 55, -- 7
+    [162] = 56, -- 8
+    [163] = 57, -- 9
+    [307] = 48  -- 0 (using different control code)
+}
+
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(0)
         if isHacking then
-            -- Mapping of FiveM control codes to JS keyCodes
-            local keyMap = {
-                [38] = 69,  -- E
-                [22] = 32,  -- SPACE
-                [23] = 70,  -- F
-                [44] = 81,  -- Q
-                [45] = 82,  -- R
-                [245] = 84, -- T
-                [246] = 89, -- Y
-                [303] = 85, -- U
-                [304] = 73, -- I
-                [24] = 79,  -- O
-                [25] = 80,  -- P
-                [34] = 65,  -- A
-                [32] = 87,  -- W (INPUT_MOVE_UP_ONLY)
-                [33] = 83,  -- S (INPUT_MOVE_DOWN_ONLY)
-                [35] = 68,  -- D (INPUT_MOVE_RIGHT_ONLY)
-                [47] = 71,  -- G
-                [74] = 72,  -- H
-                [311] = 74, -- J
-                [168] = 75, -- K (using different control code)
-                [182] = 76, -- L
-                [20] = 90,  -- Z
-                [73] = 88,  -- X
-                [26] = 67,  -- C
-                [0] = 86,   -- V
-                [29] = 66,  -- B
-                [249] = 78, -- N
-                [244] = 77, -- M
-                [157] = 49, -- 1
-                [158] = 50, -- 2
-                [160] = 51, -- 3
-                [164] = 52, -- 4
-                [165] = 53, -- 5
-                [159] = 54, -- 6
-                [161] = 55, -- 7
-                [162] = 56, -- 8
-                [163] = 57, -- 9
-                [307] = 48  -- 0 (using different control code)
-            }
-            
             for fivemCode, jsCode in pairs(keyMap) do
                 if IsDisabledControlJustPressed(0, fivemCode) then
                     SendNUIMessage({
@@ -1676,6 +1679,9 @@ Citizen.CreateThread(function()
                     })
                 end
             end
+            Citizen.Wait(0)
+        else
+            Citizen.Wait(500)
         end
     end
 end)

@@ -106,7 +106,6 @@ end
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(0)
         if inMinigame and scaleform then
             DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255, 0)
             PushScaleformMovieFunction(scaleform, "SET_CURSOR")
@@ -122,13 +121,15 @@ Citizen.CreateThread(function()
                 PopScaleformMovieFunctionVoid()
                 PlaySoundFrontend(-1, "HACKING_CLICK", "", true)
             end
+            Citizen.Wait(0)
+        else
+            Citizen.Wait(500)
         end
     end
 end)
 
 Citizen.CreateThread(function()
     while true do
-        Citizen.Wait(0)
         if inMinigame and HasScaleformMovieLoaded(scaleform) then
             FreezeEntityPosition(PlayerPedId(), true)
             PlayerFreezed = true
@@ -297,6 +298,7 @@ Citizen.CreateThread(function()
                     TriggerEvent('bruteforce:uiSequenceComplete')
                 end
             end
+            Citizen.Wait(0)
         else
             if PlayerFreezed then 
                 FreezeEntityPosition(PlayerPedId(), false)
