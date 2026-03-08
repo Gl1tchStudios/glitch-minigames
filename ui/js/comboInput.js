@@ -23,6 +23,7 @@ window.comboInputGame = (function () {
     let failures = 0;
     let timeLeft = 0;
     let timerInt = null;
+    let _gen     = 0;       // incremented on each start(); guards stale endGame callbacks
 
     // ── helpers ─────────────────────────────────────────────
 
@@ -110,8 +111,11 @@ window.comboInputGame = (function () {
         const $c = $('#combo-input-container');
         $c.addClass(success ? 'ci-flash-success' : 'ci-flash-fail');
         playSoundSafe(success ? 'sound-success' : 'sound-failure');
+        const thisGen = _gen;
         setTimeout(() => {
+            if (_gen !== thisGen) return;
             $c.fadeOut(300, function() {
+                if (_gen !== thisGen) return;
                 $.post('https://glitch-minigames/comboInputResult', JSON.stringify({ success: success }));
             });
         }, success ? 600 : 450);
@@ -162,6 +166,7 @@ window.comboInputGame = (function () {
             this.active = true;
             round    = 0;
             failures = 0;
+            _gen++;
 
             // Native keydown listener so WASD and arrow keys work in FiveM
             // (requires SetNuiFocus(true, false) in Lua so the browser gets keyboard focus)

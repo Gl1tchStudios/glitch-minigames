@@ -45,6 +45,7 @@ let skillCheckGame = {
     start: function(config) {
         console.log('[SkillCheck] start() called');
         if (this.active) return;
+        this._gen = (this._gen || 0) + 1;
 
         this.config = {
             keys: config.keys || ['E', 'F', 'R'],          // one key per round
@@ -237,8 +238,12 @@ let skillCheckGame = {
         playSoundSafe(success ? 'sound-success' : 'sound-failure');
         $('#skill-check-message').text(success ? 'BREACH SUCCESSFUL' : 'BREACH FAILED');
         const resultData = { success: success, rounds: this.currentRound, failures: this.failures };
+        const self = this;
+        const gen  = this._gen;
         setTimeout(function() {
+            if (self._gen !== gen) return;
             $('#skill-check-container').fadeOut(500, function() {
+                if (self._gen !== gen) return;
                 $.post('https://glitch-minigames/skillCheckResult', JSON.stringify(resultData));
             });
         }, 700);

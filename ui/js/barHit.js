@@ -39,6 +39,7 @@ let barHitGame = {
             console.log('[BarHit] Already active, ignoring');
             return;
         }
+        this._gen = (this._gen || 0) + 1;
 
         this.config = {
             key: (config.key || 'E').toUpperCase(),
@@ -235,9 +236,13 @@ let barHitGame = {
             rounds: this.currentRound,
             failures: this.failures
         };
+        const self = this;
+        const gen  = this._gen;
 
         setTimeout(function() {
+            if (self._gen !== gen) return;
             $('#bar-hit-container').fadeOut(500, function() {
+                if (self._gen !== gen) return;
                 $.post('https://glitch-minigames/barHitResult', JSON.stringify(resultData));
             });
         }, 700);

@@ -20,6 +20,7 @@ window.simonSaysGame = (function () {
     let timeLeft    = 0;
     let showTimeout = null;
     let buttonPool  = [];   // cycling pool — each colour used once before any repeats
+    let _gen        = 0;    // guards stale endGame callbacks after Reload
 
     // ── sequences ────────────────────────────────────────────
 
@@ -210,8 +211,11 @@ window.simonSaysGame = (function () {
         const $c = $('#simon-says-container');
         $c.addClass(success ? 'flash-success' : 'flash-fail');
         playSoundSafe(success ? 'sound-success' : 'sound-failure');
+        const thisGen = _gen;
         setTimeout(() => {
+            if (_gen !== thisGen) return;
             $c.fadeOut(300, function() {
+                if (_gen !== thisGen) return;
                 $.post('https://glitch-minigames/simonSaysResult', JSON.stringify({ success: success }));
             });
         }, 600);
@@ -230,6 +234,7 @@ window.simonSaysGame = (function () {
             playerInput = [];
             phase     = 'idle';
             buttonPool = [];
+            _gen++;
             // allowRepeats: default false — use cycling pool (each colour once per 4 before repeating)
             if (config.allowRepeats === undefined) config.allowRepeats = false;
 

@@ -19,6 +19,7 @@ window.holdZoneGame = (function () {
     let active   = false;
     let round    = 0;
     let failures = 0;
+    let _gen     = 0;       // guards stale endGame callbacks after Reload
 
     // per-round state
     let ringPct      = 100; // 100 = outer edge, 0 = centre
@@ -213,8 +214,11 @@ window.holdZoneGame = (function () {
         }
         $c.addClass(success ? 'hz-flash-success' : 'hz-flash-fail');
         playSoundSafe(success ? 'sound-success' : 'sound-failure');
+        const thisGen = _gen;
         setTimeout(() => {
+            if (_gen !== thisGen) return;
             $c.fadeOut(300, function() {
+                if (_gen !== thisGen) return;
                 $.post('https://glitch-minigames/holdZoneResult', JSON.stringify({ success: success }));
             });
         }, 400);
@@ -231,6 +235,7 @@ window.holdZoneGame = (function () {
             this.active = true;
             round    = 0;
             failures = 0;
+            _gen++;
             const keyStr = (config.key || 'E').toUpperCase();
             targetKeyCode = KEY_CODE_MAP[keyStr] || 69;
 
