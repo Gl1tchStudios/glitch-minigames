@@ -7,7 +7,7 @@
 Skill Checks · Hacking Sequences · Memory Games · Rhythm · Lockpicking · and more
 
 [![Docs](https://img.shields.io/badge/DOCS-minigames.glitchstudios.dev-6366f1?style=flat-square)](https://minigames.glitchstudios.dev/)
-[![Version](https://img.shields.io/badge/VERSION-2.1.0-a855f7?style=flat-square)](https://github.com/Gl1tchStudios/glitch-minigames/releases)
+[![Version](https://img.shields.io/badge/VERSION-2.1.1-a855f7?style=flat-square)](https://github.com/Gl1tchStudios/glitch-minigames/releases)
 [![FiveM](https://img.shields.io/badge/PLATFORM-FiveM-ef4444?style=flat-square)](https://fivem.net/)
 [![Stars](https://img.shields.io/github/stars/Gl1tchStudios/glitch-minigames?style=flat-square&color=facc15&label=STARS)](https://github.com/Gl1tchStudios/glitch-minigames/stargazers)
 [![License](https://img.shields.io/badge/LICENSE-GPL--3.0-22c55e?style=flat-square)](LICENSE)
