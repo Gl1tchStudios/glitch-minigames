@@ -168,16 +168,6 @@ window.comboInputGame = (function () {
             failures = 0;
             _gen++;
 
-            // Native keydown listener so WASD and arrow keys work in FiveM
-            // (requires SetNuiFocus(true, false) in Lua so the browser gets keyboard focus)
-            if (_onKeyDown) document.removeEventListener('keydown', _onKeyDown);
-            _onKeyDown = function (e) {
-                // Prevent arrow keys from scrolling the page
-                if (e.keyCode >= 37 && e.keyCode <= 40) e.preventDefault();
-                handleKey(e.keyCode);
-            };
-            document.addEventListener('keydown', _onKeyDown);
-
             $('#combo-input-container').show().removeClass('ci-flash-success ci-flash-fail ci-flash-wrong');
             startRound();
         },
@@ -186,10 +176,6 @@ window.comboInputGame = (function () {
             clearTimer();
             active      = false;
             this.active = false;
-            if (_onKeyDown) {
-                document.removeEventListener('keydown', _onKeyDown);
-                _onKeyDown = null;
-            }
             $('#combo-input-container').fadeOut(300);
         },
 
