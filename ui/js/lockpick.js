@@ -292,16 +292,16 @@ let lockpickGame = {
         $(document).on('keydown.lockpick', function(e) {
             if (!self.active) return;
             
-            if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+            if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
                 self.keysHeld.left = true;
                 e.preventDefault();
             }
-            if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+            if (e.code === 'KeyD' || e.code === 'ArrowRight') {
                 self.keysHeld.right = true;
                 e.preventDefault();
             }
-            
-            if ((e.key === 'e' || e.key === 'E' || e.key === ' ') && !self.isHolding) {
+
+            if ((e.code === 'KeyE' || e.code === 'Space') && !self.isHolding) {
                 self.isHolding = true;
                 self.holdStartTime = Date.now();
                 e.preventDefault();
@@ -311,14 +311,14 @@ let lockpickGame = {
         $(document).on('keyup.lockpick', function(e) {
             if (!self.active) return;
             
-            if (e.key === 'a' || e.key === 'A' || e.key === 'ArrowLeft') {
+            if (e.code === 'KeyA' || e.code === 'ArrowLeft') {
                 self.keysHeld.left = false;
             }
-            if (e.key === 'd' || e.key === 'D' || e.key === 'ArrowRight') {
+            if (e.code === 'KeyD' || e.code === 'ArrowRight') {
                 self.keysHeld.right = false;
             }
-            
-            if (e.key === 'e' || e.key === 'E' || e.key === ' ') {
+
+            if (e.code === 'KeyE' || e.code === 'Space') {
                 self.isHolding = false;
                 self.holdStartTime = 0;
             }

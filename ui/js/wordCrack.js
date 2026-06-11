@@ -176,21 +176,22 @@ var WordCrack = (function() {
     function setupEventListeners() {
         $(document).off('keydown.wordcrack').on('keydown.wordcrack', function(e) {
             if (!active) return;
-            
-            var key = e.key.toUpperCase();
-            
+
+            // use physical key position (e.code) so any keyboard layout works
+            var key = /^Key[A-Z]$/.test(e.code) ? e.code.charAt(3) : '';
+
             // letter keys a-z
-            if (/^[A-Z]$/.test(key)) {
+            if (key) {
                 addLetter(key);
                 e.preventDefault();
             }
             // backspace to delete
-            else if (e.key === 'Backspace') {
+            else if (e.code === 'Backspace' || e.key === 'Backspace') {
                 deleteLetter();
                 e.preventDefault();
             }
             // enter to guess
-            else if (e.key === 'Enter') {
+            else if (e.code === 'Enter' || e.code === 'NumpadEnter' || e.key === 'Enter') {
                 attemptGuess();
                 e.preventDefault();
             }

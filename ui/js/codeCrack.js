@@ -108,20 +108,23 @@ var CodeCrack = (function() {
         $(document).off('keydown.codecrack').on('keydown.codecrack', function(e) {
             if (!active) return;
             
-            var key = e.key;
-            
+            // use physical key position so any keyboard layout works
+            var digit = /^Digit[0-9]$/.test(e.code) ? e.code.charAt(5)
+                      : /^Numpad[0-9]$/.test(e.code) ? e.code.charAt(6)
+                      : '';
+
             // number keys 0-9
-            if (/^[0-9]$/.test(key)) {
-                addDigit(parseInt(key));
+            if (digit) {
+                addDigit(parseInt(digit));
                 e.preventDefault();
             }
             // backspace to delete
-            else if (key === 'Backspace') {
+            else if (e.code === 'Backspace' || e.key === 'Backspace') {
                 deleteDigit();
                 e.preventDefault();
             }
             // enter to crack it
-            else if (key === 'Enter') {
+            else if (e.code === 'Enter' || e.code === 'NumpadEnter' || e.key === 'Enter') {
                 attemptCrack();
                 e.preventDefault();
             }

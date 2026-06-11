@@ -267,26 +267,26 @@ let balanceGame = {
         
         $(document).on('keydown.balance', function(e) {
             if (!self.active) return;
-            
-            if (e.key.toLowerCase() === 'q') {
+
+            if (e.code === 'KeyQ') {
                 if (!self.started) {
                     self.beginGame();
                 }
                 self.keysHeld.q = true;
-            } else if (e.key.toLowerCase() === 'e') {
+            } else if (e.code === 'KeyE') {
                 if (!self.started) {
                     self.beginGame();
                 }
                 self.keysHeld.e = true;
             }
         });
-        
+
         $(document).on('keyup.balance', function(e) {
             if (!self.active) return;
-            
-            if (e.key.toLowerCase() === 'q') {
+
+            if (e.code === 'KeyQ') {
                 self.keysHeld.q = false;
-            } else if (e.key.toLowerCase() === 'e') {
+            } else if (e.code === 'KeyE') {
                 self.keysHeld.e = false;
             }
         });

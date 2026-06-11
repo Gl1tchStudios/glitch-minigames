@@ -305,33 +305,30 @@ function handleSymbolSearchKeyPress(event) {
     const gridSize = symbolSearchState.config.gridSize;
     let { row, col } = symbolSearchState.markerPosition;
     
-    switch (event.key) {
+    switch (event.code) {
         case 'ArrowUp':
-        case 'w':
-        case 'W':
+        case 'KeyW':
             row = Math.max(0, row - 1);
             event.preventDefault();
             break;
         case 'ArrowDown':
-        case 's':
-        case 'S':
+        case 'KeyS':
             row = Math.min(gridSize - 1, row + 1);
             event.preventDefault();
             break;
         case 'ArrowLeft':
-        case 'a':
-        case 'A':
+        case 'KeyA':
             col = Math.max(0, col - 1);
             event.preventDefault();
             break;
         case 'ArrowRight':
-        case 'd':
-        case 'D':
+        case 'KeyD':
             col = Math.min(gridSize - 1, col + 1);
             event.preventDefault();
             break;
         case 'Enter':
-        case ' ':
+        case 'NumpadEnter':
+        case 'Space':
             event.preventDefault();
             checkSelection();
             return;

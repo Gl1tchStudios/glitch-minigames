@@ -194,7 +194,7 @@ let circleClickGame = {
         $(document).on('keydown.circleclick', function(e) {
             if (!self.active) return;
             
-            const pressedKey = e.key.toUpperCase();
+            const pressedKey = /^Key[A-Z]$/.test(e.code) ? e.code.charAt(3) : e.key.toUpperCase();
             const expectedKey = self.currentKey.toUpperCase();
             
             const validKeys = self.config.keys.map(k => k.toUpperCase());
