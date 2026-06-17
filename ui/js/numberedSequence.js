@@ -492,3 +492,17 @@ function playNumberedSequenceSound(type) {
 }
 
 window.startNumberedSequenceGame = startNumberedSequenceGame;
+
+// numberedSequence is started/ended by app.js; also honour forceClose so it
+// stops its timers and hides when the active game is switched (e.g. on the
+// web preview, which only sends forceClose) instead of leaking intervals.
+window.addEventListener('message', (event) => {
+    const action = event.data && event.data.action;
+    if (action === 'forceClose' || action === 'closeAll') {
+        numberedSequenceGameState.gameActive = false;
+        numberedSequenceGameState.showingPattern = false;
+        if (numberedSequenceGameState.timerInterval) { clearInterval(numberedSequenceGameState.timerInterval); numberedSequenceGameState.timerInterval = null; }
+        if (numberedSequenceGameState.showTimer) { clearTimeout(numberedSequenceGameState.showTimer); numberedSequenceGameState.showTimer = null; }
+        $('#numbered-sequence-container').removeClass('active').hide();
+    }
+});

@@ -258,6 +258,13 @@ window.addEventListener('message', (event) => {
         startSequenceMemoryGame(data.config || {});
     } else if (data.type === 'closeSequenceMemory') {
         endSequenceMemoryGame(false);
+    } else if (data.action === 'forceClose' || data.action === 'closeAll') {
+        // Stop timers and hide without posting a result (cleanup-only signal).
+        sequenceMemoryGameState.gameActive = false;
+        sequenceMemoryGameState.gameStarted = false;
+        if (sequenceMemoryGameState.timerInterval) { clearInterval(sequenceMemoryGameState.timerInterval); sequenceMemoryGameState.timerInterval = null; }
+        if (sequenceMemoryGameState.showTimer) { clearTimeout(sequenceMemoryGameState.showTimer); sequenceMemoryGameState.showTimer = null; }
+        $('#sequence-memory-container').removeClass('active').hide();
     }
 });
 

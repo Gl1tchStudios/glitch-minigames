@@ -478,6 +478,22 @@ $(document).ready(function() {
             if (window.balanceGame && typeof window.balanceGame.close === 'function') {
                 window.balanceGame.close();
             }
+            // These games are otherwise only stopped by their individual end
+            // messages; without this they keep running on forceClose (e.g. the
+            // word/code crack document keydown listeners stay bound and steal
+            // input from the next game, and their timers leak).
+            if (window.wordCrackFunctions && typeof window.wordCrackFunctions.close === 'function') {
+                window.wordCrackFunctions.close();
+            }
+            if (window.codeCrackFunctions && typeof window.codeCrackFunctions.close === 'function') {
+                window.codeCrackFunctions.close();
+            }
+            if (window.memoryColorsFunctions && typeof window.memoryColorsFunctions.close === 'function') {
+                window.memoryColorsFunctions.close();
+            }
+            if (window.pairsFunctions && typeof window.pairsFunctions.close === 'function') {
+                window.pairsFunctions.close();
+            }
             cleanupAllContainers();
             
             // Reset all game states
