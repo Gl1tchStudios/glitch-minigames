@@ -32,16 +32,31 @@ var MemoryColors = (function() {
     var correctAnswer = 0;
     var score = 0;
 
-    // Use custom minigame colors from theme config
+    // Fixed, visually-distinct palette whose hues actually match their names.
+    // Memory Colors needs four clearly different colours; the shared theme
+    // (minigameColor1-4) is tuned for VarHack and can map e.g. "red" to a green,
+    // which made the asked colour impossible to find on the grid.
     function getColors() {
         return {
-            'blue': window.MinigameColors?.minigameColor1 || '#3b82f6',
-            'red': window.MinigameColors?.minigameColor2 || '#ef4444',
-            'green': window.MinigameColors?.minigameColor3 || '#22c55e',
-            'yellow': window.MinigameColors?.minigameColor4 || '#eab308'
+            'blue': '#3b82f6',
+            'red': '#ef4444',
+            'green': '#22c55e',
+            'yellow': '#eab308'
         };
     }
-    
+
+    // Convert Arabic-Indic / Persian digits to ASCII so typed answers parse.
+    function normalizeDigits(str) {
+        if (typeof str !== 'string') return str;
+        return str
+            .replace(/[٠-٩]/g, function(d) { return d.charCodeAt(0) - 0x0660; })
+            .replace(/[۰-۹]/g, function(d) { return d.charCodeAt(0) - 0x06F0; });
+    }
+
+    function colorSwatch(name) {
+        return '<span class="mc-color-swatch" style="background-color: ' + COLORS[name] + ';"></span>';
+    }
+
     var COLORS = getColors();
     var COLOR_NAMES = ['blue', 'red', 'green', 'yellow'];
 
@@ -132,7 +147,7 @@ var MemoryColors = (function() {
         renderGrid(false);
         
         $('#mc-instruction').hide();
-        $('#mc-question').html('How many <span class="mc-color-word" style="color: ' + COLORS[askColor] + ';">' + askColor.toUpperCase() + '</span> boxes were there?').show();
+        $('#mc-question').html('How many ' + colorSwatch(askColor) + ' <span class="mc-color-word" style="color: ' + COLORS[askColor] + ';">' + askColor.toUpperCase() + '</span> boxes were there?').show();
         
         $('#mc-answer-input').val('').removeClass('correct incorrect');
         $('#mc-answer-section').show();
@@ -152,7 +167,7 @@ var MemoryColors = (function() {
     }
 
     function submitAnswer() {
-        var value = $('#mc-answer-input').val();
+        var value = normalizeDigits($('#mc-answer-input').val());
         if (value === '' || value === null) {
             value = -1;
         }
@@ -185,7 +200,7 @@ var MemoryColors = (function() {
             }
         }
         
-        $('#mc-question').html('The answer was <span style="color: ' + COLORS[askColor] + ';">' + correctAnswer + '</span> ' + askColor.toUpperCase() + ' boxes');
+        $('#mc-question').html('The answer was <span style="color: ' + COLORS[askColor] + ';">' + correctAnswer + '</span> ' + colorSwatch(askColor) + ' ' + askColor.toUpperCase() + ' boxes');
         $('#mc-score').text(score);
         
         setTimeout(function() {

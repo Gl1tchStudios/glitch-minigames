@@ -187,7 +187,12 @@ function startTimer() {
 
     setTimeout(() => {
         console.log('Starting gameplay phase...');
-        $('.var-groups').addClass('playing');
+        // 'playing' hides the digit, 'plain' neutralizes the per-number colours
+        // so blocks can't be identified by hue. Clear the text outright so the
+        // hidden number can't be revealed by drag-selecting it (logic uses
+        // data-number, not the visible text).
+        $('.var-groups').addClass('playing plain');
+        $('.var-group').text('');
         varHackState.gamePlaying = true;
         $('#var-message').text('Click the numbers in order!');
         
