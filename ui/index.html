@@ -22,6 +22,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luma Minigames</title>
     <link rel="stylesheet" href="css/style.css">
+    <script>
+        // Debug print gate — routes console.log through a flag set from the Lua
+        // config (config.DebugPrints). Off by default so the console stays quiet.
+        // Early logs are buffered and flushed if debug is turned on. Warnings and
+        // errors are never gated. Must run before any other script.
+        (function () {
+            var nativeLog = console.log.bind(console);
+            var buffer = [];
+            var MAX = 500;
+            window.glitchDebug = false;
+            console.log = function () {
+                if (window.glitchDebug) { nativeLog.apply(console, arguments); return; }
+                if (buffer.length < MAX) buffer.push(Array.prototype.slice.call(arguments));
+            };
+            window.setGlitchDebug = function (on) {
+                window.glitchDebug = !!on;
+                if (window.glitchDebug) {
+                    for (var i = 0; i < buffer.length; i++) nativeLog.apply(console, buffer[i]);
+                }
+                buffer = [];
+            };
+        })();
+    </script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>

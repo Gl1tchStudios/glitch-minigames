@@ -46,6 +46,9 @@ $(document).ready(function() {
         
         // updatese color theme from Lua config
         if (data.action === 'setColors' && data.colors) {
+            if (data.debug !== undefined && typeof window.setGlitchDebug === 'function') {
+                window.setGlitchDebug(data.debug);
+            }
             window.MinigameColors = data.colors;
             
             // Apply visual theme class to body

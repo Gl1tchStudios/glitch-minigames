@@ -17,6 +17,7 @@
 config = {}
 
 config.DebugCommands = true -- This is for testing purposes only. Set to true to enable debug commands.
+config.DebugPrints = false -- Set to true to show minigame console.log output in the UI (F8/devtools). Off keeps the console quiet.
 config.usingGlitchNotifications = true -- Set to true to enable glitch notifications.
 
 -- Active Color Theme

@@ -32,7 +32,8 @@ Citizen.CreateThread(function()
         action = 'setColors',
         colors = config.Colors,
         visualTheme = config.ActiveVisualTheme,
-        backgroundOpacity = activeOpacity
+        backgroundOpacity = activeOpacity,
+        debug = config.DebugPrints
     })
 end)
 
