@@ -678,6 +678,36 @@
         </div>
     </div>
 
+    <!-- Keys Minigame Container -->
+    <div id="keys-game-container" class="game-container">
+        <div class="hack-title">
+            <h2>KEYS <span class="blink">[ACCESS LOCK]</span></h2>
+        </div>
+
+        <div class="keys-game-header">
+            <div class="keys-game-instruction">Press the keys in the correct order!</div>
+            <div class="keys-game-stats">
+                Done: <span id="keys-game-progress-text">0 / 18</span> &nbsp;|&nbsp;
+                Errors: <span id="keys-game-mistakes">0</span>/<span id="keys-game-max-mistakes">3</span>
+            </div>
+        </div>
+
+        <div class="keys-game-progress-bar">
+            <div class="keys-game-progress-fill"></div>
+        </div>
+
+        <div id="keys-game-grid"></div>
+
+        <div class="keys-game-bottom">
+            <span>Press the highlighted key</span>
+            <span id="keys-game-message">Awaiting input...</span>
+        </div>
+
+        <div class="keys-game-timer-bar">
+            <div class="keys-game-timer-progress"></div>
+        </div>
+    </div>
+
     <!-- Combo Input Minigame Container -->
     <div id="combo-input-container">
         <div class="ci-hud">
@@ -797,6 +827,7 @@
     <script src="js/barHit.js"></script>
     <script src="js/skillCheck.js"></script>
     <script src="js/numberUp.js"></script>
+    <script src="js/keys.js"></script>
     <script src="js/comboInput.js"></script>
     <script src="js/holdZone.js"></script>
     <script src="js/wireConnect.js"></script>

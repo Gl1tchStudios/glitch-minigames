@@ -20,6 +20,8 @@ local isSequencing = false
 local sequenceSuccessCount = 0
 local disableMovementControls = false
 local callback = nil
+-- Distinguishes Firewall Pulse from the newer games, which also set isHacking.
+local firewallActive = false
 
 local deathCheckThreadId = nil
 
@@ -33,16 +35,65 @@ Citizen.CreateThread(function()
         colors = config.Colors,
         visualTheme = config.ActiveVisualTheme,
         backgroundOpacity = activeOpacity,
-        debug = config.DebugPrints
+        debug = config.DebugPrints,
+        cancelKeys = config.CancelKeys
     })
 end)
 
 local function cleanupMinigame()
     isHacking = false
     isSequencing = false
+    firewallActive = false
     disableMovementControls = false
     SetNuiFocus(false, false)
     EnableAllControlActions(0)
+end
+
+-- Control IDs per cancel-key name (ESCAPE covers both pause controls).
+local CANCEL_KEY_CONTROLS = {
+    BACKSPACE = { 177 },
+    ESCAPE    = { 200, 322 },
+    ENTER     = { 18 },
+}
+
+-- Controls to watch/disable, built from config.CancelKeys.
+local cancelControls = {}
+do
+    local seen = {}
+    for _, name in ipairs(config.CancelKeys or {}) do
+        local controls = CANCEL_KEY_CONTROLS[string.upper(name)]
+        if controls then
+            for _, ctrl in ipairs(controls) do
+                if not seen[ctrl] then
+                    seen[ctrl] = true
+                    cancelControls[#cancelControls + 1] = ctrl
+                end
+            end
+        end
+    end
+end
+
+-- Closes the active minigame and reports failure to the caller.
+local function cancelActiveMinigame()
+    if not (isHacking or isSequencing) then return end
+
+    SendNUIMessage({ action = 'forceClose', reason = 'playerCancelled' })
+
+    -- Net-event games also need their server-side state reset.
+    if isSequencing then
+        TriggerServerEvent('backdoor-sequence:completeHack', false)
+        sequenceSuccessCount = 0
+    elseif firewallActive then
+        TriggerServerEvent('firewall-pulse:completeHack', false)
+        successCount = 0
+    end
+
+    if callback then
+        callback(false)
+        callback = nil
+    end
+
+    cleanupMinigame()
 end
 
 local function cancelMinigameOnDeath()
@@ -90,6 +141,8 @@ local function cancelMinigameOnDeath()
     SendNUIMessage({ action = 'endSkillCheck', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endNumberUp', forced = true })
+    Citizen.Wait(50)
+    SendNUIMessage({ action = 'endKeys', forced = true })
     Citizen.Wait(50)
     SendNUIMessage({ action = 'endComboInput', forced = true })
     Citizen.Wait(50)
@@ -194,6 +247,12 @@ RegisterNUICallback('memoryResult', function(data, cb)
 end)
 
 RegisterNUICallback('playerDied', function(_, cb)
+    cb('ok')
+end)
+
+-- UI cancel for mouse (NUI-focused) games; keyboard games use the cancel thread.
+RegisterNUICallback('minigameCancel', function(_, cb)
+    cancelActiveMinigame()
     cb('ok')
 end)
 
@@ -446,6 +505,19 @@ RegisterNUICallback('numberUpClose', function(data, cb)
     cb('ok')
 end)
 
+RegisterNUICallback('keysResult', function(data, cb)
+    cleanupMinigame()
+    if callback then
+        callback(data.success, data.reached, data.total, data.mistakes)
+    end
+    cb('ok')
+end)
+
+RegisterNUICallback('keysClose', function(data, cb)
+    cleanupMinigame()
+    cb('ok')
+end)
+
 RegisterNUICallback('comboInputResult', function(data, cb)
     cleanupMinigame()
     if callback then
@@ -502,6 +574,7 @@ RegisterNetEvent('firewall-pulse:startHack')
 AddEventHandler('firewall-pulse:startHack', function()
     if not isHacking then
         isHacking = true
+        firewallActive = true
         successCount = 0
         SetNuiFocus(true, true)
         SendNUIMessage({ action = 'start' })
@@ -556,19 +629,20 @@ exports('StartFirewallPulse', function(requiredHacks, initialSpeed, maxSpeed, ti
     }
     
     isHacking = true
+    firewallActive = true
     disableMovementControls = true
     SetNuiFocus(true, true)
-    
+
     callback = function(success)
         p:resolve(success)
         callback = nil
     end
-    
-    SendNUIMessage({ 
+
+    SendNUIMessage({
         action = 'start',
         config = hackConfig
     })
-    
+
     startDeathCheck()
     return Citizen.Await(p)
 end)
@@ -1278,6 +1352,36 @@ exports('StartNumberUpGame', function(count, timeLimit, gridCols, maxMistakes)
     return Citizen.Await(p)
 end)
 
+exports('StartKeysGame', function(count, timeLimit, gridCols, maxMistakes, letters)
+    local p = promise.new()
+
+    if isHacking then return false end
+
+    local keysConfig = {
+        count = count or 18,            -- how many letters to press
+        timeLimit = timeLimit or 15000, -- time limit in ms
+        gridCols = gridCols or 6,       -- number of grid columns
+        maxMistakes = maxMistakes or 3, -- wrong presses before fail
+        letters = letters               -- optional string of letters to draw from (nil = A-Z)
+    }
+
+    callback = function(success, reached, total, mistakes)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    disableMovementControls = true
+    SetNuiFocus(true, false) -- keyboard focus; the UI reads keys natively
+    SendNUIMessage({
+        action = 'startKeys',
+        config = keysConfig
+    })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end)
+
 exports('StartComboInputGame', function(rounds, comboLength, timePerCombo, maxFailures, lengthIncrease)
     local p = promise.new()
 
@@ -1543,6 +1647,11 @@ if config.DebugCommands then
         print("Number Up Result: ", success)
     end, false)
 
+    RegisterCommand('testkeys', function()
+        local success = exports['glitch-minigames']:StartKeysGame(18, 15000, 6, 3) -- 18 letters, 15s, 6 columns, 3 max mistakes
+        print("Keys Game Result: ", success)
+    end, false)
+
     RegisterCommand('testcomboinput', function()
         local success = exports['glitch-minigames']:StartComboInputGame(3, 4, 6, 2, 1) -- 3 rounds, 4 arrows (grows by 1), 6s per combo, 2 failures
         print("Combo Input Result: ", success)
@@ -1562,22 +1671,82 @@ if config.DebugCommands then
         local success = exports['glitch-minigames']:StartSimonSaysGame(5, 550, 0, 1) -- 5 rounds, 550ms flash, no limit, 1 mistake
         print("Simon Says Result: ", success)
     end, false)
+
+    -- Run every minigame back-to-back. Play or press a cancel key to advance.
+    local testGames = {
+        { 'surge',            function() return exports['glitch-minigames']:StartSurgeOverride({'E','F'}, 30, 2) end },
+        { 'firewall',         function() return exports['glitch-minigames']:StartFirewallPulse(3, 2, 10, 8, 30, 120, 40) end },
+        { 'sequence',         function() return exports['glitch-minigames']:StartBackdoorSequence(3, 20, 20, 3, 2.0, 3, 6, {'W','A','S','D'}, 'W, A, S, D only') end },
+        { 'rhythm',           function() return exports['glitch-minigames']:StartCircuitRhythm(4, {'A','S','D','F'}, 150, 800, 15, "normal", 5, 3) end },
+        { 'varhack',          function() return exports['glitch-minigames']:StartVarHack(5, 25) end },
+        { 'memory',           function() return exports['glitch-minigames']:StartMemoryGame(5, 8, 3, 3000) end },
+        { 'sequencememory',   function() return exports['glitch-minigames']:StartSequenceMemoryGame(4, 5, 3, 1000, 300) end },
+        { 'verbalmemory',     function() return exports['glitch-minigames']:StartVerbalMemoryGame(3, 20, 5000) end },
+        { 'numberedsequence', function() return exports['glitch-minigames']:StartNumberedSequenceGame(4, 6, 3, 4000, 10000, 2) end },
+        { 'symbolsearch',     function() return exports['glitch-minigames']:StartSymbolSearchGame(8, 1000, 30000, 3, 3, "letters") end },
+        { 'pipepressure',     function() return exports['glitch-minigames']:StartPipePressureGame(6, 30000) end },
+        { 'pairs',            function() return exports['glitch-minigames']:StartPairsGame(4, nil, 0) end },
+        { 'memorycolors',     function() return exports['glitch-minigames']:StartMemoryColorsGame(5, 5000, 10000, 3) end },
+        { 'untangle',         function() return exports['glitch-minigames']:StartUntangleGame(8, 60000) end },
+        { 'fingerprint',      function() return exports['glitch-minigames']:StartFingerprintGame(30000, true, true) end },
+        { 'codecrack',        function() return exports['glitch-minigames']:StartCodeCrackGame(60000, 4, 6) end },
+        { 'wordcrack',        function() return exports['glitch-minigames']:StartWordCrackGame(120000, 5, 6) end },
+        { 'balance',          function() return exports['glitch-minigames']:StartBalanceGame(10000, 3, 8, 30, 25, 2, 1000) end },
+        { 'aimtest',          function() return exports['glitch-minigames']:StartAimTestGame(30000, 10, 1500, 60, true, 5, 0) end },
+        { 'circleclick',      function() return exports['glitch-minigames']:StartCircleClickGame(5, 1, 45, 3, 0.15, true, {'W','A','S','D'}) end },
+        { 'lockpick',         function() return exports['glitch-minigames']:StartLockpickGame(3, 30, 2, 40, 500) end },
+        { 'barhit',           function() return exports['glitch-minigames']:StartBarHitGame('E', 3, 55, 20, nil, 3, 30000) end },
+        { 'skillcheck',       function() return exports['glitch-minigames']:StartSkillCheckGame({'E','F','R','D'}, 65, 15000, 18, 5, 1, true) end },
+        { 'numberup',         function() return exports['glitch-minigames']:StartNumberUpGame(20, 30000, 4, 3) end },
+        { 'keys',             function() return exports['glitch-minigames']:StartKeysGame(18, 15000, 6, 3) end },
+        { 'comboinput',       function() return exports['glitch-minigames']:StartComboInputGame(3, 4, 6, 2, 1) end },
+        { 'holdzone',         function() return exports['glitch-minigames']:StartHoldZoneGame('E', 3, 18, 18, 5, 2) end },
+        { 'wireconnect',      function() return exports['glitch-minigames']:StartWireConnectGame(4, 0) end },
+        { 'simonsays',        function() return exports['glitch-minigames']:StartSimonSaysGame(5, 550, 0, 1) end },
+    }
+
+    local testAllRunning = false
+
+    RegisterCommand('testall', function(_, args)
+        if testAllRunning then
+            print('[testall] already running - use /stoptest to abort')
+            return
+        end
+        local startAt = tonumber(args[1]) or 1
+        testAllRunning = true
+        Citizen.CreateThread(function()
+            for i = startAt, #testGames do
+                if not testAllRunning then break end
+                local name = testGames[i][1]
+                print(('[testall] (%d/%d) %s'):format(i, #testGames, name))
+                local ok, result = pcall(testGames[i][2])
+                if ok then
+                    print(('[testall]   %s -> %s'):format(name, json.encode(result)))
+                else
+                    print(('[testall]   %s ERRORED: %s'):format(name, tostring(result)))
+                end
+                Citizen.Wait(600)
+            end
+            testAllRunning = false
+            print('[testall] done')
+        end)
+    end, false)
+
+    RegisterCommand('stoptest', function()
+        testAllRunning = false
+        cancelActiveMinigame()
+        print('[testall] stopped')
+    end, false)
 end
 
 Citizen.CreateThread(function()
     while true do
         if isHacking or isSequencing then
-            if IsControlJustPressed(0, 177) then -- BACKSPACE key
-                if isHacking then
-                    isHacking = false
-                    SetNuiFocus(false, false)
-                    SendNUIMessage({ action = 'end' })
-                    TriggerServerEvent('firewall-pulse:completeHack', false)
-                elseif isSequencing then
-                    isSequencing = false
-                    SetNuiFocus(false, false)
-                    SendNUIMessage({ action = 'endSequence' })
-                    TriggerServerEvent('backdoor-sequence:completeHack', false)
+            -- Cancel on a configured key (keyboard games; mouse games use the UI callback).
+            for _, ctrl in ipairs(cancelControls) do
+                if IsDisabledControlJustPressed(0, ctrl) or IsControlJustPressed(0, ctrl) then
+                    cancelActiveMinigame()
+                    break
                 end
             end
             Citizen.Wait(0)
@@ -1589,7 +1758,7 @@ end)
 
 Citizen.CreateThread(function()
     while true do
-        if disableMovementControls or isHacking then
+        if disableMovementControls or isHacking or isSequencing then
             -- Disable player movement controls
             DisableControlAction(0, 1, true) -- LookLeftRight
             DisableControlAction(0, 2, true) -- LookUpDown
@@ -1601,20 +1770,33 @@ Citizen.CreateThread(function()
             DisableControlAction(0, 35, true) -- D
             DisableControlAction(0, 24, true) -- Attack
             DisableControlAction(0, 25, true) -- Aim
+            DisableControlAction(0, 257, true) -- Attack 2
+            DisableControlAction(0, 140, true) -- Melee Light
+            DisableControlAction(0, 141, true) -- Melee Heavy
             DisableControlAction(0, 142, true) -- MeleeAttackAlternate
+            DisableControlAction(0, 143, true) -- Melee Block
+            DisableControlAction(0, 263, true) -- Melee Attack 1
+            DisableControlAction(0, 264, true) -- Melee Attack 2
             DisableControlAction(0, 106, true) -- VehicleMouseControlOverride
-            
+
             -- Disable ALL movement controls
             DisableControlAction(0, 36, true) -- Enter Vehicle
             DisableControlAction(0, 44, true) -- Cover
             DisableControlAction(0, 37, true) -- Select Weapon
             DisableControlAction(0, 288, true) -- Phone
             DisableControlAction(0, 289, true) -- Inventory
+            DisableControlAction(0, 199, true) -- Pause Menu
+            DisableControlAction(0, 200, true) -- Pause Menu (ESC)
             DisableControlAction(0, 170, true) -- F3 Menu
             DisableControlAction(0, 166, true) -- F5 Menu
             DisableControlAction(0, 167, true) -- F6 Menu
             DisableControlAction(0, 168, true) -- F7 Menu
             DisableControlAction(0, 169, true) -- F8 Menu
+
+            -- Disable cancel controls so ESC won't open the pause menu.
+            for _, ctrl in ipairs(cancelControls) do
+                DisableControlAction(0, ctrl, true)
+            end
             Citizen.Wait(0)
         else
             Citizen.Wait(500)

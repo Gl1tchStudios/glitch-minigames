@@ -57,6 +57,7 @@ files {
     'ui/js/barHit.js',
     'ui/js/skillCheck.js',
     'ui/js/numberUp.js',
+    'ui/js/keys.js',
     'ui/js/comboInput.js',
     'ui/js/holdZone.js',
     'ui/js/wireConnect.js',

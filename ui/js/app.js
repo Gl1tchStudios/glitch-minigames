@@ -40,6 +40,16 @@ window.MinigameColors = {
     safeRgba: '34, 197, 94'
 };
 
+// config.CancelKeys name -> KeyboardEvent.key
+const CANCEL_KEY_NAMES = {
+    BACKSPACE: 'Backspace',
+    ESCAPE: 'Escape',
+    ENTER: 'Enter'
+};
+
+// Cancel keys for mouse games; overwritten by setColors.
+window.minigameCancelKeys = ['Escape', 'Backspace'];
+
 $(document).ready(function() {
     window.addEventListener('message', function(event) {
         const data = event.data;
@@ -48,6 +58,11 @@ $(document).ready(function() {
         if (data.action === 'setColors' && data.colors) {
             if (data.debug !== undefined && typeof window.setGlitchDebug === 'function') {
                 window.setGlitchDebug(data.debug);
+            }
+            if (Array.isArray(data.cancelKeys)) {
+                window.minigameCancelKeys = data.cancelKeys.map(function(k) {
+                    return CANCEL_KEY_NAMES[String(k).toUpperCase()];
+                }).filter(Boolean);
             }
             window.MinigameColors = data.colors;
             
@@ -368,6 +383,19 @@ $(document).ready(function() {
             } else {
                 $('#number-up-container').fadeOut(500);
             }
+        } else if (data.action === 'startKeys') {
+            cleanupAllContainers();
+            if (window.keysGame && typeof window.keysGame.start === 'function') {
+                window.keysGame.start(data.config || {});
+            } else {
+                console.error('[app.js] keysGame.start not found!');
+            }
+        } else if (data.action === 'endKeys') {
+            if (window.keysGame && typeof window.keysGame.close === 'function') {
+                window.keysGame.close();
+            } else {
+                $('#keys-game-container').fadeOut(500);
+            }
         } else if (data.action === 'startComboInput') {
             cleanupAllContainers();
             if (window.comboInputGame && typeof window.comboInputGame.start === 'function') {
@@ -466,6 +494,9 @@ $(document).ready(function() {
             if (window.numberUpGame && typeof window.numberUpGame.close === 'function') {
                 window.numberUpGame.close();
             }
+            if (window.keysGame && typeof window.keysGame.close === 'function') {
+                window.keysGame.close();
+            }
             if (window.wireConnectGame && typeof window.wireConnectGame.close === 'function') {
                 window.wireConnectGame.close();
             }
@@ -557,6 +588,15 @@ $(document).ready(function() {
             }
         }
     });
+
+    // Cancel the active minigame on a cancel key (mouse games; keyboard games are handled in Lua).
+    $(document).on('keydown.minigameCancel', function(e) {
+        const keys = window.minigameCancelKeys || [];
+        if (keys.indexOf(e.key) === -1) return;
+        if ($('[id$="-container"]:visible').length === 0) return;
+        e.preventDefault();
+        $.post('https://glitch-minigames/minigameCancel', JSON.stringify({ key: e.key }));
+    });
     
     preloadSounds();
 });
@@ -632,7 +672,7 @@ function playSoundSafe(soundId) {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container, #circle-click-container, #lockpick-container, #bar-hit-container, #skill-check-container, #number-up-container, #combo-input-container, #hold-zone-container, #wire-connect-container, #simon-says-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container, #circle-click-container, #lockpick-container, #bar-hit-container, #skill-check-container, #number-up-container, #keys-game-container, #combo-input-container, #hold-zone-container, #wire-connect-container, #simon-says-container')
         .removeClass('active')
         .hide();
     
