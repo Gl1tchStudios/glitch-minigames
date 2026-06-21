@@ -187,15 +187,17 @@ var MemoryColors = (function() {
         
         var isCorrect = (parseInt(value) === correctAnswer);
         
+        // Final round: endGame plays the sound (avoid double).
+        var playRoundSound = currentRound < rounds;
         if (isCorrect) {
             $('#mc-answer-input').addClass('correct');
             score++;
-            if (typeof playSoundSafe === 'function') {
+            if (playRoundSound && typeof playSoundSafe === 'function') {
                 playSoundSafe('sound-success');
             }
         } else {
             $('#mc-answer-input').addClass('incorrect');
-            if (typeof playSoundSafe === 'function') {
+            if (playRoundSound && typeof playSoundSafe === 'function') {
                 playSoundSafe('sound-failure');
             }
         }

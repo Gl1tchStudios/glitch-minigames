@@ -246,7 +246,7 @@ var WordCrack = (function() {
         
         if (allCorrect) {
             showResultOnLetters(results);
-            playSound('sound-success');
+            // endGame plays the success sound (avoid double).
             setTimeout(function() {
                 endGame(true);
             }, 1000);

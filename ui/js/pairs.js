@@ -179,18 +179,17 @@ var PairsGame = (function() {
                 secondCard.card.matched = true;
                 firstCard.$cell.addClass('matched');
                 secondCard.$cell.addClass('matched');
-                
-                if (typeof playSoundSafe === 'function') {
-                    playSoundSafe('sound-success');
-                }
-                
+
                 matchedPairs++;
                 firstCard = null;
                 secondCard = null;
                 canClick = true;
-                
+
                 if (matchedPairs >= totalPairs) {
+                    // Final pair: endGame plays the sound (avoid double).
                     endGame(true);
+                } else if (typeof playSoundSafe === 'function') {
+                    playSoundSafe('sound-success');
                 }
             } else {
                 if (typeof playSoundSafe === 'function') {

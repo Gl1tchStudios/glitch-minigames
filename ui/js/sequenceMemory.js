@@ -192,14 +192,14 @@ function handleSequenceMemorySquareClick(event) {
         if (sequenceMemoryGameState.currentSequenceIndex >= sequenceMemoryGameState.sequence.length) {
             sequenceMemoryGameState.currentRound++;
             sequenceMemoryGameState.gameActive = false;
-            
-            playSoundSafe('sound-success');
-            
+
             if (sequenceMemoryGameState.currentRound >= sequenceMemoryGameState.config.rounds) {
+                // Final round: endGame plays the sound (avoid double).
                 setTimeout(() => {
                     endSequenceMemoryGame(true);
                 }, 800);
             } else {
+                playSoundSafe('sound-success');
                 setTimeout(() => {
                     startSequenceMemoryRound();
                 }, 1500);

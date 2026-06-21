@@ -301,8 +301,11 @@ function handleVerbalMemoryChoice(choice) {
         if (verbalMemoryGameState.isNewWord && !verbalMemoryGameState.seenWords.includes(verbalMemoryGameState.currentWord)) {
             verbalMemoryGameState.seenWords.push(verbalMemoryGameState.currentWord);
         }
-        
-        playSoundSafe('sound-success');
+
+        // Last word: endGame plays the sound (avoid double).
+        if (verbalMemoryGameState.currentWordIndex < verbalMemoryGameState.config.wordsToShow) {
+            playSoundSafe('sound-success');
+        }
         
         setTimeout(() => {
             buttonClicked.removeClass('correct');
