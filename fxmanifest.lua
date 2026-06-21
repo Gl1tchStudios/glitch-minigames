@@ -3,7 +3,7 @@ game 'gta5'
 
 author 'Luma in collaboration with Glitch Studios'
 description 'Glitch Minigames'
-version '2.1.1'
+version '2.2.0'
 
 client_script {
     'client/customMinigames/client.lua',
