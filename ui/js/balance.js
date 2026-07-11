@@ -296,7 +296,8 @@ let balanceGame = {
         if (!this.active) return;
         this.active = false;
         this.started = false;
-        
+
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         clearInterval(this.timerInterval);
         clearInterval(this.gameInterval);
         $(document).off('keydown.balance keyup.balance');

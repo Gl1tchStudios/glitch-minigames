@@ -49,10 +49,12 @@ local function cleanupMinigame()
     EnableAllControlActions(0)
 end
 
--- Control IDs per cancel-key name (ESCAPE covers both pause controls).
+-- Control IDs per cancel-key name.
+-- 200 = INPUT_FRONTEND_PAUSE (ESC). 322 is excluded — it's INPUT_FRONTEND_CANCEL
+-- which also fires on right-click, causing games to cancel mid-play.
 local CANCEL_KEY_CONTROLS = {
     BACKSPACE = { 177 },
-    ESCAPE    = { 200, 322 },
+    ESCAPE    = { 200 },
     ENTER     = { 18 },
 }
 
@@ -1372,7 +1374,7 @@ exports('StartKeysGame', function(count, timeLimit, gridCols, maxMistakes, lette
 
     isHacking = true
     disableMovementControls = true
-    SetNuiFocus(true, false) -- keyboard focus; the UI reads keys natively
+    SetNuiFocus(true, true) -- full NUI focus so all keydown events reach the browser reliably
     SendNUIMessage({
         action = 'startKeys',
         config = keysConfig
@@ -1744,7 +1746,7 @@ Citizen.CreateThread(function()
         if isHacking or isSequencing then
             -- Cancel on a configured key (keyboard games; mouse games use the UI callback).
             for _, ctrl in ipairs(cancelControls) do
-                if IsDisabledControlJustPressed(0, ctrl) or IsControlJustPressed(0, ctrl) then
+                if IsDisabledControlJustPressed(0, ctrl) then
                     cancelActiveMinigame()
                     break
                 end
@@ -1785,8 +1787,8 @@ Citizen.CreateThread(function()
             DisableControlAction(0, 37, true) -- Select Weapon
             DisableControlAction(0, 288, true) -- Phone
             DisableControlAction(0, 289, true) -- Inventory
-            DisableControlAction(0, 199, true) -- Pause Menu
-            DisableControlAction(0, 200, true) -- Pause Menu (ESC)
+            DisableControlAction(0, 199, true) -- Pause / Start button
+            DisableControlAction(0, 200, true) -- ESC pause
             DisableControlAction(0, 170, true) -- F3 Menu
             DisableControlAction(0, 166, true) -- F5 Menu
             DisableControlAction(0, 167, true) -- F6 Menu

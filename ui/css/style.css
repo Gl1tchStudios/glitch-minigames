@@ -5037,6 +5037,7 @@ body::before, body::after,
     width: 560px;
     border: 1px solid rgba(255,255,255,0.12);
     box-shadow: 0 6px 28px rgba(0,0,0,0.6);
+    cursor: none;
 }
 
 .keys-game-header {

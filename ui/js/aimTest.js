@@ -288,7 +288,8 @@ let aimTestGame = {
     endGame: function(success) {
         if (!this.active) return;
         this.active = false;
-        
+
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         clearInterval(this.timerInterval);
         clearTimeout(this.targetTimeout);
         $('.aim-test-area').off('click.aimtest');

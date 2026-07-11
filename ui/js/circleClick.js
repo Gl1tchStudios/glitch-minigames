@@ -237,35 +237,33 @@ let circleClickGame = {
     
     handleSuccess: function() {
         this.successes++;
-        
-        playSoundSafe('sound-success');
-        
         this.flashResult(true);
-        
+
         const self = this;
         setTimeout(function() {
             if (self.currentRound >= self.config.rounds) {
+                // Final round: endGame plays the sound (avoid double).
                 self.endGame(true);
             } else {
+                playSoundSafe('sound-success');
                 self.setupRound();
             }
         }, 500);
     },
-    
+
     handleFailure: function(reason) {
         this.failures++;
-        
+
         console.log('[CircleClick] Failure:', reason, '- Total failures:', this.failures);
-        
-        playSoundSafe('sound-failure');
-        
         this.flashResult(false);
-        
+
         const self = this;
         setTimeout(function() {
             if (self.failures >= self.config.maxFailures) {
+                // Final failure: endGame plays the sound (avoid double).
                 self.endGame(false);
             } else {
+                playSoundSafe('sound-failure');
                 self.angle = self.targetZoneStart + 180;
             }
         }, 500);
@@ -285,12 +283,13 @@ let circleClickGame = {
     endGame: function(success) {
         if (!this.active) return;
         this.active = false;
-        
+
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         cancelAnimationFrame(this.animationFrame);
         $(document).off('keydown.circleclick');
-        
+
         const self = this;
-        
+
         this.flashResult(success);
         
         setTimeout(function() {

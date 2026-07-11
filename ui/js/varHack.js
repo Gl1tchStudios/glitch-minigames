@@ -22,7 +22,9 @@ const varHackState = {
     order: 1,
     gameStarted: false,
     gamePlaying: false,
-    timerInterval: null
+    timerInterval: null,
+    introTimeout: null,
+    playTimeout: null
 };
 
 function startVarHack(config = {}) {
@@ -50,9 +52,11 @@ function startVarHack(config = {}) {
     
     console.log('Splash screen shown, waiting 3 seconds...');
     
-    setTimeout(() => {
+    varHackState.introTimeout = setTimeout(() => {
+        varHackState.introTimeout = null;
         console.log('Initializing game elements...');
         $('.var-splash').fadeOut(400, () => {
+            if (!varHackState.gameStarted && !varHackState.gamePlaying) return;
             initializeGame();
             $('.var-groups').fadeIn(400);
         });
@@ -185,12 +189,10 @@ function gameLost() {
 function startTimer() {
     console.log('Starting timer sequence');
 
-    setTimeout(() => {
+    varHackState.playTimeout = setTimeout(() => {
+        varHackState.playTimeout = null;
+        if (!varHackState.gameStarted) return;
         console.log('Starting gameplay phase...');
-        // 'playing' hides the digit, 'plain' neutralizes the per-number colours
-        // so blocks can't be identified by hue. Clear the text outright so the
-        // hidden number can't be revealed by drag-selecting it (logic uses
-        // data-number, not the visible text).
         $('.var-groups').addClass('playing plain');
         $('.var-group').text('');
         varHackState.gamePlaying = true;
@@ -239,20 +241,8 @@ window.addEventListener('message', (event) => {
         startVarHack(event.data.config);
     } else if (event.data.action === 'endVarHack' || event.data.action === 'forceClose') {
         console.log('Forced close of VAR hack:', event.data);
-        if (varHackState.timerInterval) {
-            clearInterval(varHackState.timerInterval);
-            varHackState.timerInterval = null;
-        }
-        
-        varHackState.gameStarted = false;
-        varHackState.gamePlaying = false;
-        
-        $.post(`https://${GetParentResourceName()}/varHackResult`, JSON.stringify({ 
-            success: false
-        }));
-        
-        $('#var-hack-container').fadeOut();
         resetGame();
+        $('#var-hack-container').hide();
     }
 });
 
@@ -261,14 +251,22 @@ function resetGame() {
         clearInterval(varHackState.timerInterval);
         varHackState.timerInterval = null;
     }
-    
+    if (varHackState.introTimeout) {
+        clearTimeout(varHackState.introTimeout);
+        varHackState.introTimeout = null;
+    }
+    if (varHackState.playTimeout) {
+        clearTimeout(varHackState.playTimeout);
+        varHackState.playTimeout = null;
+    }
+
     varHackState.order = 1;
     varHackState.gameStarted = false;
     varHackState.gamePlaying = false;
-    
-    $('.var-groups').empty();
-    $('.var-groups').removeClass('playing');
-    $('.var-group').removeClass('good bad');
+
+    $('.var-groups').stop(true, true).empty();
+    $('.var-groups').removeClass('playing plain');
+    $('.var-group').stop(true, true).removeClass('good bad');
     
     $('#var-message').text('Memorize the pattern');
     $('.var-timer-progress').css('width', '100%');

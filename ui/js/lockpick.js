@@ -389,27 +389,23 @@ let lockpickGame = {
     
     handleSuccess: function() {
         this.successes++;
-        
-        playSoundSafe('sound-success');
-        
         this.flashState = 'success';
         this.flashStartTime = Date.now();
-        
+
         const self = this;
         setTimeout(function() {
             if (self.currentRound >= self.config.rounds) {
+                // Final round: endGame plays the sound (avoid double).
                 self.endGame(true);
             } else {
+                playSoundSafe('sound-success');
                 self.setupRound();
             }
         }, 500);
     },
-    
+
     handleFailure: function() {
         this.failures++;
-        
-        playSoundSafe('sound-failure');
-        
         this.flashState = 'failure';
         this.flashStartTime = Date.now();
         
@@ -418,21 +414,24 @@ let lockpickGame = {
         const self = this;
         setTimeout(function() {
             if (self.failures >= self.config.maxFailures) {
+                // Final failure: endGame plays the sound (avoid double).
                 self.endGame(false);
             } else {
+                playSoundSafe('sound-failure');
                 self.angle = (self.sweetSpotStart + 180 + (Math.random() * 60 - 30)) % 360;
                 self.flashState = null;
                 self.isTransitioning = false;
             }
         }, 500);
     },
-    
-    
+
+
     endGame: function(success) {
         if (!this.active) return;
         this.active = false;
         this.isTransitioning = true;
-        
+
+        playSoundSafe(success ? 'sound-success' : 'sound-failure');
         cancelAnimationFrame(this.animationFrame);
         clearInterval(this.movementInterval);
         $(document).off('keydown.lockpick keyup.lockpick mousemove.lockpick mousedown.lockpick mouseup.lockpick');
