@@ -456,9 +456,7 @@ $(document).ready(function() {
             if (window.skillCheckGame && window.skillCheckGame.active) {
                 window.skillCheckGame.handleKeyByCode(data.keyCode);
             }
-            if (window.comboInputGame && window.comboInputGame.active) {
-                window.comboInputGame.handleKeyByCode(data.keyCode);
-            }
+
             if (window.holdZoneGame && window.holdZoneGame.active) {
                 window.holdZoneGame.handleKeyByCode(data.keyCode);
             }
