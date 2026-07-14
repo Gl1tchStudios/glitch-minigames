@@ -1404,7 +1404,7 @@ exports('StartComboInputGame', function(rounds, comboLength, timePerCombo, maxFa
 
     isHacking = true
     disableMovementControls = true
-    SetNuiFocus(true, false) -- NUI gets keyboard focus so WASD/arrow keys fire natively in browser
+    SetNuiFocus(true, true) -- full NUI focus so all keydown events reach the browser reliably
     SendNUIMessage({
         action = 'startComboInput',
         config = comboConfig

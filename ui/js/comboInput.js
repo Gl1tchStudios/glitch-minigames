@@ -104,6 +104,7 @@ window.comboInputGame = (function () {
     }
 
     function endGame(success) {
+        document.removeEventListener('keydown', onKeyDown);
         clearTimer();
         active        = false;
         window.comboInputGame.active = false;
@@ -157,6 +158,15 @@ window.comboInputGame = (function () {
 
     let _onKeyDown = null;
 
+    function onKeyDown(e) {
+        if (!active) return;
+        // Arrow keys map to WASD equivalents via ARROW_MAP; also accept WASD directly.
+        const code = e.keyCode || e.which;
+        handleKey(code);
+        // Prevent arrow keys from scrolling the page.
+        if ([37, 38, 39, 40].indexOf(code) !== -1) e.preventDefault();
+    }
+
     return {
         active: false,
 
@@ -168,11 +178,13 @@ window.comboInputGame = (function () {
             failures = 0;
             _gen++;
 
+            document.addEventListener('keydown', onKeyDown);
             $('#combo-input-container').show().removeClass('ci-flash-success ci-flash-fail ci-flash-wrong');
             startRound();
         },
 
         close: function () {
+            document.removeEventListener('keydown', onKeyDown);
             clearTimer();
             active      = false;
             this.active = false;
