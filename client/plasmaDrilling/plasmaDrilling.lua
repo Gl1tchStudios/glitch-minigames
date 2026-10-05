@@ -15,6 +15,7 @@
 -- along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 PlasmaDrilling = {}
+local setupDrillingCamera, beginnDrilling, robTimer, stopDrilling -- local, defined below
 
 PlasmaDrilling.DisabledControls = {30,31,32,33,34,35}
 PlasmaDrilling.CameraHandle = nil
@@ -228,7 +229,7 @@ function beginnDrilling(callback)
     )
   end
 
-  loadDrillSound()
+  Drilling.LoadSound() -- defined in fleecaDrilling.lua
   Wait(100)
   local soundId = GetSoundId()
   PlaySoundFromEntity(soundId, "Drill", attachedDrill, "DLC_HEIST_FLEECA_SOUNDSET", 1, 0)

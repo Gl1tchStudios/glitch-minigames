@@ -6,6 +6,8 @@ description 'Glitch Minigames'
 version '2.2.0'
 
 client_script {
+    'client/core/client.lua', -- must stay first: wraps every export below (busy lock, XP, perks)
+
     'client/customMinigames/client.lua',
 
     'client/circuitBreaker/init.lua',
@@ -32,6 +34,7 @@ files {
     'client/circuitBreaker/class.lua',
     'ui/index.html',
     'ui/css/style.css',    
+    'ui/js/jquery-3.6.0.min.js',
     'ui/js/app.js',
     'ui/js/firewallPulse.js',
     'ui/js/backdoorSequence.js',
@@ -68,6 +71,10 @@ files {
 
 shared_scripts {
     'shared/config.lua'
+}
+
+server_scripts {
+    'server/xp.lua'
 }
 
 lua54 'yes'

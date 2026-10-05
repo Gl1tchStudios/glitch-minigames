@@ -16,6 +16,8 @@
 
 local output = {}
 local stophack = false
+-- Declared local up front so these helpers do not leak into the resource-wide globals
+local F_02536, F_02539, F_02540, F_02541, F_02542, F_02668, Abort, Start
 local Dat_1 = { [1] = { val1 = 0.4, }, [2] = { val1 = 0.4, }, [3] = { val1 = 0.4, }, [4] = { val1 = 0.4, }, [5] = { val1 = 0.4, }, [6] = { val1 = 0.4, }, [7] = { val1 = 0.4, }, }
 local Dat_2 = { [1] = { val0 = 1, val1 = (0.02 * 0.55), val2 = 0, val3 = 1, val4 = true }, [2] = { val0 = 1, val1 = (0.025 * 0.55), val2 = 0, val3 = 1, val4 = true }, [3] = { val0 = 1, val1 = (0.03 * 0.55), val2 = 0, val3 = 1, val4 = true }, [4] = { val0 = 1, val1 = (0.035 * 0.55), val2 = 0, val3 = 1, val4 = true }, [5] = { val0 = 1, val1 = (0.04 * 0.55), val2 = 0, val3 = 1, val4 = true }, [6] = { val0 = 1, val1 = (0.045 * 0.55), val2 = 0, val3 = 1, val4 = true }, [7] = { val0 = 1, val1 = (0.05 * 0.55), val2 = 0, val3 = 1, val4 = true } }
 function F_02536(arg1) BeginTextCommandDisplayHelp('STRING') AddTextComponentSubstringPlayerName(arg1) EndTextCommandDisplayHelp(0, false, true, -1) end

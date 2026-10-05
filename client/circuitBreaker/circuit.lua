@@ -588,7 +588,7 @@ end
 local function runMiniGame(levelNumber, difficultyLevel, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
     levelNumber = math.clamp(levelNumber, 1, 6)
     difficultyLevel = math.clamp(difficultyLevel, 0, 3)
-    cursorSpeed = getCursorSpeedFromDifficulty(difficultyLevel)
+    local cursorSpeed = getCursorSpeedFromDifficulty(difficultyLevel)
     delayStartMs = math.clamp(delayStartMs, 1000, 60000)
     minFailureDelayTimeMs = math.clamp(minFailureDelayTimeMs, minDelayEndGameTimeMs, maxFailureDelayTimeMs)
     maxFailureDelayTimeMs = math.clamp(maxFailureDelayTimeMs, minDelayEndGameTimeMs, maxFailureDelayTimeMs > minFailureDelayTimeMs and maxFailureDelayTimeMs or minFailureDelayTimeMs + 1)
@@ -608,16 +608,15 @@ end
 local function runDefaultMiniGameFromDifficulty(levelNumber, difficultyLevel)
     levelNumber = math.clamp(levelNumber, 1, 6)
     difficultyLevel = math.clamp(difficultyLevel, 0, 3)
-    local gameStatus = runMiniGame(levelNumber, difficultyLevel, getCursorSpeedFromDifficulty(difficultyLevel), defaultDelayStartTimeMs, minDelayEndGameTimeMs, maxDelayEndGameTimeMs, getDisconnectChanceFromDifficulty(difficultyLevel), getDisconnectCheckRateMsFromDifficulty(difficultyLevel), defaultMinReconnectTimeMs, defaultMaxReconnectTimeMs)
-    return gameStatus
+    -- runMiniGame derives the cursor speed from difficultyLevel itself
+    return runMiniGame(levelNumber, difficultyLevel, defaultDelayStartTimeMs, minDelayEndGameTimeMs, maxDelayEndGameTimeMs, getDisconnectChanceFromDifficulty(difficultyLevel), getDisconnectCheckRateMsFromDifficulty(difficultyLevel), defaultMinReconnectTimeMs, defaultMaxReconnectTimeMs)
 end
 
----@return GameStatus
-function runDefaultMiniGame()
+---@return boolean
+local function runDefaultMiniGame()
     local levelNumber = math.random(1, 3) -- < 3 is hard
     local difficultyLevel = 0
-    local gameStatus = runMiniGame(levelNumber, difficultyLevel, getCursorSpeedFromDifficulty(difficultyLevel), defaultDelayStartTimeMs, minDelayEndGameTimeMs, maxDelayEndGameTimeMs, getDisconnectChanceFromDifficulty(difficultyLevel), getDisconnectCheckRateMsFromDifficulty(difficultyLevel), defaultMinReconnectTimeMs, defaultMaxReconnectTimeMs)
-    return winOrLoss
+    return runMiniGame(levelNumber, difficultyLevel, defaultDelayStartTimeMs, minDelayEndGameTimeMs, maxDelayEndGameTimeMs, getDisconnectChanceFromDifficulty(difficultyLevel), getDisconnectCheckRateMsFromDifficulty(difficultyLevel), defaultMinReconnectTimeMs, defaultMaxReconnectTimeMs)
 end
 
 -- Exports

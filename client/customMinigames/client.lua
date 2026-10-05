@@ -23,7 +23,7 @@ local callback = nil
 -- Distinguishes Firewall Pulse from the newer games, which also set isHacking.
 local firewallActive = false
 
-local deathCheckThreadId = nil
+local deathCheckRunning = false
 
 -- set color configuration to NUI on resource start
 Citizen.CreateThread(function()
@@ -78,6 +78,7 @@ end
 -- Closes the active minigame and reports failure to the caller.
 local function cancelActiveMinigame()
     if not (isHacking or isSequencing) then return end
+    Minigames.cancelled = true
 
     SendNUIMessage({ action = 'forceClose', reason = 'playerCancelled' })
 
@@ -99,73 +100,22 @@ local function cancelActiveMinigame()
 end
 
 local function cancelMinigameOnDeath()
-    SetNuiFocus(false, false)
-    
-    SendNUIMessage({ action = 'end', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endSequence', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endRhythm', forced = true })
-    Citizen.Wait(50)    SendNUIMessage({ action = 'endKeymash', forced = true })
-    Citizen.Wait(50)    SendNUIMessage({ action = 'endVarHack', forced = true })
-    Citizen.Wait(50)    SendNUIMessage({ action = 'endMemory', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ type = 'closeSequenceMemory', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endNumberedSequence', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endSymbolSearch', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endPipePressure', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endPairs', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endMemoryColors', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endUntangle', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endFingerprint', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endCodeCrack', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endWordCrack', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endBalance', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endAimTest', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endCircleClick', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endLockpick', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endBarHit', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endSkillCheck', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endNumberUp', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endKeys', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endComboInput', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endHoldZone', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endWireConnect', forced = true })
-    Citizen.Wait(50)
-    SendNUIMessage({ action = 'endSimonSays', forced = true })
-    
+    Minigames.cancelled = true
+
+    -- These local events reset firewall / backdoor / rhythm state; forceClose then
+    -- shuts every NUI game at once (app.js), same as the cancel key does
     TriggerEvent('firewall-pulse:completeHack', false)
     TriggerEvent('backdoor-sequence:completeHack', false)
     TriggerEvent('circuit-rhythm:completeGame', false)
-    
-    SendNUIMessage({ 
+
+    SendNUIMessage({
         action = 'forceClose',
         reason = 'playerDied',
         playerId = GetPlayerServerId(PlayerId())
     })
-    
+
     cleanupMinigame()
-    
+
     if callback then
         callback(false)
         callback = nil
@@ -173,9 +123,10 @@ local function cancelMinigameOnDeath()
 end
 
 local function startDeathCheck()
-    if deathCheckThreadId then return end
-    
-    deathCheckThreadId = Citizen.CreateThread(function()
+    if deathCheckRunning then return end
+    deathCheckRunning = true
+
+    Citizen.CreateThread(function()
         while isHacking or isSequencing do
             if IsEntityDead(PlayerPedId()) then
                 cancelMinigameOnDeath()
@@ -183,7 +134,7 @@ local function startDeathCheck()
             end
             Citizen.Wait(500)
         end
-        deathCheckThreadId = nil
+        deathCheckRunning = false
     end)
 end
 

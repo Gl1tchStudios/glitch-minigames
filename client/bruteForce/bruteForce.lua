@@ -24,6 +24,7 @@ local inMinigame = false
 local minigameResult = nil
 
 local PlayerFreezed = false
+local Initialize, StartHackConnect -- local, defined below
 
 local function cleanupControls()
     FreezeEntityPosition(PlayerPedId(), false)

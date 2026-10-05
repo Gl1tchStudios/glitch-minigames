@@ -26,7 +26,8 @@ Drilling.DisabledControls = {
     37, 38, 169, 170, -- Weapon select
 }
 
-DrillPropHandle = nil
+local DrillPropHandle = nil
+local loadDrillSound -- local, defined below (shared with plasma drilling as Drilling.LoadSound)
 local soundId = nil
 local soundPlaying = false
 local drillSound = nil
@@ -74,6 +75,8 @@ function loadDrillSound()
     PrepareAlarm("HEIST_FLEECA_DRILL")
     PrepareAlarm("HEIST_FLEECA_DRILL_2")
 end
+
+Drilling.LoadSound = loadDrillSound
 
 local function createAndAttachDrill()
     local modelHash = requestModel("hei_prop_heist_drill")
@@ -276,6 +279,9 @@ Drilling.Start = function(callback)
         playDrillingSequence(function()
             Drilling.Update(callback)
         end)
+    elseif callback then
+        -- Already drilling: fail this call instead of leaving the caller waiting forever
+        callback(false)
     end
 end
 

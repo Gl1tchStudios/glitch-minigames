@@ -16,13 +16,75 @@
 
 config = {}
 
-config.DebugCommands = true -- This is for testing purposes only. Set to true to enable debug commands.
+config.DebugCommands = false -- Testing only. true = anyone can run /testall, /testdrill etc. (and earn XP with them).
 config.DebugPrints = false -- Set to true to show minigame console.log output in the UI (F8/devtools). Off keeps the console quiet.
 config.usingGlitchNotifications = true -- Set to true to enable glitch notifications.
 
 -- Keys that close/cancel any active minigame (returns a fail result to the calling script).
 -- Supported names: 'BACKSPACE', 'ESCAPE', 'ENTER'. Defaults to both BACKSPACE and ESCAPE.
 config.CancelKeys = { 'BACKSPACE', 'ESCAPE' }
+
+-- XP (glitch_xpSystem)
+-- Winning a minigame gives XP in the category below. The category is hidden in the
+-- XP menu (hidden = true in glitch_xpSystem config) until the player's first XP.
+-- XP is awarded server-side, whichever script started the minigame.
+config.XP = {
+    Enabled = true,                -- false = minigames never touch the XP system
+    Resource = 'glitch_xpSystem',
+    Category = 'hacking',          -- must exist in glitch_xpSystem Config.Categories
+    FailXP = 0,                    -- XP for a failed attempt (0 = none)
+    MinDuration = 2,               -- seconds a game must run before a win counts
+    Cooldown = 15,                 -- seconds between XP awards per player (stops farming)
+
+    -- Hacking skill tree perks applied to the games (values from glitch_xpSystem GetEffect)
+    Perks = {
+        Enabled = true,
+        Time = 'hacking_time',         -- +seconds on the game's timer
+        Mistakes = 'hacking_mistakes', -- +allowed mistakes / attempts / lives
+        Retry = 'hacking_retry',       -- automatic retries after a failed game
+    },
+
+    -- XP per win, keyed by export name. Remove a game or set it to 0 to give no XP for it.
+    Games = {
+        StartFirewallPulse        = 25,
+        StartBackdoorSequence     = 25,
+        StartCircuitRhythm        = 25,
+        StartSurgeOverride        = 10,
+        StartVarHack              = 20,
+        StartMemoryGame           = 15,
+        StartSequenceMemoryGame   = 15,
+        StartVerbalMemoryGame     = 15,
+        StartNumberedSequenceGame = 15,
+        StartSymbolSearchGame     = 20,
+        StartPipePressureGame     = 20,
+        StartPairsGame            = 15,
+        StartMemoryColorsGame     = 15,
+        StartUntangleGame         = 20,
+        StartFingerprintGame      = 20,
+        StartCodeCrackGame        = 20,
+        StartWordCrackGame        = 20,
+        StartBalanceGame          = 10,
+        StartAimTestGame          = 10,
+        StartCircleClickGame      = 10,
+        StartLockpickGame         = 15,
+        StartBarHitGame           = 10,
+        StartSkillCheckGame       = 10,
+        StartNumberUpGame         = 10,
+        StartKeysGame             = 10,
+        StartComboInputGame       = 10,
+        StartHoldZoneGame         = 10,
+        StartWireConnectGame      = 15,
+        StartSimonSaysGame        = 15,
+        StartBruteForce           = 25,
+        StartDataCrack            = 25,
+        StartCircuitBreaker       = 30,
+        runMiniGame               = 30,
+        runDefaultMiniGameFromDifficulty = 30,
+        runDefaultRandom          = 30,
+        StartDrilling             = 30,
+        StartPlasmaDrilling       = 30,
+    },
+}
 
 -- Active Color Theme
 config.ActiveTheme = 'cyan' -- 'cyan' (original), 'monochrome' (black & white)
