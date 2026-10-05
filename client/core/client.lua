@@ -4,7 +4,7 @@
 -- goes through Wrap(), which adds:
 --   * one shared busy lock: only one minigame (NUI, scaleform or drill) at a time
 --   * XP reporting to the server for games listed in config.XP.Games
---   * Hacking perks from glitch_xpSystem (extra time, extra mistakes, retry)
+--   * Hacking perks from glitch-xpSystem (extra time, extra mistakes, retry)
 -- Arguments and return values otherwise pass through untouched.
 
 Minigames = {
@@ -68,7 +68,7 @@ local function Notify(text)
     end
 end
 
--- Perk values come from the server (glitch_xpSystem GetEffect). One request per game start.
+-- Perk values come from the server (glitch-xpSystem GetEffect). One request per game start.
 local pendingPerks = nil
 
 RegisterNetEvent('glitch-minigames:perks', function(perks)

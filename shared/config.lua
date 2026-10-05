@@ -24,19 +24,19 @@ config.usingGlitchNotifications = true -- Set to true to enable glitch notificat
 -- Supported names: 'BACKSPACE', 'ESCAPE', 'ENTER'. Defaults to both BACKSPACE and ESCAPE.
 config.CancelKeys = { 'BACKSPACE', 'ESCAPE' }
 
--- XP (glitch_xpSystem)
+-- XP (glitch-xpSystem)
 -- Winning a minigame gives XP in the category below. The category is hidden in the
--- XP menu (hidden = true in glitch_xpSystem config) until the player's first XP.
+-- XP menu (hidden = true in glitch-xpSystem config) until the player's first XP.
 -- XP is awarded server-side, whichever script started the minigame.
 config.XP = {
     Enabled = true,                -- false = minigames never touch the XP system
-    Resource = 'glitch_xpSystem',
-    Category = 'hacking',          -- must exist in glitch_xpSystem Config.Categories
+    Resources = { 'glitch-xpSystem', 'glitch_xpSystem' }, -- first one started is used
+    Category = 'hacking',          -- must exist in glitch-xpSystem Config.Categories
     FailXP = 0,                    -- XP for a failed attempt (0 = none)
     MinDuration = 2,               -- seconds a game must run before a win counts
     Cooldown = 15,                 -- seconds between XP awards per player (stops farming)
 
-    -- Hacking skill tree perks applied to the games (values from glitch_xpSystem GetEffect)
+    -- Hacking skill tree perks applied to the games (values from glitch-xpSystem GetEffect)
     Perks = {
         Enabled = true,
         Time = 'hacking_time',         -- +seconds on the game's timer
@@ -44,45 +44,45 @@ config.XP = {
         Retry = 'hacking_retry',       -- automatic retries after a failed game
     },
 
-    -- XP per win, keyed by export name. Remove a game or set it to 0 to give no XP for it.
+    -- XP per win, keyed by export name (15-40, master plan). Remove a game or set it to 0 to give no XP for it.
     Games = {
-        StartFirewallPulse        = 25,
-        StartBackdoorSequence     = 25,
-        StartCircuitRhythm        = 25,
-        StartSurgeOverride        = 10,
-        StartVarHack              = 20,
-        StartMemoryGame           = 15,
-        StartSequenceMemoryGame   = 15,
-        StartVerbalMemoryGame     = 15,
-        StartNumberedSequenceGame = 15,
-        StartSymbolSearchGame     = 20,
-        StartPipePressureGame     = 20,
-        StartPairsGame            = 15,
-        StartMemoryColorsGame     = 15,
-        StartUntangleGame         = 20,
-        StartFingerprintGame      = 20,
-        StartCodeCrackGame        = 20,
-        StartWordCrackGame        = 20,
-        StartBalanceGame          = 10,
-        StartAimTestGame          = 10,
-        StartCircleClickGame      = 10,
-        StartLockpickGame         = 15,
-        StartBarHitGame           = 10,
-        StartSkillCheckGame       = 10,
-        StartNumberUpGame         = 10,
-        StartKeysGame             = 10,
-        StartComboInputGame       = 10,
-        StartHoldZoneGame         = 10,
-        StartWireConnectGame      = 15,
-        StartSimonSaysGame        = 15,
-        StartBruteForce           = 25,
-        StartDataCrack            = 25,
-        StartCircuitBreaker       = 30,
-        runMiniGame               = 30,
-        runDefaultMiniGameFromDifficulty = 30,
-        runDefaultRandom          = 30,
-        StartDrilling             = 30,
-        StartPlasmaDrilling       = 30,
+        StartFirewallPulse        = 35,
+        StartBackdoorSequence     = 35,
+        StartCircuitRhythm        = 35,
+        StartSurgeOverride        = 15,
+        StartVarHack              = 25,
+        StartMemoryGame           = 20,
+        StartSequenceMemoryGame   = 20,
+        StartVerbalMemoryGame     = 20,
+        StartNumberedSequenceGame = 20,
+        StartSymbolSearchGame     = 25,
+        StartPipePressureGame     = 25,
+        StartPairsGame            = 20,
+        StartMemoryColorsGame     = 20,
+        StartUntangleGame         = 25,
+        StartFingerprintGame      = 25,
+        StartCodeCrackGame        = 25,
+        StartWordCrackGame        = 25,
+        StartBalanceGame          = 15,
+        StartAimTestGame          = 15,
+        StartCircleClickGame      = 15,
+        StartLockpickGame         = 20,
+        StartBarHitGame           = 15,
+        StartSkillCheckGame       = 15,
+        StartNumberUpGame         = 15,
+        StartKeysGame             = 15,
+        StartComboInputGame       = 15,
+        StartHoldZoneGame         = 15,
+        StartWireConnectGame      = 20,
+        StartSimonSaysGame        = 20,
+        StartBruteForce           = 35,
+        StartDataCrack            = 35,
+        StartCircuitBreaker       = 40,
+        runMiniGame               = 40,
+        runDefaultMiniGameFromDifficulty = 40,
+        runDefaultRandom          = 40,
+        StartDrilling             = 40,
+        StartPlasmaDrilling       = 40,
     },
 }
 
