@@ -7,6 +7,7 @@ version '2.2.0'
 
 client_script {
     'client/core/client.lua', -- must stay first: wraps every export below (busy lock, XP, perks)
+    'client/core/controls.lua', -- controls HUD shown on the left while a game runs
 
     'client/customMinigames/client.lua',
 

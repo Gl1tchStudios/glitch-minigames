@@ -5698,3 +5698,52 @@ body::before, body::after,
 #hold-zone-container.hz-flash-fail .hz-ring-wrapper {
     filter: drop-shadow(0 0 10px rgba(220,38,38,0.35));
 }
+
+/* Controls HUD: left side, light keycaps, no box (client/core/controls.lua) */
+#mg-controls {
+    position: fixed;
+    left: 2.2vw;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2147483000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.95vh;
+    pointer-events: none;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+#mg-controls .mgc-title {
+    font-size: 1.25vh;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #D19BFF;
+    margin-bottom: 0.2vh;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+}
+#mg-controls .mgc-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55vw;
+}
+#mg-controls .mgc-key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.7vh;
+    height: 2.7vh;
+    padding: 0 0.7vh;
+    border-radius: 0.6vh;
+    background: #F3E8FF;
+    color: #1F0A33;
+    font-size: 1.3vh;
+    font-weight: 600;
+    box-sizing: border-box;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+#mg-controls .mgc-key.cancel { background: #A855F7; }
+#mg-controls .mgc-label {
+    margin-left: 0.3vw;
+    font-size: 1.45vh;
+    color: #FFFFFF;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 6px rgba(0, 0, 0, 0.6);
+}

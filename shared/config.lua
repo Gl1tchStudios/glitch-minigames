@@ -18,7 +18,7 @@ config = {}
 
 config.DebugCommands = false -- Testing only. true = anyone can run /testall, /testdrill etc. (and earn XP with them).
 config.DebugPrints = false -- Set to true to show minigame console.log output in the UI (F8/devtools). Off keeps the console quiet.
-config.usingGlitchNotifications = true -- Set to true to enable glitch notifications.
+config.usingGlitchNotifications = false -- true = result popups (success / failed / cancelled) through glitch-notifications. Off for now.
 
 -- Keys that close/cancel any active minigame (returns a fail result to the calling script).
 -- Supported names: 'BACKSPACE', 'ESCAPE', 'ENTER'. Defaults to both BACKSPACE and ESCAPE.

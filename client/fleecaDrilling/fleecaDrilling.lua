@@ -18,7 +18,7 @@ Drilling = {}
 
 Drilling.DisabledControls = {
     30, 31, -- Movement & Cover
-    199, -- Pause Menu
+    199, 200, -- Pause Menu (P and ESC): ESC cancels the drill instead
     24, 25, 140, 141, 142, 143, -- Attack Controls
     22, -- Space
     36, -- Enter
@@ -266,15 +266,7 @@ Drilling.Start = function(callback)
         
         loadDrillSound()
         
-        if config.usingGlitchNotifications then 
-            DrillingControls = exports['glitch-notifications']:ShowNotification(
-                'Drilling Controls',
-                'W/S - Move Drill Up/Down\nQ - Slow Down\nE - Speed Up\nESC - Cancel',
-                0,
-                '#ff9f1c',
-                false
-            )
-        end
+        -- controls are shown by the controls HUD (client/core/controls.lua)
         
         playDrillingSequence(function()
             Drilling.Update(callback)
@@ -292,10 +284,27 @@ end
 Drilling.Update = function(callback)
     local lastSoundRefresh = GetGameTimer()
     
+    local startHealth = GetEntityHealth(PlayerPedId())
     while Drilling.Active do
         Drilling.Draw()
         Drilling.DisableControls()
-        Drilling.HandleControls()
+        -- a script error in here used to kill the loop and leave the player frozen
+        -- with the drill in their hands: end the game as a fail instead
+        local okControls, err = pcall(Drilling.HandleControls)
+        if not okControls then
+            print('^1[glitch-minigames] drilling error: ' .. tostring(err) .. '^7')
+            Drilling.Active = false
+            Drilling.Result = false
+            break
+        end
+
+        -- hurt (shot, hit, set on fire): the drill is dropped, the game fails
+        if GetEntityHealth(PlayerPedId()) < startHealth then
+            print('Drilling cancelled - player was hurt')
+            Drilling.Active = false
+            Drilling.Result = false
+            break
+        end
         
         if IsEntityDead(PlayerPedId()) then
             print("Drilling cancelled - player died")
@@ -303,7 +312,7 @@ Drilling.Update = function(callback)
             Drilling.Result = false
             
             if config.usingGlitchNotifications then
-                exports['glitch-notifications']:RemoveNotification(DrillingControls)
+                if DrillingControls then exports['glitch-notifications']:RemoveNotification(DrillingControls) end
             end
             
             if soundPlaying then
@@ -319,18 +328,14 @@ Drilling.Update = function(callback)
             break
         end
         
-        if GetGameTimer() - lastSoundRefresh > 10000 and soundPlaying then
-            loadDrillSound()
-            lastSoundRefresh = GetGameTimer()
-        end
         
-        if IsControlJustPressed(0, 200) then
+        if IsDisabledControlJustPressed(0, 200) then
             Drilling.Active = false
             Drilling.Result = false
             
             if config.usingGlitchNotifications then
                 exports['glitch-notifications']:ShowNotification('Cancelled', 'Drilling cancelled', 3000, '#ffaa00', false)
-                exports['glitch-notifications']:RemoveNotification(DrillingControls)
+                if DrillingControls then exports['glitch-notifications']:RemoveNotification(DrillingControls) end
             end
             
             if soundPlaying then
@@ -351,7 +356,7 @@ Drilling.Update = function(callback)
     Drilling.ClearDrillProp()
 
     if config.usingGlitchNotifications then
-        exports['glitch-notifications']:RemoveNotification(DrillingControls)
+        if DrillingControls then exports['glitch-notifications']:RemoveNotification(DrillingControls) end
     end
     
     if soundPlaying then
@@ -414,47 +419,35 @@ Drilling.HandleControls = function()
         Drilling.DrillSpeed = math.min(0.6, Drilling.DrillSpeed + (0.2 * GetFrameTime())) -- Reduced acceleration rate
     end
     
+    -- One looping GTA drill sound for the whole run. Its DrillState variable
+    -- switches it between spinning free (0.0) and cutting into metal (1.0); it is
+    -- restarted if the game ever drops it, so the audio never cuts out.
     if Drilling.DrillSpeed > 0 and Drilling.Active then
-        if not soundPlaying then
+        if not soundPlaying or (drillSound and HasSoundFinished(drillSound)) then
             if drillSound and drillSound ~= -1 then
                 StopSound(drillSound)
                 ReleaseSoundId(drillSound)
             end
-            
             drillSound = GetSoundId()
             if drillSound ~= -1 then
                 PlaySoundFromEntity(drillSound, "Drill", PlayerPedId(), "DLC_HEIST_FLEECA_SOUNDSET", true, 0)
                 ShakeGameplayCam("ROAD_VIBRATION_SHAKE", Drilling.DrillSpeed * 0.5)
                 soundPlaying = true
-                isDrillingMetal = false
             end
         end
-        
-        if Drilling.DrillPos > Drilling.HoleDepth and Drilling.DrillSpeed > 0.1 then
-            if not isDrillingMetal then
-                StopSound(drillSound)
-                drillSound = GetSoundId()
-                if drillSound ~= -1 then
-                    PlaySoundFromEntity(drillSound, "Drill_Off_Sweet_Spot_01", PlayerPedId(), "DLC_MPHEIST/HEIST_FLEECA_DRILL", true, 5)
-                    ShakeGameplayCam("ROAD_VIBRATION_SHAKE", math.min(0.8, Drilling.DrillSpeed * 1.0))
-                    isDrillingMetal = true
-                end
-            end
-        else
-            if isDrillingMetal then
-                StopSound(drillSound)
-                drillSound = GetSoundId()
-                if drillSound ~= -1 then
-                    PlaySoundFromEntity(drillSound, "Drill_In_Metal_01", PlayerPedId(), "DLC_MPHEIST/HEIST_FLEECA_DRILL_2", true, 5)
-                    ShakeGameplayCam("ROAD_VIBRATION_SHAKE", Drilling.DrillSpeed * 0.5)
-                    isDrillingMetal = false
-                end
-            end
+        local inMetal = Drilling.DrillPos > Drilling.HoleDepth and Drilling.DrillSpeed > 0.1
+        if drillSound and drillSound ~= -1 then
+            SetVariableOnSound(drillSound, "DrillState", inMetal and 1.0 or 0.0)
+        end
+        if inMetal ~= isDrillingMetal then
+            ShakeGameplayCam("ROAD_VIBRATION_SHAKE", inMetal and math.min(0.8, Drilling.DrillSpeed) or Drilling.DrillSpeed * 0.5)
+            isDrillingMetal = inMetal
         end
     else
         if soundPlaying then
             StopSound(drillSound)
             ReleaseSoundId(drillSound)
+            drillSound = nil
             StopGameplayCamShaking(true)
             soundPlaying = false
             isDrillingMetal = false
@@ -475,9 +468,6 @@ Drilling.HandleControls = function()
     local currentTime = GetGameTimer()
     for i, point in ipairs(pinBreakPoints) do
         if Drilling.DrillPos >= point.min and Drilling.DrillPos <= point.max and lastDrillPos < point.min and not triggeredPinBreaks[i] and Drilling.DrillPos > maxDrillDepth and currentTime - pinHitTimestamp > 1000 then
-            if not HasSoundFinished(-1) then
-                StopSound(-1)
-            end
             
             if i <= 4 then -- 2
                 PlaySoundFrontend(-1, "Drill_Pin_Break", "DLC_HEIST_FLEECA_SOUNDSET", true)
@@ -532,7 +522,7 @@ Drilling.HandleControls = function()
         
         if config.usingGlitchNotifications then
             exports['glitch-notifications']:ShowNotification('Failed', 'Drill overheated!', 3000, '#ff0000', false)
-            exports['glitch-notifications']:RemoveNotification(DrillingControls)
+            if DrillingControls then exports['glitch-notifications']:RemoveNotification(DrillingControls) end
         end
 
         PlaySoundFrontend(-1, "Drill_Heat_Failure", "DLC_HEIST_FLEECA_SOUNDSET", true)
@@ -558,7 +548,7 @@ Drilling.HandleControls = function()
         
         if config.usingGlitchNotifications then
             exports['glitch-notifications']:ShowNotification('Success', 'Successfully drilled!', 3000, '#00ff00', false)
-            exports['glitch-notifications']:RemoveNotification(DrillingControls)
+            if DrillingControls then exports['glitch-notifications']:RemoveNotification(DrillingControls) end
         end
 
         PlaySoundFrontend(-1, "Drill_Pin_Break", "DLC_HEIST_FLEECA_SOUNDSET", true)

@@ -81,7 +81,9 @@ PlasmaDrilling.Draw = function()
 end
 
 PlasmaDrilling.HandleControls = function()
-  if IsControlJustPressed(0, 200) or IsControlJustPressed(0, 177) then -- ESC key
+  -- ESC: disabled so the pause menu stays shut, read as the disabled control
+  DisableControlAction(0, 200, true)
+  if IsDisabledControlJustPressed(0, 200) or IsControlJustPressed(0, 177) then -- ESC key
     PlasmaDrilling.Result = false
     PlasmaDrilling.Active = false
     Scaleforms.PopVoid(PlasmaDrilling.Scaleform, "RESET")
@@ -219,15 +221,7 @@ function beginnDrilling(callback)
 
   setupDrillingCamera()
 
-  if config.usingGlitchNotifications then
-    PlasmaDrilling.ControlsNotificationId = exports['glitch-notifications']:ShowNotification(
-        'Plasma Drilling Controls',
-        'Up/Down Arrow - Move Drill\n‎ ‎ ‎ ‎ ‎ Left/Right Arrow - Speed Up\nESC - Cancel',
-        0,
-        '#ff9f1c',
-        false
-    )
-  end
+  -- controls are shown by the controls HUD (client/core/controls.lua)
 
   Drilling.LoadSound() -- defined in fleecaDrilling.lua
   Wait(100)

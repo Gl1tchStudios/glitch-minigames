@@ -118,6 +118,12 @@ local function Wrap(name, fn)
         if Minigames.busy then return false end
         Minigames.busy = true
         Minigames.cancelled = false
+        -- who holds the lock (the watchdog below frees it if that script stops)
+        Minigames.token = (Minigames.token or 0) + 1
+        local token = Minigames.token
+        Minigames.owner = GetInvokingResource()
+        Minigames.name = name
+        Minigames.since = GetGameTimer()
 
         local args = table.pack(...)
         local perks = perksEnabled and reportXP and FetchPerks() or {}
@@ -126,9 +132,13 @@ local function Wrap(name, fn)
         if reportXP then
             TriggerServerEvent('glitch-minigames:xpStart', name)
         end
+        if ShowControls then ShowControls(name, args) end   -- controls HUD on the left (client/core/controls.lua)
 
         local function Finish(result)
+            -- a lock the watchdog already freed may belong to a newer game by now
+            if Minigames.token ~= token then return end
             Minigames.busy = false
+            if HideControls then HideControls() end
             if reportXP then
                 TriggerServerEvent('glitch-minigames:xpFinish', name, IsWin(result))
             end
@@ -152,7 +162,10 @@ local function Wrap(name, fn)
                 return table.pack(fn(table.unpack(args, 1, args.n)))
             end)
             if not ok then
-                Minigames.busy = false
+                if Minigames.token == token then
+                    Minigames.busy = false
+                    if HideControls then HideControls() end
+                end
                 error(packed, 0)
             end
             return packed
@@ -192,6 +205,40 @@ exports = setmetatable({}, {
         return rawExports(name, fn)
     end,
 })
+
+-- Lock watchdog: a game whose caller stopped (resource restart) or that never
+-- finished would otherwise leave the lock on and every later game would fail
+-- straight away. Frees it when the calling resource is gone or after MAX_GAME_MS.
+local MAX_GAME_MS = 10 * 60 * 1000
+
+local function ReleaseLock(reason)
+    if not Minigames.busy then return end
+    print(('[glitch-minigames] freed the minigame lock (%s held by %s): %s'):format(
+        tostring(Minigames.name), tostring(Minigames.owner), reason))
+    Minigames.token = (Minigames.token or 0) + 1   -- the old game's Finish is ignored now
+    Minigames.busy = false
+    Minigames.cancelled = true
+    if HideControls then HideControls() end
+    SendNUIMessage({ action = 'forceClose', reason = 'lockReleased' })
+end
+
+AddEventHandler('onResourceStop', function(res)
+    if Minigames.busy and Minigames.owner == res then ReleaseLock(res .. ' stopped') end
+end)
+
+CreateThread(function()
+    while true do
+        Wait(2000)
+        if Minigames.busy then
+            local owner = Minigames.owner
+            if owner and owner ~= GetCurrentResourceName() and GetResourceState(owner) ~= 'started' then
+                ReleaseLock(owner .. ' is not running')
+            elseif GetGameTimer() - (Minigames.since or 0) > MAX_GAME_MS then
+                ReleaseLock('ran longer than 10 minutes')
+            end
+        end
+    end
+end)
 
 -- For other scripts: check before starting a game (registered unwrapped)
 rawExports('IsBusy', function()

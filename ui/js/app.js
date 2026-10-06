@@ -53,6 +53,27 @@ window.minigameCancelKeys = ['Escape', 'Backspace'];
 $(document).ready(function() {
     window.addEventListener('message', function(event) {
         const data = event.data;
+
+        // controls HUD on the left (client/core/controls.lua)
+        if (data.action === 'controlsShow') {
+            const box = document.getElementById('mg-controls');
+            const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+            let html = data.title ? '<div class="mgc-title">' + esc(data.title) + '</div>' : '';
+            (data.rows || []).forEach(function(r) {
+                html += '<div class="mgc-row">';
+                (r.keys || []).forEach(function(k) { html += '<span class="mgc-key' + (r.cancel ? ' cancel' : '') + '">' + esc(k) + '</span>'; });
+                html += '<span class="mgc-label">' + esc(r.label || '') + '</span></div>';
+            });
+            box.innerHTML = html;
+            box.style.display = 'flex';
+            return;
+        }
+        if (data.action === 'controlsHide') {
+            const box = document.getElementById('mg-controls');
+            box.style.display = 'none';
+            box.innerHTML = '';
+            return;
+        }
         
         // updatese color theme from Lua config
         if (data.action === 'setColors' && data.colors) {
