@@ -953,3 +953,33 @@
     color: #fff;
     box-shadow: none;
 }
+
+/* =====================================================================
+   TEXT ON LIGHT FILLS (all themes)
+   app.js sets .mg-light-primary / .mg-light-success on <html> when the colour
+   theme's primary / success colour is light (monochrome white, glitch mint),
+   so text on those fills turns black instead of white-on-white.
+   ===================================================================== */
+.mg-light-primary :is(
+    .numbered-sequence-square.lit, .symbol-search-cell.marker, .key-indicator.active,
+    #hack-button, .code-crack-btn.crack-btn, .word-crack-btn.guess-btn, .mc-submit-btn,
+    .seen-btn:hover, .new-btn:hover, .theme-modern button, .theme-modern .btn
+) {
+    color: var(--on-primary) !important;
+    text-shadow: none !important;
+}
+.mg-light-success :is(
+    .numbered-sequence-square.correct, .symbol-search-cell.correct, .symbol-search-cell.target-reveal,
+    .verbal-memory-btn.correct, .var-group.good, .memory-square.correct, .sequence-memory-square.correct
+) {
+    color: var(--on-success) !important;
+    text-shadow: none !important;
+}
+
+/* device: hover = darker primary tint (was a hard-coded blue in the base CSS) */
+.theme-device :is(.number-up-cell, .keys-game-cell, .numbered-sequence-square, .memory-square,
+                  .sequence-memory-square, .pipe-cell, .pairs-card-front):hover {
+    background: rgba(var(--primary-rgb), 0.22);
+    border-color: rgba(var(--primary-rgb), 0.65);
+    transform: none;
+}

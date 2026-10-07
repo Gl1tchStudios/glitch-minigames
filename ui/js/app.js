@@ -157,6 +157,26 @@ $(document).ready(function() {
             root.style.setProperty('--failure-rgb', data.colors.failureRgba);
             root.style.setProperty('--warning-rgb', data.colors.warningRgba);
 
+            // every '<name>Rgba' colour as '--<name>-rgba' (number up, keys, ... read
+            // rgba(var(--primary-rgba, 51,181,229), a); unset, they fell back to that blue)
+            Object.keys(data.colors).forEach(function(k) {
+                if (!/Rgba$/.test(k)) return;
+                const name = k.slice(0, -4).replace(/[A-Z]/g, function(c) { return '-' + c.toLowerCase(); });
+                root.style.setProperty('--' + name + '-rgba', data.colors[k]);
+            });
+
+            // light primary (monochrome white): text on primary-filled tiles/buttons goes black
+            const isLight = function(rgba) {
+                const c = String(rgba || '').split(',').map(Number);
+                return c.length === 3 && (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 > 0.6;
+            };
+            const lightPrimary = isLight(data.colors.primaryRgba);
+            const lightSuccess = isLight(data.colors.successRgba);
+            root.classList.toggle('mg-light-primary', lightPrimary);
+            root.classList.toggle('mg-light-success', lightSuccess);
+            root.style.setProperty('--on-primary', lightPrimary ? '#0b0b0b' : '#ffffff');
+            root.style.setProperty('--on-success', lightSuccess ? '#0b0b0b' : '#ffffff');
+
             console.log('[MinigameColors] Theme updated from config', data.colors);
         }
         
