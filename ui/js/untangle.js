@@ -310,6 +310,12 @@ var Untangle = (function() {
 
     function startGame(config) {
         console.log('[Untangle] Starting', config);
+
+        // colours are set per game (config / per-call style), not just once at load
+        NODE_COLOR = window.MinigameColors.primary;
+        NODE_GLOW = `rgba(${window.MinigameColors.primaryRgba}, 0.6)`;
+        LINE_COLOR = window.MinigameColors.primary;
+        LINE_INTERSECT_COLOR = window.MinigameColors.failure;
         
         nodeCount = (config && config.nodeCount) ? config.nodeCount : 8;
         timeLimit = (config && config.timeLimit) ? config.timeLimit : 60000;

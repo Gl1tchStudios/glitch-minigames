@@ -1,0 +1,955 @@
+/* Glitch Minigames - extra visual themes + keybind HUD themes
+ *
+ * Loaded after style.css. Body class picks the panel theme (config.ActiveVisualTheme
+ * or a per-call { theme = ... } override, see client/core/style.lua):
+ *   .theme-device  rugged handheld scanner: gunmetal case, screws, status LEDs,
+ *                  dot-matrix LCD in the colour theme, LED timer strips
+ *   .theme-tablet  glitch-criminaltablet look: graphite device, Figtree +
+ *                  JetBrains Mono, flat tiles, colour theme as the accent
+ * The keycap HUD on the left has its own class (#mg-controls.hud-*), set
+ * separately from the panel theme (config.ActiveKeybindTheme / { keybinds = ... }).
+ *
+ * Base element rules use :where() so they weigh the same as the game's own base
+ * rule; the game's state rules (.lit, .correct, ...) keep working on top. States
+ * that look wrong in a theme are restyled explicitly further down.
+ */
+
+/* =====================================================================
+   DEVICE THEME
+   ===================================================================== */
+
+.theme-device {
+    --dv-lcd-ink: rgba(255, 255, 255, 0.9);
+    --dv-case-text: #c9ccd1;
+    --dv-case-muted: #7d828a;
+}
+
+/* ---- case ------------------------------------------------------------ */
+.theme-device .game-container:not(#keymash-container) {
+    background:
+        radial-gradient(circle at 17px 17px, #9a9ea4 0, #44474c 4px, rgba(0, 0, 0, 0.55) 6px, transparent 7px),
+        radial-gradient(circle at calc(100% - 17px) 17px, #9a9ea4 0, #44474c 4px, rgba(0, 0, 0, 0.55) 6px, transparent 7px),
+        radial-gradient(circle at 17px calc(100% - 17px), #9a9ea4 0, #44474c 4px, rgba(0, 0, 0, 0.55) 6px, transparent 7px),
+        radial-gradient(circle at calc(100% - 17px) calc(100% - 17px), #9a9ea4 0, #44474c 4px, rgba(0, 0, 0, 0.55) 6px, transparent 7px),
+        linear-gradient(180deg, #3a3d42 0%, #26282c 55%, #1d1f22 100%) !important;
+    border: none !important;
+    border-radius: 26px !important;
+    padding: 20px 26px 26px !important;
+    box-shadow:
+        0 30px 70px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -3px 0 rgba(0, 0, 0, 0.4),
+        0 0 0 2px #121315 !important;
+    color: var(--dv-case-text);
+}
+.theme-device .game-container:not(#keymash-container)::before,
+.theme-device .game-container:not(#keymash-container)::after { display: none !important; }
+
+.theme-device .game-container,
+.theme-device .game-container * {
+    font-family: 'Chakra Petch', 'Segoe UI', sans-serif;
+}
+
+/* nameplate + status LEDs */
+.theme-device .hack-title {
+    position: relative;
+    text-align: left;
+    border: none;
+    margin: 0 6px 12px;
+    padding: 0 64px 0 0;
+    text-shadow: none;
+}
+.theme-device .hack-title h2 {
+    font-family: 'Chakra Petch', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: #b4b9c0;
+    text-shadow: 0 1px 0 #000;
+    text-transform: uppercase;
+    margin: 0;
+}
+.theme-device .hack-title .blink {
+    display: block;
+    font-size: 0;
+    letter-spacing: 0;
+    animation: none;
+}
+.theme-device .hack-title .blink::after {
+    content: attr(data-label);
+    font: 500 10px 'Chakra Petch', sans-serif;
+    letter-spacing: 0.3em;
+    color: var(--dv-case-muted);
+}
+.theme-device .hack-title::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 46px;
+    height: 10px;
+    margin-top: -5px;
+    background:
+        radial-gradient(circle at 5px 5px, var(--primary-color) 0, var(--primary-color) 3.5px, rgba(var(--primary-rgb), 0.35) 5px, transparent 5.5px),
+        radial-gradient(circle at 23px 5px, #ff9f43 0, #ff9f43 3.5px, rgba(255, 159, 67, 0.35) 5px, transparent 5.5px),
+        radial-gradient(circle at 41px 5px, #2b2d31 0, #2b2d31 4px, transparent 5px);
+}
+
+/* ---- LCD screens (each game's main display area) ---------------------- */
+.theme-device :is(
+    .pulse-container, .sequence-display, .rhythm-display, .var-display, .memory-display,
+    .sequence-memory-display, .numbered-sequence-display, .verbal-memory-display,
+    .symbol-search-display, .pipe-pressure-display, .pairs-display, .memory-colors-display,
+    .untangle-display, .fingerprint-display, .code-crack-display, .word-crack-display,
+    .balance-display, .aim-test-display, .skill-check-track-wrapper, #number-up-grid,
+    #keys-game-grid, .wc-board, .ss-grid
+) {
+    background:
+        radial-gradient(rgba(0, 0, 0, 0.3) 0.8px, transparent 1.1px) 0 0 / 3px 3px,
+        linear-gradient(125deg, rgba(255, 255, 255, 0.06) 0%, transparent 35%),
+        radial-gradient(ellipse at 50% 40%, var(--background-gradient-2) 0%, var(--background-gradient-1) 70%, #07040b 100%) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow:
+        0 0 0 9px #0b0b0d,
+        0 0 0 10px rgba(255, 255, 255, 0.07),
+        inset 0 2px 10px rgba(0, 0, 0, 0.85) !important;
+    margin-top: 10px !important;
+    margin-bottom: 18px !important;
+    color: var(--dv-lcd-ink);
+}
+
+/* LCD type */
+.theme-device :is(
+    .sequence-display, .rhythm-display, .var-display, .memory-display, .sequence-memory-display,
+    .numbered-sequence-display, .verbal-memory-display, .symbol-search-display, .pipe-pressure-display,
+    .pairs-display, .memory-colors-display, .code-crack-display, .word-crack-display,
+    #number-up-grid, #keys-game-grid, .ss-grid, .hack-info, .timer-text
+) :is(*) {
+    font-family: 'VT323', 'Chakra Petch', monospace;
+}
+
+/* LCD splash screens */
+.theme-device :is(.var-splash, .memory-splash, .sequence-memory-splash, .numbered-sequence-splash,
+                  .verbal-memory-splash, .symbol-search-splash) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.theme-device :is(.var-text, .memory-text, .sequence-memory-text, .numbered-sequence-text,
+                  .verbal-memory-text, .symbol-search-text) {
+    font-family: 'VT323', monospace !important;
+    font-size: 26px !important;
+    letter-spacing: 0.12em !important;
+    color: var(--dv-lcd-ink) !important;
+    text-shadow: 0 0 8px rgba(var(--primary-rgb), 0.9) !important;
+}
+.theme-device :is(.var-text, .memory-text, .sequence-memory-text, .numbered-sequence-text,
+                  .verbal-memory-text, .symbol-search-text)::after {
+    content: '_';
+    animation: blink 1s steps(2) infinite;
+}
+.theme-device :is(.var-icon, .memory-icon, .sequence-memory-icon, .numbered-sequence-icon,
+                  .verbal-memory-icon, .symbol-search-icon) {
+    filter: grayscale(1) brightness(1.6) drop-shadow(0 0 6px rgba(var(--primary-rgb), 0.9));
+    opacity: 0.85;
+    animation: none !important;
+}
+
+/* ---- LCD cells: phosphor tiles --------------------------------------- */
+.theme-device :where(
+    .key-box, .memory-square, .sequence-memory-square, .numbered-sequence-square,
+    .symbol-search-cell, .pipe-cell, .code-crack-digit, .word-crack-letter,
+    .number-up-cell, .keys-game-cell, .key-indicator
+) {
+    background: rgba(var(--primary-rgb), 0.07);
+    border: 1px solid rgba(var(--primary-rgb), 0.3);
+    border-radius: 3px;
+    color: var(--dv-lcd-ink);
+    text-shadow: 0 0 6px rgba(var(--primary-rgb), 0.85);
+    box-shadow: none;
+    font-family: 'VT323', monospace;
+}
+.theme-device :is(
+    .memory-square, .sequence-memory-square, .numbered-sequence-square, .symbol-search-cell
+)::before { display: none !important; }
+
+/* lit / selected / cursor: inverted pixel block */
+.theme-device .memory-square.lit,
+.theme-device .memory-square.player-selected,
+.theme-device .sequence-memory-square.lit,
+.theme-device .sequence-memory-square.player-selected,
+.theme-device .numbered-sequence-square.lit,
+.theme-device .numbered-sequence-square.selected,
+.theme-device .keys-game-cell.kg-active,
+.theme-device .key-indicator.active {
+    background: var(--primary-color) !important;
+    border-color: #fff !important;
+    color: #12081c !important;
+    text-shadow: none !important;
+    box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.85) !important;
+}
+
+/* symbol search: cursor block + dashed rest of the sequence */
+.theme-device .symbol-search-cell.marker {
+    background: var(--primary-color) !important;
+    border-color: #fff !important;
+    color: #12081c !important;
+    text-shadow: none !important;
+    box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.85) !important;
+    animation: dv-cursor 1s steps(2) infinite;
+}
+.theme-device .symbol-search-cell.marker::after { display: none !important; }
+.theme-device .symbol-search-cell.marker-sequence {
+    background: rgba(var(--primary-rgb), 0.18) !important;
+    border: 1px dashed #fff !important;
+    color: #fff !important;
+}
+@keyframes dv-cursor { 50% { filter: brightness(0.8); } }
+
+.theme-device .symbol-search-target-display {
+    background: rgba(0, 0, 0, 0.25) !important;
+    border: 1px dashed rgba(var(--primary-rgb), 0.45) !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+}
+.theme-device .symbol-search-target-label {
+    font-family: 'VT323', monospace !important;
+    font-size: 20px !important;
+    letter-spacing: 0.14em;
+    color: var(--dv-lcd-ink) !important;
+    text-shadow: 0 0 6px rgba(var(--primary-rgb), 0.8) !important;
+}
+.theme-device #symbol-search-target {
+    background: #f1dcff;
+    color: #12081c !important;
+    padding: 0 10px;
+    border-radius: 2px;
+    text-shadow: none !important;
+    animation: none !important;
+}
+
+/* clicked / done tiles */
+.theme-device .number-up-cell.nu-clicked,
+.theme-device .keys-game-cell.kg-done {
+    background: rgba(var(--success-rgb), 0.12) !important;
+    border-color: rgba(var(--success-rgb), 0.45) !important;
+    color: rgba(255, 255, 255, 0.35) !important;
+    text-shadow: none !important;
+}
+.theme-device .number-up-cell.nu-wrong,
+.theme-device .keys-game-cell.kg-wrong {
+    background: var(--failure-color) !important;
+    border-color: #fff !important;
+    color: #fff !important;
+}
+
+/* backdoor sequence keys */
+.theme-device .key-box.current {
+    background: var(--primary-color) !important;
+    color: #12081c !important;
+    text-shadow: none !important;
+    border-color: #fff !important;
+}
+.theme-device .key-box.pressed,
+.theme-device .key-box.correct {
+    background: var(--success-color) !important;
+    color: #12081c !important;
+    text-shadow: none !important;
+}
+.theme-device .key-box.wrong {
+    background: var(--failure-color) !important;
+    color: #fff !important;
+}
+
+/* pipe pressure */
+.theme-device .pipe-cell.connected { background: rgba(var(--primary-rgb), 0.2) !important; }
+.theme-device .pipe-cell.start-cell,
+.theme-device .pipe-cell.end-cell { border-color: #fff !important; background: rgba(var(--primary-rgb), 0.28) !important; }
+
+/* code / word crack */
+.theme-device :is(.code-crack-digit, .word-crack-letter) { font-size: 34px !important; }
+.theme-device .code-crack-digit.filled,
+.theme-device .word-crack-letter.filled { border-color: var(--primary-color) !important; box-shadow: inset 0 0 12px rgba(var(--primary-rgb), 0.35) !important; }
+.theme-device :is(.code-crack-instruction, .word-crack-instruction, .code-crack-history-title, .word-crack-history-title) {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px dashed rgba(var(--primary-rgb), 0.35) !important;
+    border-radius: 0 !important;
+    color: var(--dv-lcd-ink) !important;
+    font-size: 17px !important;
+    text-shadow: 0 0 6px rgba(var(--primary-rgb), 0.7);
+}
+.theme-device :is(.code-crack-history-entry, .word-crack-history-entry) {
+    background: rgba(0, 0, 0, 0.22) !important;
+    border: none !important;
+    border-radius: 2px !important;
+}
+.theme-device :is(.code-crack-history-digit, .word-crack-history-letter) {
+    font-family: 'VT323', monospace !important;
+    font-size: 22px !important;
+    border-radius: 2px !important;
+}
+
+/* ---- case buttons: chunky rubber keys -------------------------------- */
+.theme-device :is(#hack-button, .code-crack-btn, .word-crack-btn, .mc-submit-btn, .verbal-memory-btn, .fp-arrow) {
+    font-family: 'Chakra Petch', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase;
+    color: #eef0f3 !important;
+    background: linear-gradient(180deg, #4a4d53, #2b2d31) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 0 #141517, inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+    text-shadow: 0 1px 0 #000 !important;
+    transform: none !important;
+    filter: none !important;
+}
+.theme-device :is(#hack-button, .code-crack-btn, .word-crack-btn, .mc-submit-btn, .verbal-memory-btn, .fp-arrow):active {
+    box-shadow: 0 1px 0 #141517, inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+    transform: translateY(3px) !important;
+}
+.theme-device :is(#hack-button, .code-crack-btn.crack-btn, .word-crack-btn.guess-btn, .mc-submit-btn) {
+    background: linear-gradient(180deg, var(--primary-color), var(--secondary-color)) !important;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 0 14px rgba(var(--primary-rgb), 0.35) !important;
+}
+.theme-device :is(.code-crack-btn.delete-btn, .word-crack-btn.delete-btn) {
+    background: linear-gradient(180deg, #7a2e3a, #4a1820) !important;
+}
+.theme-device .verbal-memory-btn.correct { background: var(--success-color) !important; color: #12081c !important; }
+.theme-device .verbal-memory-btn.wrong { background: var(--failure-color) !important; }
+
+/* ---- message strip + stats on the case ------------------------------- */
+.theme-device .hack-info {
+    background:
+        radial-gradient(rgba(0, 0, 0, 0.3) 0.8px, transparent 1.1px) 0 0 / 3px 3px,
+        linear-gradient(180deg, var(--background-gradient-1), #07040b) !important;
+    border: none !important;
+    border-radius: 6px !important;
+    box-shadow: 0 0 0 4px #0b0b0d, inset 0 2px 6px rgba(0, 0, 0, 0.8) !important;
+    margin: 6px 4px 10px !important;
+    padding: 8px 12px !important;
+}
+.theme-device .hack-info :is(.message, .counter, span) {
+    color: var(--dv-lcd-ink) !important;
+    font-family: 'VT323', monospace !important;
+    font-size: 20px !important;
+    text-shadow: 0 0 6px rgba(var(--primary-rgb), 0.75) !important;
+}
+.theme-device :is(.number-up-header, .keys-game-header, .number-up-bottom, .keys-game-bottom, .ss-info-row,
+                  .aim-test-info, .skill-check-info, .wc-footer, .sequence-progress, .combo-counter,
+                  .balance-instruction, .aim-test-instruction, .pairs-stats, .mc-stats, .untangle-stats, .fingerprint-stats) {
+    color: var(--dv-case-text) !important;
+    text-shadow: 0 1px 0 #000 !important;
+}
+.theme-device :is(.number-up-header, .keys-game-header, .number-up-bottom, .keys-game-bottom, .ss-info-row,
+                  .aim-test-info, .skill-check-info, .wc-footer, .balance-instruction, .aim-test-instruction) * {
+    text-shadow: none;
+}
+.theme-device :is(.number-up-next-value, #number-up-message, #keys-game-message, .ss-status, .wc-status, #skill-check-message) {
+    color: #fff !important;
+    text-shadow: 0 0 8px rgba(var(--primary-rgb), 0.8) !important;
+}
+
+/* ---- LED timer strips ------------------------------------------------ */
+.theme-device :is(.timer-bar, .number-up-timer-bar, .keys-game-timer-bar, .skill-check-timer-bar,
+                  .wc-timer-bar, .ss-timer-bar, .number-up-progress-bar, .keys-game-progress-bar, .ss-progress-bar) {
+    height: 15px !important;
+    padding: 3px !important;
+    background: #0b0b0d !important;
+    border: none !important;
+    border-radius: 4px !important;
+    box-shadow: inset 0 1px 3px #000, 0 1px 0 rgba(255, 255, 255, 0.07) !important;
+    overflow: hidden !important;
+}
+.theme-device :is(.timer-progress, .seq-timer-progress, .rhythm-progress, .var-timer-progress, .memory-timer-progress,
+                  .sequence-memory-timer-progress, .numbered-sequence-timer-progress, .verbal-memory-timer-progress,
+                  .symbol-search-timer-progress, .pipe-pressure-timer-progress, .pairs-timer-progress, .mc-timer-progress,
+                  .untangle-timer-progress, .fingerprint-timer-progress, .code-crack-timer-progress, .word-crack-timer-progress,
+                  .balance-timer-progress, .aim-test-timer-progress, .skill-check-timer-progress, .number-up-timer-progress,
+                  .keys-game-timer-progress, .wc-timer-fill, .ss-timer-fill) {
+    height: 100% !important;
+    background: repeating-linear-gradient(90deg, var(--primary-color) 0 11px, transparent 11px 14px) !important;
+    border: none !important;
+    border-radius: 1px !important;
+    box-shadow: none !important;
+    filter: drop-shadow(0 0 4px rgba(var(--primary-rgb), 0.8));
+}
+.theme-device :is(.timer-progress, .seq-timer-progress, .rhythm-progress, .var-timer-progress, .memory-timer-progress,
+                  .sequence-memory-timer-progress, .numbered-sequence-timer-progress, .verbal-memory-timer-progress,
+                  .symbol-search-timer-progress, .pipe-pressure-timer-progress, .pairs-timer-progress, .mc-timer-progress,
+                  .untangle-timer-progress, .fingerprint-timer-progress, .code-crack-timer-progress, .word-crack-timer-progress,
+                  .balance-timer-progress, .aim-test-timer-progress, .skill-check-timer-progress, .number-up-timer-progress,
+                  .keys-game-timer-progress, .wc-timer-fill, .ss-timer-fill):is(.danger, .warning) {
+    background: repeating-linear-gradient(90deg, var(--warning-color) 0 11px, transparent 11px 14px) !important;
+    filter: drop-shadow(0 0 4px rgba(var(--warning-rgb), 0.8));
+}
+.theme-device :is(.number-up-progress-fill, .keys-game-progress-fill, .ss-progress-fill) {
+    height: 100% !important;
+    background: repeating-linear-gradient(90deg, var(--success-color) 0 11px, transparent 11px 14px) !important;
+    box-shadow: none !important;
+    border-radius: 1px !important;
+}
+.theme-device :is(.timer-text, #skill-check-time, .wc-time-text, .ss-time-text) {
+    font-family: 'VT323', monospace !important;
+    font-size: 22px !important;
+    color: #ff9f43 !important;
+    text-shadow: 0 0 8px rgba(255, 159, 67, 0.75) !important;
+}
+
+/* result overlays on the LCD */
+.theme-device :is(.pipe-result, .pairs-result, .mc-result, .untangle-result, .fingerprint-result,
+                  .code-crack-result, .word-crack-result, .balance-result, .aim-test-result) {
+    font-family: 'VT323', monospace !important;
+    letter-spacing: 0.12em;
+}
+
+/* ---- small HUD games (no case; hold zone stays floating, no box) ------ */
+.theme-device :is(.ci-hud, #bar-hit-container) {
+    background: linear-gradient(180deg, #3a3d42 0%, #26282c 55%, #1d1f22 100%) !important;
+    border: none !important;
+    border-radius: 14px !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 2px #121315 !important;
+}
+.theme-device :is(.ci-hud, #bar-hit-container) * { font-family: 'Chakra Petch', sans-serif; }
+.theme-device :is(.bar-hit-track, .ci-timer-bar, .bar-hit-timer-bar) {
+    background: #0b0b0d !important;
+    box-shadow: inset 0 1px 3px #000 !important;
+    border: none !important;
+}
+
+
+/* =====================================================================
+   TABLET THEME  (matches glitch-criminaltablet)
+   ===================================================================== */
+
+.theme-tablet {
+    --tb-ground: #0e0f11;
+    --tb-panel: #17191b;
+    --tb-panel-2: #1d1f22;
+    --tb-panel-3: #24272b;
+    --tb-line: #24272b;
+    --tb-text: #e7e8ea;
+    --tb-muted: #9ba0a7;
+    --tb-faint: #6f747b;
+    /* the game CSS paints panels from these: make them graphite */
+    --background-gradient-1-alpha: rgba(23, 25, 27, 0.98);
+    --background-gradient-2-alpha: rgba(23, 25, 27, 0.98);
+    --background-secondary-alpha: rgba(29, 31, 34, 0.98);
+    --background-tertiary-alpha: rgba(36, 39, 43, 0.98);
+    --background-gradient-1: #17191b;
+    --background-gradient-2: #1d1f22;
+    --background-secondary: #1d1f22;
+    --background-tertiary: #24272b;
+    --border-color: #2a2d31;
+    --text-color: #e7e8ea;
+    --text-secondary-color: #9ba0a7;
+    --glow: transparent;
+}
+
+/* ---- device frame + screen ------------------------------------------- */
+.theme-tablet .game-container:not(#keymash-container) {
+    background: var(--tb-panel) !important;
+    border: none !important;
+    border-radius: 18px !important;
+    padding: 0 0 18px !important;
+    box-shadow:
+        0 0 0 10px #050606,
+        0 0 0 11px #2a2d31,
+        0 30px 80px rgba(0, 0, 0, 0.55) !important;
+    color: var(--tb-text);
+    overflow: hidden;
+}
+.theme-tablet .game-container:not(#keymash-container)::before,
+.theme-tablet .game-container:not(#keymash-container)::after { display: none !important; }
+.theme-tablet .game-container:not(#keymash-container) > *:not(.hack-title) {
+    margin-left: 18px !important;
+    margin-right: 18px !important;
+    width: auto !important;
+}
+
+.theme-tablet .game-container,
+.theme-tablet .game-container * {
+    font-family: 'Figtree', 'Segoe UI', sans-serif;
+    text-shadow: none !important;
+}
+
+/* top bar: title left, subtitle chip right */
+.theme-tablet .hack-title {
+    text-align: left;
+    margin: 0 0 16px;
+    padding: 16px 18px;
+    border: none;
+    border-bottom: 1px solid var(--tb-line);
+    border-radius: 0;
+}
+.theme-tablet .hack-title h2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0;
+    font: 700 17px 'Figtree', sans-serif;
+    letter-spacing: 0.01em;
+    color: var(--tb-text);
+    text-transform: none;
+}
+.theme-tablet .hack-title .blink {
+    font-size: 0;
+    letter-spacing: 0;
+    animation: none;
+}
+.theme-tablet .hack-title .blink::after {
+    content: attr(data-label);
+    display: inline-block;
+    font: 600 11px 'Figtree', sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--primary-color);
+    background: rgba(var(--primary-rgb), 0.12);
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+/* ---- inset areas ------------------------------------------------------ */
+.theme-tablet :is(
+    .pulse-container, .sequence-display, .rhythm-display, .var-display, .memory-display,
+    .sequence-memory-display, .numbered-sequence-display, .verbal-memory-display,
+    .symbol-search-display, .pipe-pressure-display, .pairs-display, .memory-colors-display,
+    .untangle-display, .fingerprint-display, .code-crack-display, .word-crack-display,
+    .balance-display, .aim-test-display, .skill-check-track-wrapper, .wc-board
+) {
+    background: var(--tb-ground) !important;
+    border: 1px solid var(--tb-line) !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+.theme-tablet :is(#number-up-grid, #keys-game-grid, .ss-grid) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.theme-tablet :is(.var-splash, .memory-splash, .sequence-memory-splash, .numbered-sequence-splash,
+                  .verbal-memory-splash, .symbol-search-splash) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+.theme-tablet :is(.var-text, .memory-text, .sequence-memory-text, .numbered-sequence-text,
+                  .verbal-memory-text, .symbol-search-text) {
+    font: 600 13px 'Figtree', sans-serif !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase;
+    color: var(--tb-muted) !important;
+    animation: none !important;
+}
+.theme-tablet :is(.var-icon, .memory-icon, .sequence-memory-icon, .numbered-sequence-icon,
+                  .verbal-memory-icon, .symbol-search-icon) {
+    filter: grayscale(1) brightness(1.2);
+    opacity: 0.6;
+    animation: none !important;
+}
+
+/* ---- tiles ------------------------------------------------------------ */
+.theme-tablet :where(
+    .key-box, .memory-square, .sequence-memory-square, .numbered-sequence-square,
+    .symbol-search-cell, .pipe-cell, .code-crack-digit, .word-crack-letter,
+    .number-up-cell, .keys-game-cell, .key-indicator
+) {
+    background: var(--tb-panel-2);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: #c3c7cd;
+    box-shadow: none;
+}
+.theme-tablet :where(.symbol-search-cell, .code-crack-digit, .word-crack-letter, .number-up-cell,
+                     .keys-game-cell, .key-box, .key-indicator, .numbered-sequence-square) {
+    font-family: 'JetBrains Mono', monospace;
+}
+.theme-tablet :is(
+    .memory-square, .sequence-memory-square, .numbered-sequence-square, .symbol-search-cell
+)::before { display: none !important; }
+.theme-tablet :is(.memory-square, .sequence-memory-square, .numbered-sequence-square, .symbol-search-cell,
+                  .pipe-cell, .number-up-cell, .keys-game-cell):hover {
+    background: var(--tb-panel-3);
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+.theme-tablet .memory-square.lit,
+.theme-tablet .memory-square.player-selected,
+.theme-tablet .sequence-memory-square.lit,
+.theme-tablet .sequence-memory-square.player-selected,
+.theme-tablet .numbered-sequence-square.lit,
+.theme-tablet .numbered-sequence-square.selected,
+.theme-tablet .keys-game-cell.kg-active,
+.theme-tablet .key-indicator.active,
+.theme-tablet .key-box.current,
+.theme-tablet .symbol-search-cell.marker {
+    background: var(--primary-color) !important;
+    border-color: transparent !important;
+    color: #12081c !important;
+    font-weight: 700;
+    box-shadow: none !important;
+    animation: none !important;
+}
+.theme-tablet .symbol-search-cell.marker::after { display: none !important; }
+.theme-tablet .symbol-search-cell.marker-sequence {
+    background: rgba(var(--primary-rgb), 0.1) !important;
+    border: 1px solid rgba(var(--primary-rgb), 0.6) !important;
+    color: var(--primary-color) !important;
+    box-shadow: none !important;
+}
+.theme-tablet .symbol-search-target-display {
+    background: var(--tb-panel-2) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+}
+.theme-tablet .symbol-search-target-label {
+    font: 600 11px 'Figtree', sans-serif !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase;
+    color: var(--tb-faint) !important;
+}
+.theme-tablet #symbol-search-target {
+    font-family: 'JetBrains Mono', monospace !important;
+    color: var(--primary-color) !important;
+    animation: none !important;
+}
+
+.theme-tablet .number-up-cell.nu-clicked,
+.theme-tablet .keys-game-cell.kg-done {
+    background: var(--tb-panel) !important;
+    color: var(--tb-faint) !important;
+    border-color: var(--tb-line) !important;
+    box-shadow: none !important;
+}
+.theme-tablet .number-up-cell.nu-wrong,
+.theme-tablet .keys-game-cell.kg-wrong,
+.theme-tablet .key-box.wrong {
+    background: #e57a6f !important;
+    color: #1a0b09 !important;
+    box-shadow: none !important;
+}
+.theme-tablet .key-box.pressed,
+.theme-tablet .key-box.correct {
+    background: #8fcf93 !important;
+    color: #0d1a0e !important;
+    box-shadow: none !important;
+}
+.theme-tablet .pipe-cell.connected { background: rgba(var(--primary-rgb), 0.16) !important; }
+.theme-tablet .pipe-cell.start-cell,
+.theme-tablet .pipe-cell.end-cell { background: rgba(var(--primary-rgb), 0.24) !important; border-color: rgba(var(--primary-rgb), 0.6) !important; }
+
+/* tablet tones for correct / wrong (calmer than the neon defaults) */
+.theme-tablet :is(.memory-square, .sequence-memory-square, .numbered-sequence-square, .symbol-search-cell):is(.correct, .target-reveal) {
+    background: #8fcf93 !important;
+    border-color: transparent !important;
+    color: #0d1a0e !important;
+    box-shadow: none !important;
+}
+.theme-tablet :is(.memory-square, .sequence-memory-square, .numbered-sequence-square, .symbol-search-cell).wrong {
+    background: #e57a6f !important;
+    border-color: transparent !important;
+    color: #1a0b09 !important;
+    box-shadow: none !important;
+}
+
+/* code / word crack */
+.theme-tablet :is(.code-crack-digit, .word-crack-letter) {
+    background: var(--tb-panel-2) !important;
+    border: 1px solid var(--tb-panel-3) !important;
+    border-radius: 12px !important;
+    color: var(--tb-text) !important;
+    box-shadow: none !important;
+}
+.theme-tablet :is(.code-crack-digit, .word-crack-letter).filled { border-color: var(--primary-color) !important; }
+.theme-tablet :is(.code-crack-instruction, .word-crack-instruction) {
+    background: transparent !important;
+    border: none !important;
+    color: var(--tb-muted) !important;
+    font-size: 13px !important;
+}
+.theme-tablet :is(.code-crack-history-title, .word-crack-history-title) {
+    background: transparent !important;
+    color: var(--tb-faint) !important;
+    font: 600 11px 'Figtree', sans-serif !important;
+    letter-spacing: 0.12em !important;
+    text-align: left !important;
+    padding-left: 2px !important;
+}
+.theme-tablet :is(.code-crack-history-entry, .word-crack-history-entry) {
+    background: var(--tb-panel-2) !important;
+    border: none !important;
+    border-radius: 10px !important;
+}
+.theme-tablet :is(.code-crack-history-digit, .word-crack-history-letter) {
+    font-family: 'JetBrains Mono', monospace !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+}
+.theme-tablet :is(.code-crack-history-digit, .word-crack-history-letter, .code-crack-digit, .word-crack-letter).correct {
+    background: #8fcf93 !important; color: #0d1a0e !important; border-color: transparent !important;
+}
+.theme-tablet :is(.code-crack-history-digit, .word-crack-history-letter, .code-crack-digit, .word-crack-letter).wrong-position {
+    background: #e8a25a !important; color: #1a1205 !important; border-color: transparent !important;
+}
+.theme-tablet :is(.code-crack-history-digit, .word-crack-history-letter, .code-crack-digit, .word-crack-letter):is(.not-in-pin, .not-in-word) {
+    background: var(--tb-panel-3) !important; color: var(--tb-faint) !important; border-color: transparent !important;
+}
+
+/* ---- buttons ---------------------------------------------------------- */
+.theme-tablet :is(#hack-button, .code-crack-btn, .word-crack-btn, .mc-submit-btn, .verbal-memory-btn, .fp-arrow) {
+    font: 600 14px 'Figtree', sans-serif !important;
+    letter-spacing: 0.01em !important;
+    text-transform: none !important;
+    color: var(--tb-text) !important;
+    background: var(--tb-panel-3) !important;
+    border: none !important;
+    border-radius: 10px !important;
+    box-shadow: none !important;
+    transform: none !important;
+    filter: none !important;
+}
+.theme-tablet :is(#hack-button, .code-crack-btn, .word-crack-btn, .mc-submit-btn, .verbal-memory-btn, .fp-arrow):hover {
+    background: #2c3036 !important;
+}
+.theme-tablet :is(#hack-button, .code-crack-btn.crack-btn, .word-crack-btn.guess-btn, .mc-submit-btn) {
+    background: var(--primary-color) !important;
+    color: #12081c !important;
+}
+.theme-tablet .verbal-memory-btn.correct { background: #8fcf93 !important; color: #0d1a0e !important; }
+.theme-tablet .verbal-memory-btn.wrong { background: #e57a6f !important; color: #1a0b09 !important; }
+
+/* ---- info rows -------------------------------------------------------- */
+.theme-tablet .hack-info {
+    background: var(--tb-panel-2) !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: none !important;
+    padding: 10px 14px !important;
+}
+.theme-tablet .hack-info :is(.message, .counter, span) {
+    color: var(--tb-muted) !important;
+    font-size: 13px !important;
+}
+.theme-tablet :is(.counter, #pairs-pairs, #pairs-attempts, #mc-round, #mc-score, #untangle-crossings,
+                  #fingerprint-matched, .number-up-next-value, #rhythm-score, #combo-number) {
+    color: var(--tb-text) !important;
+    font-family: 'JetBrains Mono', monospace !important;
+}
+.theme-tablet :is(.number-up-header, .keys-game-header, .number-up-bottom, .keys-game-bottom, .ss-info-row,
+                  .aim-test-info, .skill-check-info, .wc-footer, .balance-instruction, .aim-test-instruction,
+                  .pairs-stats, .mc-stats, .untangle-stats, .fingerprint-stats) {
+    color: var(--tb-muted) !important;
+    font-size: 13px;
+}
+
+/* ---- timers: thin pill bars ------------------------------------------ */
+.theme-tablet :is(.timer-bar, .number-up-timer-bar, .keys-game-timer-bar, .skill-check-timer-bar,
+                  .wc-timer-bar, .ss-timer-bar, .number-up-progress-bar, .keys-game-progress-bar, .ss-progress-bar) {
+    height: 6px !important;
+    padding: 0 !important;
+    background: var(--tb-panel-2) !important;
+    border: none !important;
+    border-radius: 99px !important;
+    box-shadow: none !important;
+    overflow: hidden !important;
+}
+.theme-tablet :is(.timer-progress, .seq-timer-progress, .rhythm-progress, .var-timer-progress, .memory-timer-progress,
+                  .sequence-memory-timer-progress, .numbered-sequence-timer-progress, .verbal-memory-timer-progress,
+                  .symbol-search-timer-progress, .pipe-pressure-timer-progress, .pairs-timer-progress, .mc-timer-progress,
+                  .untangle-timer-progress, .fingerprint-timer-progress, .code-crack-timer-progress, .word-crack-timer-progress,
+                  .balance-timer-progress, .aim-test-timer-progress, .skill-check-timer-progress, .number-up-timer-progress,
+                  .keys-game-timer-progress, .wc-timer-fill, .ss-timer-fill) {
+    height: 100% !important;
+    background: var(--primary-color) !important;
+    border: none !important;
+    border-radius: 99px !important;
+    box-shadow: none !important;
+}
+.theme-tablet :is(.timer-progress, .seq-timer-progress, .rhythm-progress, .var-timer-progress, .memory-timer-progress,
+                  .sequence-memory-timer-progress, .numbered-sequence-timer-progress, .verbal-memory-timer-progress,
+                  .symbol-search-timer-progress, .pipe-pressure-timer-progress, .pairs-timer-progress, .mc-timer-progress,
+                  .untangle-timer-progress, .fingerprint-timer-progress, .code-crack-timer-progress, .word-crack-timer-progress,
+                  .balance-timer-progress, .aim-test-timer-progress, .skill-check-timer-progress, .number-up-timer-progress,
+                  .keys-game-timer-progress, .wc-timer-fill, .ss-timer-fill):is(.danger, .warning) {
+    background: #e8a25a !important;
+}
+.theme-tablet :is(.number-up-progress-fill, .keys-game-progress-fill, .ss-progress-fill) {
+    background: #8fcf93 !important;
+    box-shadow: none !important;
+    border-radius: 99px !important;
+}
+.theme-tablet :is(.timer-text, #skill-check-time, .wc-time-text, .ss-time-text) {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 14px !important;
+    color: var(--tb-text) !important;
+}
+
+/* ---- small HUD games -------------------------------------------------- */
+.theme-tablet :is(.ci-hud, #bar-hit-container) {
+    background: var(--tb-panel) !important;
+    border: 1px solid #2a2d31 !important;
+    border-radius: 14px !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5) !important;
+}
+.theme-tablet :is(.ci-hud, #bar-hit-container) * {
+    font-family: 'Figtree', sans-serif;
+    text-shadow: none !important;
+}
+.theme-tablet :is(.bar-hit-track, .ci-timer-bar, .bar-hit-timer-bar) {
+    background: var(--tb-panel-2) !important;
+    box-shadow: none !important;
+    border: none !important;
+}
+
+/* scrollbars */
+.theme-tablet .game-container ::-webkit-scrollbar-thumb { box-shadow: none; }
+
+
+/* =====================================================================
+   KEYBIND HUD THEMES  (#mg-controls, independent of the panel theme)
+   'default' = the light keycaps in style.css (no extra rules)
+   ===================================================================== */
+
+/* device: chunky rubber buttons */
+:is(#mg-controls, .mg-controls).hud-device { font-family: 'Chakra Petch', 'Segoe UI', sans-serif; gap: 1.1vh; }
+:is(#mg-controls, .mg-controls).hud-device .mgc-title {
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.26em;
+    color: #d6d9de;
+}
+:is(#mg-controls, .mg-controls).hud-device .mgc-key {
+    min-width: 3vh;
+    height: 2.8vh;
+    border-radius: 0.7vh;
+    background: linear-gradient(180deg, #45484e, #2a2c30);
+    color: #eef0f3;
+    font-family: 'Chakra Petch', sans-serif;
+    font-weight: 700;
+    box-shadow: 0 0.3vh 0 #141517, inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0.4vh 0.8vh rgba(0, 0, 0, 0.5);
+}
+:is(#mg-controls, .mg-controls).hud-device .mgc-key.cancel { background: linear-gradient(180deg, #7a2e3a, #4a1820); }
+:is(#mg-controls, .mg-controls).hud-device .mgc-label { font-family: 'Chakra Petch', sans-serif; font-weight: 600; color: #f2f3f5; }
+
+/* tablet: graphite keys */
+:is(#mg-controls, .mg-controls).hud-tablet { font-family: 'Figtree', 'Segoe UI', sans-serif; }
+:is(#mg-controls, .mg-controls).hud-tablet .mgc-title {
+    font-family: 'Figtree', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: #c9ccd1;
+}
+:is(#mg-controls, .mg-controls).hud-tablet .mgc-key {
+    background: #17191b;
+    color: #e7e8ea;
+    border: 1px solid #2a2d31;
+    border-radius: 0.8vh;
+    font-family: 'Figtree', sans-serif;
+    font-weight: 600;
+    box-shadow: 0 0.2vh 0 #0b0c0d, 0 0.3vh 0.8vh rgba(0, 0, 0, 0.45);
+}
+:is(#mg-controls, .mg-controls).hud-tablet .mgc-key.cancel { color: #e57a6f; background: #17191b; }
+:is(#mg-controls, .mg-controls).hud-tablet .mgc-label { font-family: 'Figtree', sans-serif; font-weight: 500; color: #e7e8ea; }
+
+
+/* =====================================================================
+   FIXES (all themes)
+   ===================================================================== */
+
+/* backdoor sequence: the upcoming-keys row was cut off by the fixed 250px height */
+.sequence-display {
+    height: auto !important;
+    min-height: 250px;
+    padding-bottom: 12px;
+}
+
+/* device: grids / canvases sit straight on the LCD, no extra framed box */
+.theme-device :is(#pairs-grid, #memory-colors-grid, #pipe-grid, .symbol-search-grid, #untangle-canvas, #fingerprint-canvas,
+                  .memory-grid, .sequence-memory-grid, .numbered-sequence-grid, .aim-test-area, .var-groups) {
+    background: transparent !important;
+    border: 1px dashed rgba(var(--primary-rgb), 0.22) !important;
+    box-shadow: none !important;
+}
+.theme-tablet :is(#pairs-grid, #memory-colors-grid, #pipe-grid, .symbol-search-grid, #untangle-canvas, #fingerprint-canvas,
+                  .memory-grid, .sequence-memory-grid, .numbered-sequence-grid, .aim-test-area, .var-groups) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* device: VT323 reads small at the games' px sizes */
+.theme-device :is(.number-up-cell, .keys-game-cell) { font-size: 30px !important; }
+.theme-device .numbered-sequence-square { font-size: 30px; }
+
+/* pairs cards */
+.theme-device .pairs-card-front {
+    background: rgba(var(--primary-rgb), 0.07);
+    border: 1px solid rgba(var(--primary-rgb), 0.3);
+    border-radius: 3px;
+    color: rgba(255, 255, 255, 0.55);
+    font-family: 'VT323', monospace;
+    font-size: 30px;
+}
+.theme-device .pairs-card-back {
+    background: var(--primary-color);
+    border: 1px solid #fff;
+    border-radius: 3px;
+    color: #12081c;
+    box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.8);
+}
+.theme-device .pairs-cell.matched .pairs-card-back {
+    background: rgba(var(--success-rgb), 0.18);
+    border-color: var(--success-color);
+    color: var(--success-color);
+    box-shadow: none;
+}
+.theme-device .pairs-cell.matched .pairs-card-back svg { color: var(--success-color); }
+
+.theme-tablet .pairs-card-front {
+    background: var(--tb-panel-2);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    color: var(--tb-faint);
+    font-family: 'Figtree', sans-serif;
+}
+.theme-tablet .pairs-card-front:hover { background: var(--tb-panel-3); border-color: transparent; box-shadow: none; }
+.theme-tablet .pairs-card-back {
+    background: var(--primary-color);
+    border: none;
+    border-radius: 10px;
+    color: #12081c;
+    box-shadow: none;
+}
+.theme-tablet .pairs-cell.matched .pairs-card-back {
+    background: #8fcf93;
+    border: none;
+    color: #0d1a0e;
+    box-shadow: none;
+}
+.theme-tablet .pairs-cell.matched .pairs-card-back svg { color: #0d1a0e; }
+
+/* memory colours: the hidden tiles follow the theme */
+.theme-device .mc-cell.mc-hidden {
+    background: rgba(var(--primary-rgb), 0.07) !important;
+    border-color: rgba(var(--primary-rgb), 0.3) !important;
+    box-shadow: none !important;
+}
+.theme-tablet .mc-cell.mc-hidden {
+    background: var(--tb-panel-2) !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+.theme-tablet .mc-answer-input,
+.theme-device .mc-answer-input {
+    border-radius: 10px;
+    background: var(--tb-panel-2, #0b0b0d);
+    border: 1px solid rgba(var(--primary-rgb), 0.4);
+    color: #fff;
+    box-shadow: none;
+}

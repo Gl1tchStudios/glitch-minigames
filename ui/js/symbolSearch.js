@@ -23,10 +23,12 @@ const SYMBOL_PRESETS = {
     emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤', '💀', '👽', '🤖', '👾', '🎮', '💎', '🔥', '⚡', '💧', '🌟', '🎯', '🔑', '🔒', '💰', '🎲', '🃏', '♠️', '♥️', '♦️', '♣️', '🎪']
 };
 
+const SYMBOL_SEARCH_MIN_SHIFT = 1500;
+
 const symbolSearchState = {
     config: {
         gridSize: 8,
-        shiftInterval: 1000,
+        shiftInterval: 2500,
         timeLimit: 30000,
         minKeyLength: 1,
         maxKeyLength: 1,
@@ -79,6 +81,9 @@ function startSymbolSearchGame(config = {}) {
         symbolSearchState.config.symbols = SYMBOL_PRESETS.symbols;
     }
     
+    // the grid shifting faster than this is unreadable, so callers can only slow it down
+    symbolSearchState.config.shiftInterval = Math.max(SYMBOL_SEARCH_MIN_SHIFT, Number(symbolSearchState.config.shiftInterval) || 2500);
+
     symbolSearchState.config.minKeyLength = Math.max(1, Math.min(6, symbolSearchState.config.minKeyLength || 1));
     symbolSearchState.config.maxKeyLength = Math.max(1, Math.min(6, symbolSearchState.config.maxKeyLength || 1));
     
@@ -147,20 +152,30 @@ function initializeSymbolSearchGrid() {
     
     const keyLength = Math.floor(Math.random() * (maxLen - minLen + 1)) + minLen;
     
+    // Only one valid answer: the key's first symbol appears exactly once in the
+    // grid. The key uses distinct symbols (when the set is big enough) and the
+    // filler never uses the first one, so no other cell can start the sequence.
+    const pool = symbols.slice();
     symbolSearchState.targetKey = [];
     for (let i = 0; i < keyLength; i++) {
-        symbolSearchState.targetKey.push(symbols[Math.floor(Math.random() * symbols.length)]);
+        const source = pool.length > 0 ? pool : symbols;
+        const idx = Math.floor(Math.random() * source.length);
+        symbolSearchState.targetKey.push(source[idx]);
+        if (source === pool) pool.splice(idx, 1);
     }
-    
+    const firstSymbol = symbolSearchState.targetKey[0];
+    let filler = symbols.filter(s => s !== firstSymbol);
+    if (filler.length === 0) filler = symbols;
+
     const targetRow = Math.floor(Math.random() * gridSize);
     const targetCol = Math.floor(Math.random() * gridSize);
     symbolSearchState.targetStartPosition = { row: targetRow, col: targetCol };
-    
+
     symbolSearchState.grid = [];
     for (let row = 0; row < gridSize; row++) {
         symbolSearchState.grid[row] = [];
         for (let col = 0; col < gridSize; col++) {
-            symbolSearchState.grid[row][col] = symbols[Math.floor(Math.random() * symbols.length)];
+            symbolSearchState.grid[row][col] = filler[Math.floor(Math.random() * filler.length)];
         }
     }
     
@@ -340,10 +355,10 @@ function handleSymbolSearchKeyPress(event) {
     
     symbolSearchState.markerPosition = { row, col };
     updateMarkerPosition();
-    
-    // move sound tad bit annoying. will need to be changed.
+
+    // move click at 75% volume
     if (typeof playSoundSafe === 'function') {
-        playSoundSafe('sound-click');
+        playSoundSafe('sound-click', 0.75);
     }
 }
 

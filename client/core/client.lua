@@ -5,6 +5,7 @@
 --   * one shared busy lock: only one minigame (NUI, scaleform or drill) at a time
 --   * XP reporting to the server for games listed in config.XP.Games
 --   * Hacking perks from glitch-xpSystem (extra time, extra mistakes, retry)
+--   * per-game style: a trailing { colour, theme, keybinds } table (client/core/style.lua)
 -- Arguments and return values otherwise pass through untouched.
 
 Minigames = {
@@ -126,12 +127,15 @@ local function Wrap(name, fn)
         Minigames.since = GetGameTimer()
 
         local args = table.pack(...)
+        -- optional trailing { colour, theme, keybinds } table (client/core/style.lua)
+        local styleOpts = Style and Style.Extract(args)
         local perks = perksEnabled and reportXP and FetchPerks() or {}
         ApplyPerks(name, args, perks)
 
         if reportXP then
             TriggerServerEvent('glitch-minigames:xpStart', name)
         end
+        if Style then Style.Apply(styleOpts) end            -- defaults unless overridden for this game
         if ShowControls then ShowControls(name, args) end   -- controls HUD on the left (client/core/controls.lua)
 
         local function Finish(result)

@@ -35,12 +35,17 @@ Citizen.CreateThread(function()
         colors = config.Colors,
         visualTheme = config.ActiveVisualTheme,
         backgroundOpacity = activeOpacity,
+        hudTheme = config.ActiveKeybindTheme,
         debug = config.DebugPrints,
         cancelKeys = config.CancelKeys
     })
 end)
 
+-- true while code crack / word crack run: Backspace deletes there instead of cancelling
+local backspaceTypes = false
+
 local function cleanupMinigame()
+    backspaceTypes = false
     isHacking = false
     isSequencing = false
     firewallActive = false
@@ -763,6 +768,7 @@ exports('StartSequenceMemoryGame', function(gridSize, maxRounds, maxWrongPresses
     local sequenceConfig = {
         gridSize = gridSize or 4,
         maxRounds = maxRounds or 5,
+        rounds = maxRounds or 5, -- sequenceMemory.js reads config.rounds (maxRounds alone was ignored: always 5)
         maxWrongPresses = maxWrongPresses or 3,
         showTime = showTime or 1000,
         delayBetween = delayBetween or 300
@@ -856,7 +862,7 @@ exports('StartSymbolSearchGame', function(gridSize, shiftInterval, timeLimit, mi
     
     local symbolSearchConfig = {
         gridSize = gridSize or 8,
-        shiftInterval = shiftInterval or 1000,
+        shiftInterval = shiftInterval or 2500,
         timeLimit = timeLimit or 30000,
         minKeyLength = minKeyLength,
         maxKeyLength = maxKeyLength,
@@ -1043,9 +1049,10 @@ exports('StartCodeCrackGame', function(timeLimit, digitCount, maxAttempts)
     end
     
     isHacking = true
+    backspaceTypes = true
     disableMovementControls = true
     SetNuiFocus(true, true)
-    SendNUIMessage({ 
+    SendNUIMessage({
         action = 'startCodeCrack',
         config = codeCrackConfig
     })
@@ -1071,9 +1078,10 @@ exports('StartWordCrackGame', function(timeLimit, wordLength, maxAttempts)
     end
     
     isHacking = true
+    backspaceTypes = true
     disableMovementControls = true
     SetNuiFocus(true, true)
-    SendNUIMessage({ 
+    SendNUIMessage({
         action = 'startWordCrack',
         config = wordCrackConfig
     })
@@ -1697,7 +1705,7 @@ Citizen.CreateThread(function()
         if isHacking or isSequencing then
             -- Cancel on a configured key (keyboard games; mouse games use the UI callback).
             for _, ctrl in ipairs(cancelControls) do
-                if IsDisabledControlJustPressed(0, ctrl) then
+                if not (backspaceTypes and ctrl == 177) and IsDisabledControlJustPressed(0, ctrl) then
                     cancelActiveMinigame()
                     break
                 end

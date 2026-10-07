@@ -3,10 +3,11 @@ game 'gta5'
 
 author 'Luma in collaboration with Glitch Studios'
 description 'Glitch Minigames'
-version '2.2.0'
+version '2.5.0'
 
 client_script {
     'client/core/client.lua', -- must stay first: wraps every export below (busy lock, XP, perks)
+    'client/core/style.lua', -- colour / minigame theme / keybinds theme, per-call overrides
     'client/core/controls.lua', -- controls HUD shown on the left while a game runs
 
     'client/customMinigames/client.lua',
@@ -34,7 +35,8 @@ ui_page 'ui/index.html'
 files {
     'client/circuitBreaker/class.lua',
     'ui/index.html',
-    'ui/css/style.css',    
+    'ui/css/style.css',
+    'ui/css/themes.css', -- 'device' + 'tablet' visual themes and keybind HUD themes
     'ui/js/jquery-3.6.0.min.js',
     'ui/js/app.js',
     'ui/js/firewallPulse.js',

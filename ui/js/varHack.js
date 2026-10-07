@@ -24,7 +24,8 @@ const varHackState = {
     gamePlaying: false,
     timerInterval: null,
     introTimeout: null,
-    playTimeout: null
+    playTimeout: null,
+    session: 0                   // bumped on every start / reset; stale callbacks compare against it
 };
 
 function startVarHack(config = {}) {
@@ -40,6 +41,7 @@ function startVarHack(config = {}) {
     varHackState.order = 1;
     varHackState.gameStarted = false;
     varHackState.gamePlaying = false;
+    const session = ++varHackState.session;
     
     $('#var-hack-container').show();
     
@@ -56,7 +58,9 @@ function startVarHack(config = {}) {
         varHackState.introTimeout = null;
         console.log('Initializing game elements...');
         $('.var-splash').fadeOut(400, () => {
-            if (!varHackState.gameStarted && !varHackState.gamePlaying) return;
+            // closed or restarted while the splash faded out (this used to check the
+            // gameStarted/gamePlaying flags, which are always false here, so the game never began)
+            if (session !== varHackState.session) return;
             initializeGame();
             $('.var-groups').fadeIn(400);
         });
@@ -263,6 +267,7 @@ function resetGame() {
     varHackState.order = 1;
     varHackState.gameStarted = false;
     varHackState.gamePlaying = false;
+    varHackState.session++;
 
     $('.var-groups').stop(true, true).empty();
     $('.var-groups').removeClass('playing plain');

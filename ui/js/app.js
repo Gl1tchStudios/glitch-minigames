@@ -56,7 +56,12 @@ $(document).ready(function() {
 
         // controls HUD on the left (client/core/controls.lua)
         if (data.action === 'controlsShow') {
-            const box = document.getElementById('mg-controls');
+            let box = document.getElementById('mg-controls');
+            if (!box) {   // recreate it if something removed it from the page
+                box = document.createElement('div');
+                box.id = 'mg-controls';
+                document.body.insertBefore(box, document.body.firstChild);
+            }
             const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
             let html = data.title ? '<div class="mgc-title">' + esc(data.title) + '</div>' : '';
             (data.rows || []).forEach(function(r) {
@@ -65,18 +70,23 @@ $(document).ready(function() {
                 html += '<span class="mgc-label">' + esc(r.label || '') + '</span></div>';
             });
             box.innerHTML = html;
+            // keybinds theme: 'default' | 'device' | 'tablet' (config.ActiveKeybindTheme / per-call)
+            box.className = 'hud-' + (data.hudTheme || window.minigameHudTheme || 'default');
             box.style.display = 'flex';
             return;
         }
         if (data.action === 'controlsHide') {
             const box = document.getElementById('mg-controls');
+            if (!box) return;
             box.style.display = 'none';
             box.innerHTML = '';
             return;
         }
         
-        // updatese color theme from Lua config
-        if (data.action === 'setColors' && data.colors) {
+        // colour theme + visual theme: 'setColors' once at resource start,
+        // 'setStyle' at every game start (client/core/style.lua, may carry per-call overrides)
+        if ((data.action === 'setColors' || data.action === 'setStyle') && data.colors) {
+            if (data.hudTheme) window.minigameHudTheme = data.hudTheme;
             if (data.debug !== undefined && typeof window.setGlitchDebug === 'function') {
                 window.setGlitchDebug(data.debug);
             }
@@ -89,7 +99,7 @@ $(document).ready(function() {
             
             // Apply visual theme class to body
             if (data.visualTheme) {
-                $('body').removeClass('theme-classic theme-modern').addClass('theme-' + data.visualTheme);
+                $('body').removeClass('theme-classic theme-modern theme-tablet theme-device').addClass('theme-' + data.visualTheme);
                 console.log('[VisualTheme] Applied theme:', data.visualTheme);
             }
             
@@ -139,7 +149,14 @@ $(document).ready(function() {
             root.style.setProperty('--light-blue', data.colors.primary);
             root.style.setProperty('--safe-zone', data.colors.safe);
             root.style.setProperty('--glow', `rgba(${data.colors.primaryRgba}, 0.7)`);
-            
+
+            // bare "r, g, b" values so the tablet / device themes can use rgba(var(--primary-rgb), a)
+            root.style.setProperty('--primary-rgb', data.colors.primaryRgba);
+            root.style.setProperty('--secondary-rgb', data.colors.secondaryRgba);
+            root.style.setProperty('--success-rgb', data.colors.successRgba);
+            root.style.setProperty('--failure-rgb', data.colors.failureRgba);
+            root.style.setProperty('--warning-rgb', data.colors.warningRgba);
+
             console.log('[MinigameColors] Theme updated from config', data.colors);
         }
         
@@ -613,10 +630,17 @@ $(document).ready(function() {
         const keys = window.minigameCancelKeys || [];
         if (keys.indexOf(e.key) === -1) return;
         if ($('[id$="-container"]:visible').length === 0) return;
+        // typing games use Backspace to delete, so it never cancels them (ESC still does)
+        if (e.key === 'Backspace' && $('#code-crack-container:visible, #word-crack-container:visible').length > 0) return;
         e.preventDefault();
         $.post('https://glitch-minigames/minigameCancel', JSON.stringify({ key: e.key }));
     });
-    
+
+    // Panel subtitles without the [BRACKETS], for the tablet / device themes (CSS attr(data-label))
+    $('.hack-title .blink').each(function() {
+        $(this).attr('data-label', $(this).text().replace(/[\[\]]/g, '').trim());
+    });
+
     preloadSounds();
 });
 
@@ -657,16 +681,19 @@ function preloadSounds() {
     }, 3000);
 }
 
-function playSound(soundId) {
+// volume is optional (0-1, default full); it is set on every play so a quiet
+// call never leaves the shared audio element quiet for the next game
+function playSound(soundId, volume) {
     if (!soundsEnabled) return;
-    
+
     const sound = document.getElementById(soundId);
     if (!sound) {
         console.warn(`Sound element with ID "${soundId}" not found`);
         return;
     }
-    
+
     try {
+        sound.volume = typeof volume === 'number' ? Math.max(0, Math.min(1, volume)) : 1;
         sound.currentTime = 0;
         let playPromise = sound.play();
         
@@ -680,11 +707,11 @@ function playSound(soundId) {
     }
 }
 
-function playSoundSafe(soundId) {
+function playSoundSafe(soundId, volume) {
     if (!soundsEnabled) return;
-    
+
     try {
-        playSound(soundId);
+        playSound(soundId, volume);
     } catch(e) {
         console.warn(`Failed to play ${soundId} safely, continuing anyway`);
     }

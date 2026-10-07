@@ -96,7 +96,6 @@ function setupRhythmGame(config) {
     rhythmLanes = Array(rhythmConfig.lanes).fill(0);
     rhythmKeys = rhythmConfig.keys;
     
-    $('#rhythm-key-hint').text('Press ' + rhythmKeys.join(', ') + ' to hit the notes');
     
     resetRhythmGame();
 }

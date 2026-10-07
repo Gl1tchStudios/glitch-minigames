@@ -57,8 +57,8 @@ let balanceGame = {
         this.setupDisplay();
         this.setupKeyListeners();
         
-        $('.balance-status').text('PRESS Q OR E').removeClass('danger warning').addClass('ready');
-        $('.balance-instruction').text('Press Q or E to begin stabilization - keep the needle balanced!');
+        $('.balance-status').text('READY').removeClass('danger warning').addClass('ready');
+        $('.balance-instruction').text('Lean either way to begin stabilization - keep the needle balanced!');
     },
     
     beginGame: function() {
@@ -67,7 +67,7 @@ let balanceGame = {
         
         console.log('[Balance] Game started by player input');
         
-        $('.balance-instruction').text('Keep the needle balanced by pressing Q and E - don\'t let it fall into the red zones!');
+        $('.balance-instruction').text('Keep the needle balanced - don\'t let it fall into the red zones!');
         $('.balance-status').text('STABLE').removeClass('ready').addClass('safe');
         
         this.startTimer();

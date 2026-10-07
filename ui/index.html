@@ -21,7 +21,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luma Minigames</title>
+    <!-- fonts for the tablet (Figtree, JetBrains Mono) and device (Chakra Petch, VT323) themes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Chakra+Petch:wght@500;600;700&family=VT323&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/themes.css">
     <script>
         // Debug print gate — routes console.log through a flag set from the Lua
         // config (config.DebugPrints). Off by default so the console stays quiet.
@@ -133,11 +137,6 @@
                 <div class="attempt-label">SEQ-03</div>
             </div>
         </div>
-        
-        <div class="sequence-help">
-            <div>PRESS KEYS SHOWN IN SEQUENCE</div>
-            <div class="key-hint">W, A, S, D, ←, →, ↑, ↓, 0-9</div>
-        </div>
     </div>
     
     <!-- Circuit Rhythm Game Container -->
@@ -173,10 +172,6 @@
                 <div class="rhythm-progress"></div>
             </div>
             <div class="timer-text">Progress: <span id="rhythm-progress">0</span>%</div>
-        </div>
-        
-        <div class="key-help">
-            <div id="rhythm-key-hint">Press keys to match falling notes</div>
         </div>
     </div>
     
@@ -379,11 +374,6 @@
             </div>
             <div class="timer-text">Time: <span id="symbol-search-timer">30.0</span>s</div>
         </div>
-        
-        <div class="symbol-search-controls">
-            <span><span class="key">W A S D</span> / <span class="key">↑ ↓ ← →</span> Move</span>
-            <span><span class="key">ENTER</span> / <span class="key">SPACE</span> Select</span>
-        </div>
     </div>
 
     <!-- Pipe Pressure Game Container -->
@@ -575,16 +565,14 @@
         <div class="balance-display">
             <canvas id="balance-gauge" width="320" height="200"></canvas>
             <div class="balance-controls">
-                <span class="balance-key">Q</span>
                 <div class="balance-danger-bar">
                     <div class="balance-danger-fill"></div>
                 </div>
-                <span class="balance-key">E</span>
             </div>
             <div class="balance-status safe">STABLE</div>
         </div>
         
-        <div class="balance-instruction">Keep the needle balanced by pressing Q and E - don't let it fall into the red zones!</div>
+        <div class="balance-instruction">Keep the needle balanced - don't let it fall into the red zones!</div>
         
         <div class="timer-container balance-timer-container">
             <div class="timer-bar">

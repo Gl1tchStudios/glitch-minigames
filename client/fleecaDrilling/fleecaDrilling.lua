@@ -40,6 +40,15 @@ local animationSequenceComplete = false
 local triggeredPinBreaks = {}
 local maxDrillDepth = 0.0
 
+-- Drill tuning. A full run at a sensible speed (0.3-0.5) takes about 20-25s,
+-- including the pauses needed to lift the bit and let it cool.
+local DRILL_SLIDE_RATE     = 0.25  -- depth/s moving through the hole already drilled
+local DRILL_CUT_RATE       = 0.15  -- depth/s cut per unit of drill speed
+local DRILL_HEAT_PER_DEPTH = 8.0   -- heat per depth cut, times drill speed
+local DRILL_COOL_LIFTED    = 0.25  -- heat/s lost with the bit lifted off the metal
+local DRILL_COOL_RESTING   = 0.04  -- heat/s lost while resting on the bottom
+local DRILL_LIFT_GAP       = 0.01  -- how far above the bottom counts as lifted
+
 local pinBreakPoints = {
     {min = 0.29, max = 0.305},
     {min = 0.50, max = 0.51},
@@ -388,14 +397,22 @@ Drilling.HandleControls = function()
     local last_pos = Drilling.DrillPos
     local last_speed = Drilling.DrillSpeed
     
-    if IsControlJustPressed(0, 32) then
-        Drilling.DrillPos = math.min(1.0, Drilling.DrillPos + 0.005)
-        if last_pos == 0.0 then
+    -- W - Move drill down. Inside the hole already drilled the bit slides freely;
+    -- at the bottom it only cuts while spinning (speed > 0.1), at a rate set by the
+    -- drill speed. Heat is added per depth cut (see below), so tapping W cuts and
+    -- heats exactly like holding it - spamming W gains nothing.
+    local cutting = false
+    if IsControlPressed(0, 32) then
+        if IsControlJustPressed(0, 32) and last_pos == 0.0 then
             PlaySoundFromEntity(drillSound, "Drill_Power_Up", PlayerPedId(), "DLC_HEIST_FLEECA_SOUNDSET", true, 0)
         end
-    elseif IsControlPressed(0, 32) then
-        local speedFactor = 0.06 * GetFrameTime() / (math.max(0.1, Drilling.DrillTemp) * 10)
-        Drilling.DrillPos = math.min(1.0, Drilling.DrillPos + speedFactor)
+        local dt = GetFrameTime()
+        if Drilling.DrillPos < Drilling.HoleDepth then
+            Drilling.DrillPos = math.min(Drilling.HoleDepth, Drilling.DrillPos + DRILL_SLIDE_RATE * dt)
+        elseif Drilling.DrillSpeed > 0.1 then
+            Drilling.DrillPos = math.min(1.0, Drilling.DrillPos + DRILL_CUT_RATE * Drilling.DrillSpeed * dt)
+            cutting = true
+        end
     end
     
     -- S key - Move drill up
@@ -435,7 +452,7 @@ Drilling.HandleControls = function()
                 soundPlaying = true
             end
         end
-        local inMetal = Drilling.DrillPos > Drilling.HoleDepth and Drilling.DrillSpeed > 0.1
+        local inMetal = cutting
         if drillSound and drillSound ~= -1 then
             SetVariableOnSound(drillSound, "DrillState", inMetal and 1.0 or 0.0)
         end
@@ -490,19 +507,18 @@ Drilling.HandleControls = function()
         maxDrillDepth = Drilling.DrillPos
     end
     
-    if Drilling.DrillPos > Drilling.HoleDepth then
-        if Drilling.DrillSpeed > 0.1 then
-            local heatRate = (1.0 * GetFrameTime()) * Drilling.DrillSpeed
-            if Drilling.DrillSpeed > 0.7 then
-                heatRate = heatRate * 1.5
-            end
-            Drilling.DrillTemp = math.min(1.0, Drilling.DrillTemp + heatRate)
-            Drilling.HoleDepth = Drilling.DrillPos
-        else
-            Drilling.DrillPos = Drilling.HoleDepth
-        end
+    -- Heat: cutting heats by the depth gained (faster spin = more heat per depth).
+    -- It only cools properly with the bit lifted off the metal (S); resting on the
+    -- bottom barely cools it, so letting go of W between taps does not reset heat.
+    local dt = GetFrameTime()
+    if cutting then
+        local gained = Drilling.DrillPos - last_pos
+        Drilling.DrillTemp = math.min(1.0, Drilling.DrillTemp + gained * DRILL_HEAT_PER_DEPTH * Drilling.DrillSpeed)
+        Drilling.HoleDepth = Drilling.DrillPos
+    elseif Drilling.DrillPos < Drilling.HoleDepth - DRILL_LIFT_GAP then
+        Drilling.DrillTemp = math.max(0.0, Drilling.DrillTemp - DRILL_COOL_LIFTED * dt)
     else
-        Drilling.DrillTemp = math.max(0.0, Drilling.DrillTemp - (0.8 * GetFrameTime()))
+        Drilling.DrillTemp = math.max(0.0, Drilling.DrillTemp - DRILL_COOL_RESTING * dt)
     end
     
     if Drilling.DrillTemp >= 1.0 then

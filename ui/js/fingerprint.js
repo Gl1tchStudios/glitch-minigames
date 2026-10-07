@@ -107,6 +107,12 @@ var Fingerprint = (function() {
 
     function start(config) {
         if (active) return;
+
+        // colours are set per game (config / per-call style), not just once at load
+        ARC_COLOR = window.MinigameColors.primary;
+        ARC_GLOW = `rgba(${window.MinigameColors.primaryRgba}, 0.5)`;
+        ARC_CORRECT_COLOR = window.MinigameColors.success;
+        ARC_CORRECT_GLOW = `rgba(${window.MinigameColors.successRgba}, 0.6)`;
         
         config = config || {};
         timeLimit = config.timeLimit || 30000;

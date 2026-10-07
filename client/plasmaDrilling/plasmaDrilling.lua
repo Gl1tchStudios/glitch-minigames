@@ -91,8 +91,10 @@ PlasmaDrilling.HandleControls = function()
   end
   
   local last_pos = PlasmaDrilling.DrillPos
-  if IsControlJustPressed(0,188) then -- (UP)
-    PlasmaDrilling.DrillPos = math.min(1.0,PlasmaDrilling.DrillPos + 0.01)
+  -- A tap only nudges through the hole already cut; new depth needs UP held
+  -- (which builds heat), so spamming UP can't finish the drill cold.
+  if IsControlJustPressed(0,188) and PlasmaDrilling.DrillPos < PlasmaDrilling.HoleDepth then -- (UP)
+    PlasmaDrilling.DrillPos = math.min(PlasmaDrilling.HoleDepth,PlasmaDrilling.DrillPos + 0.01)
     Scaleforms.PopVoid(PlasmaDrilling.Scaleform,"burstOutSparks")
   elseif IsControlPressed(0,188) then -- (UP)
     PlasmaDrilling.DrillPos = math.min(1.0,PlasmaDrilling.DrillPos + (0.1 * GetFrameTime() / (math.max(0.1,PlasmaDrilling.DrillTemp) * 10)))

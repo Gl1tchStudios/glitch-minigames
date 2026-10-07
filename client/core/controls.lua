@@ -31,7 +31,8 @@ local ESC = { keys = { 'ESC' }, label = 'Cancel', cancel = true }
 GameControls = {
     -- scaleform / Lua games
     StartDrilling = function() return 'Drilling', {
-        { keys = { 'W', 'S' }, label = 'Move drill' },
+        { keys = { 'W' }, label = 'Drill down' },
+        { keys = { 'S' }, label = 'Lift to cool' },
         { keys = { 'E' }, label = 'Speed up' },
         { keys = { 'Q' }, label = 'Slow down' },
         ESC,
@@ -191,7 +192,7 @@ function ShowControls(name, args)
     if not def then return end
     local ok, title, rows = pcall(def, args or {})
     if not ok or not rows then return end
-    SendNUIMessage({ action = 'controlsShow', title = title, rows = rows })
+    SendNUIMessage({ action = 'controlsShow', title = title, rows = rows, hudTheme = Style and Style.hud or 'default' })
 end
 
 function HideControls()

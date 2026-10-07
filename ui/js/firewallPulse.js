@@ -31,6 +31,7 @@
     let timeLimit = 10; // in seconds
     let timeRemaining = 0;
     let timerInterval;
+    let hideTimeout = null; // delayed fade-out after a game ends; cancelled by the next start
     let hackConfig = {
         requiredHacks: 3,
         initialSpeed: 2,
@@ -42,6 +43,10 @@
     };
 
     function startGame() {
+        // a game started within 1.5s of the last one ending used to be hidden by
+        // the previous game's delayed fade-out
+        clearTimeout(hideTimeout);
+        hideTimeout = null;
         isActive = true;
         canClick = true;
         successCount = 0;
@@ -78,7 +83,9 @@
         }
         $('.pulse-bar').removeClass('success-bar fail-bar');
         
-        setTimeout(() => {
+        clearTimeout(hideTimeout);
+        hideTimeout = setTimeout(() => {
+            hideTimeout = null;
             $('#hack-container').fadeOut(500, function() {
                 isActive = false;
                 canClick = true;

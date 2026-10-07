@@ -5699,7 +5699,8 @@ body::before, body::after,
     filter: drop-shadow(0 0 10px rgba(220,38,38,0.35));
 }
 
-/* Controls HUD: left side, light keycaps, no box (client/core/controls.lua) */
+/* Controls HUD: left side, light keycaps, no box (client/core/controls.lua).
+   .mg-controls is a static copy of the HUD (used by the preview website). */
 #mg-controls {
     position: fixed;
     left: 2.2vw;
@@ -5712,7 +5713,7 @@ body::before, body::after,
     pointer-events: none;
     font-family: 'Segoe UI', Arial, sans-serif;
 }
-#mg-controls .mgc-title {
+:is(#mg-controls, .mg-controls) .mgc-title {
     font-size: 1.25vh;
     letter-spacing: 0.12em;
     text-transform: uppercase;
@@ -5720,12 +5721,12 @@ body::before, body::after,
     margin-bottom: 0.2vh;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
 }
-#mg-controls .mgc-row {
+:is(#mg-controls, .mg-controls) .mgc-row {
     display: flex;
     align-items: center;
     gap: 0.55vw;
 }
-#mg-controls .mgc-key {
+:is(#mg-controls, .mg-controls) .mgc-key {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -5740,10 +5741,37 @@ body::before, body::after,
     box-sizing: border-box;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
-#mg-controls .mgc-key.cancel { background: #A855F7; }
-#mg-controls .mgc-label {
+:is(#mg-controls, .mg-controls) .mgc-key.cancel { background: #A855F7; }
+:is(#mg-controls, .mg-controls) .mgc-label {
     margin-left: 0.3vw;
     font-size: 1.45vh;
     color: #FFFFFF;
     text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95), 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Scrollbars inside the minigame panels (code crack / word crack history etc.),
+   any theme: thin, themed thumb instead of the default white browser bar */
+.game-container ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.game-container ::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 3px;
+}
+
+.game-container ::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 3px;
+    box-shadow: 0 0 6px var(--primary-color);
+}
+
+.game-container ::-webkit-scrollbar-button {
+    display: none;
+}
+
+.code-crack-history-list,
+.word-crack-history-list {
+    padding-right: 4px;
 }

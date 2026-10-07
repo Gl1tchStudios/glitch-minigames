@@ -405,11 +405,13 @@ function cleanupOverlayElements() {
         'background': 'transparent'
     });
     
-    $('body > div:not(.game-container):not(.audio-elements)').each(function() {
+    // never the controls HUD; and transparent ('rgba(0, 0, 0, 0)') is not an overlay -
+    // this used to delete #mg-controls, so the keycaps vanished after one verbal memory game
+    $('body > div:not(.game-container):not(.audio-elements):not(#mg-controls)').each(function() {
         const $this = $(this);
-        if ($this.css('display') !== 'none' && 
-            $this.css('background-color') && 
-            $this.css('background-color').includes('rgba')) {
+        const bg = $this.css('background-color') || '';
+        if ($this.css('display') !== 'none' &&
+            bg.includes('rgba') && !/,\s*0\)$/.test(bg)) {
             console.log('Removing potential overlay element:', $this);
             $this.remove();
         }

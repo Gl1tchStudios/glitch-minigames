@@ -86,16 +86,25 @@ config.XP = {
     },
 }
 
--- Active Color Theme
-config.ActiveTheme = 'cyan' -- 'cyan' (original), 'monochrome' (black & white)
+-- Style: three separate defaults. Any export can override them for one game with
+-- a trailing options table, e.g. StartPairsGame(4, 60000, 0, { colour = 'cyan', theme = 'tablet', keybinds = 'device' })
+-- (see client/core/style.lua; colour can also be a table of colour overrides).
 
--- Active Visual Theme
-config.ActiveVisualTheme = 'classic' -- 'classic' (original), 'modern' (new sleek design)
+-- Active Color Theme
+config.ActiveTheme = 'glitch' -- 'glitch' (server purple), 'cyan' (original), 'monochrome' (black & white)
+
+-- Active Visual Theme (the minigame panels)
+config.ActiveVisualTheme = 'device' -- 'device' (rugged handheld + LCD), 'tablet' (criminal tablet look), 'modern', 'classic'
+
+-- Active Keybinds Theme (the keycap HUD on the left)
+config.ActiveKeybindTheme = 'default' -- 'default' (light keycaps), 'device' (rubber buttons), 'tablet' (graphite keys)
 
 -- Background Transparency (0.0 = fully transparent, 1.0 = fully opaque)
 config.BackgroundOpacity = {
     classic = 0.80,  -- Default for classic theme
-    modern = 0.90    -- Default for modern theme
+    modern = 0.90,   -- Default for modern theme
+    tablet = 0.98,
+    device = 0.98,
 }
 
 -- Available Color Themes
@@ -198,6 +207,56 @@ config.Themes = {
         minigameColor3 = '#28e757ff',  -- VarHack block 3, Memory Colors green
         minigameColor4 = '#edeb64ff',  -- VarHack block 4, Memory Colors yellow
         minigameColor5 = '#eb87deff',  -- VarHack block 5
+    },
+
+    -- Glitch Purple Theme (server brand: the magenta / violet of the Glitch Studios logo)
+    glitch = {
+        -- Primary Theme Colors
+        primary = '#c04cff',          -- Brand magenta-purple - highlights, accents, borders
+        primaryRgba = '192, 76, 255',
+        secondary = '#7a2bd6',        -- Deeper violet for gradients
+        secondaryRgba = '122, 43, 214',
+
+        -- Success/Failure Colors
+        success = '#36f1a0',          -- Success feedback (mint, so it reads apart from the purple)
+        successRgba = '54, 241, 160',
+        failure = '#ff4d6d',          -- Failure/error (pink-red, sits well next to purple)
+        failureRgba = '255, 77, 109',
+
+        -- Warning/Caution Colors
+        warning = '#ff9f43',          -- Warning (orange)
+        warningRgba = '255, 159, 67',
+
+        -- Neutral/UI Colors
+        background = '#120a1c',       -- Near-black purple
+        backgroundRgba = '18, 10, 28',
+        backgroundGradient1 = '#120a1c', -- Gradient start
+        backgroundGradient1Rgba = '18, 10, 28',
+        backgroundGradient2 = '#2a1240', -- Gradient end (dark violet)
+        backgroundGradient2Rgba = '42, 18, 64',
+        backgroundSecondary = '#0c0614', -- Buttons / inset panels
+        backgroundSecondaryRgba = '12, 6, 20',
+        backgroundTertiary = '#1c0d2c',
+        backgroundTertiaryRgba = '28, 13, 44',
+        border = '#c04cff',
+        borderRgba = '192, 76, 255',
+        text = '#ffffff',
+        textRgba = '255, 255, 255',
+        textSecondary = '#a59bb3',    -- Lavender grey
+        textSecondaryRgba = '165, 155, 179',
+
+        -- Additional Colors
+        danger = '#ff3b5c',
+        dangerRgba = '255, 59, 92',
+        safe = '#36f1a0',
+        safeRgba = '54, 241, 160',
+
+        -- Minigame Specific Colors
+        minigameColor1 = '#6f5bffff',  -- VarHack block 1, Memory Colors blue
+        minigameColor2 = '#ff4d6dff',  -- VarHack block 2, Memory Colors red
+        minigameColor3 = '#36f1a0ff',  -- VarHack block 3, Memory Colors green
+        minigameColor4 = '#ffd166ff',  -- VarHack block 4, Memory Colors yellow
+        minigameColor5 = '#e86bffff',  -- VarHack block 5
     }
 }
 
