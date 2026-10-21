@@ -40,7 +40,11 @@
         combo: { action: 'startComboInput', config: { rounds: 3, comboLength: 4, timePerCombo: 6, maxFailures: 2, lengthIncrease: 0 } },
         hold: { action: 'startHoldZone', config: { key: 'E', rounds: 3, speed: 18, zoneSize: 18, perfectZoneSize: 0, maxFailures: 2, idleTimeout: 0 } },
         wire: { action: 'startWireConnect', config: { wireCount: 4, timeLimit: 0 } },
-        simon: { action: 'startSimonSays', config: { rounds: 5, flashSpeed: 550, flashGap: 250, timeLimit: 20, maxMistakes: 1 } }
+        simon: { action: 'startSimonSays', config: { rounds: 5, flashSpeed: 550, flashGap: 250, timeLimit: 20, maxMistakes: 1 } },
+        shaperecall: { action: 'startShapeRecall', config: { tiles: 4, rounds: 4, questionsPerRound: 2, answerTime: 7000 } },
+        memorydiff: { action: 'startMemoryDiff', config: { cols: 6, rows: 6, differences: 4, mode: 'memory', memoriseTime: 5000, timeLimit: 20000, maxStrikes: 2, peeks: 1 } },
+        traceroute: { action: 'startTraceroute', config: { cols: 10, rows: 6, ids: 8, maxHops: 25, ttl: 30000 } },
+        carriertune: { action: 'startCarrierTune', config: { locks: 5, timeLimit: 40000, holdTime: 1500 } }
     };
 
     var HUD = [

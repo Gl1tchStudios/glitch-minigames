@@ -50,6 +50,92 @@ const CANCEL_KEY_NAMES = {
 // Cancel keys for mouse games; overwritten by setColors.
 window.minigameCancelKeys = ['Escape', 'Backspace'];
 
+// ── Mute (full-screen games, config.MuteKey) ─────────────────────────────────
+// The muted state is remembered in localStorage (per player, across restarts) and
+// silences every minigame sound: playSound() and the games that call .play() directly.
+const MUTE_STORE = 'glitchMinigames.muted';
+window.minigameMuteKey = 'Tab';      // KeyboardEvent.code, sent with controlsShow
+window.minigameMuteActive = false;   // the running game shows the mute row
+window.minigameMuted = (function() {
+    try { return localStorage.getItem(MUTE_STORE) === '1'; } catch (_) { return false; }
+})();
+
+(function() {
+    const nativePlay = HTMLMediaElement.prototype.play;
+    window.minigameNativePlay = nativePlay; // previews skip the mute
+    HTMLMediaElement.prototype.play = function() {
+        if (window.minigameMuted) return Promise.resolve();
+        return nativePlay.apply(this, arguments);
+    };
+})();
+
+function updateMuteRow() {
+    document.querySelectorAll('#mg-controls .mgc-row.mute').forEach(function(row) {
+        row.classList.toggle('muted', window.minigameMuted);
+        const label = row.querySelector('.mgc-label');
+        if (label) label.textContent = window.minigameMuted ? 'Unmute sounds' : 'Mute sounds';
+    });
+}
+
+let lastMuteToggle = 0;
+function toggleMinigameMute() {
+    // the key can arrive twice (browser keydown + Lua control) - one toggle per press
+    const now = Date.now();
+    if (now - lastMuteToggle < 250) return;
+    lastMuteToggle = now;
+    window.minigameMuted = !window.minigameMuted;
+    try { localStorage.setItem(MUTE_STORE, window.minigameMuted ? '1' : '0'); } catch (_) {}
+    document.querySelectorAll('audio').forEach(function(a) { a.muted = window.minigameMuted; });
+    updateMuteRow();
+    reportMute();
+}
+
+// The controls HUD is drawn by glitch-uiElements / ox_lib (client/core/controls.lua):
+// tell Lua the muted state so the row there reads Mute / Unmute.
+function reportMute() {
+    fetch('https://glitch-minigames/muteState', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({ muted: !!window.minigameMuted }),
+    }).catch(function() {});
+}
+
+// Held keys go to glitch-uiElements through client/core/controls.lua so its controls HUD
+// can light up the key being pressed (our NUI has the keyboard, so the game never sees it).
+const KEY_NAMES = {
+    Escape: 'ESC', Backspace: 'BACKSPACE', Space: 'SPACE', Enter: 'ENTER', NumpadEnter: 'ENTER', Tab: 'TAB',
+    ArrowUp: 'UP', ArrowDown: 'DOWN', ArrowLeft: 'LEFT', ArrowRight: 'RIGHT', CapsLock: 'CAPS',
+    ShiftLeft: 'SHIFT', ShiftRight: 'SHIFT', ControlLeft: 'CTRL', ControlRight: 'CTRL', AltLeft: 'ALT', AltRight: 'ALT',
+};
+function keyLabel(code) {
+    if (KEY_NAMES[code]) return KEY_NAMES[code];
+    const m = /^(?:Key|Digit|Numpad)([A-Z0-9])$/.exec(code || '');
+    return m ? m[1] : null;
+}
+const heldKeys = {};
+function sendKeyState(key, down) {
+    if (!key || !!heldKeys[key] === down) return;
+    if (down) heldKeys[key] = true; else delete heldKeys[key];
+    fetch('https://glitch-minigames/keyState', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+        body: JSON.stringify({ key: key, down: down }),
+    }).catch(function() {});
+}
+document.addEventListener('keydown', function(e) { if (!e.repeat) sendKeyState(keyLabel(e.code), true); }, true);
+document.addEventListener('keyup', function(e) { sendKeyState(keyLabel(e.code), false); }, true);
+document.addEventListener('mousedown', function(e) { sendKeyState(e.button === 0 ? 'LMB' : e.button === 2 ? 'RMB' : null, true); }, true);
+document.addEventListener('mouseup', function(e) { sendKeyState(e.button === 0 ? 'LMB' : e.button === 2 ? 'RMB' : null, false); }, true);
+window.addEventListener('blur', function() { Object.keys(heldKeys).forEach(function(k) { sendKeyState(k, false); }); });
+
+// capture phase: the games never see the mute key (Tab would also move focus)
+document.addEventListener('keydown', function(e) {
+    if (!window.minigameMuteActive || e.code !== window.minigameMuteKey || e.repeat) return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    toggleMinigameMute();
+}, true);
+
 $(document).ready(function() {
     window.addEventListener('message', function(event) {
         const data = event.data;
@@ -57,6 +143,13 @@ $(document).ready(function() {
         // controls HUD on the left (client/core/controls.lua)
         if (data.action === 'controlsShow') {
             let box = document.getElementById('mg-controls');
+            if (data.hidden) {   // drawn by glitch-uiElements / ox_lib; we only run the mute key
+                window.minigameMuteActive = !!data.mute;
+                if (data.muteKey) window.minigameMuteKey = data.muteKey;
+                if (data.mute) reportMute();
+                if (box) { box.style.display = 'none'; box.innerHTML = ''; }
+                return;
+            }
             if (!box) {   // recreate it if something removed it from the page
                 box = document.createElement('div');
                 box.id = 'mg-controls';
@@ -65,17 +158,25 @@ $(document).ready(function() {
             const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
             let html = data.title ? '<div class="mgc-title">' + esc(data.title) + '</div>' : '';
             (data.rows || []).forEach(function(r) {
-                html += '<div class="mgc-row">';
+                html += '<div class="mgc-row' + (r.mute ? ' mute' : '') + '">';
                 (r.keys || []).forEach(function(k) { html += '<span class="mgc-key' + (r.cancel ? ' cancel' : '') + '">' + esc(k) + '</span>'; });
                 html += '<span class="mgc-label">' + esc(r.label || '') + '</span></div>';
             });
             box.innerHTML = html;
+            window.minigameMuteActive = !!data.mute;
+            if (data.muteKey) window.minigameMuteKey = data.muteKey;
+            updateMuteRow();
             // keybinds theme: 'default' | 'device' | 'tablet' (config.ActiveKeybindTheme / per-call)
             box.className = 'hud-' + (data.hudTheme || window.minigameHudTheme || 'default');
             box.style.display = 'flex';
             return;
         }
+        if (data.action === 'toggleMute') {   // from Lua, for games without NUI keyboard focus
+            if (window.minigameMuteActive) toggleMinigameMute();
+            return;
+        }
         if (data.action === 'controlsHide') {
+            window.minigameMuteActive = false;
             const box = document.getElementById('mg-controls');
             if (!box) return;
             box.style.display = 'none';
@@ -83,10 +184,31 @@ $(document).ready(function() {
             return;
         }
         
+        // sound theme changed in /uidemo (style.lua SetSoundTheme)
+        if (data.action === 'setSoundTheme') {
+            if (data.soundTheme) window.minigameSoundTheme = data.soundTheme;
+            return;
+        }
+
+        // classic mp3 preview from the /uidemo Sounds tab (style.lua PreviewSound), plays even when muted
+        if (data.action === 'previewSound') {
+            const el = document.getElementById('sound-' + data.sound);
+            if (el) {
+                el.muted = false;
+                el.volume = 1;
+                el.currentTime = 0;
+                window.minigameNativePlay.call(el).catch(function() {});
+                el.muted = !!window.minigameMuted;
+            }
+            return;
+        }
+
         // colour theme + visual theme: 'setColors' once at resource start,
         // 'setStyle' at every game start (client/core/style.lua, may carry per-call overrides)
         if ((data.action === 'setColors' || data.action === 'setStyle') && data.colors) {
             if (data.hudTheme) window.minigameHudTheme = data.hudTheme;
+            if (data.action === 'setStyle') window.minigamePosition = data.position; // circle click spot (client/core/style.lua)
+            if (data.soundTheme) window.minigameSoundTheme = data.soundTheme;
             if (data.debug !== undefined && typeof window.setGlitchDebug === 'function') {
                 window.setGlitchDebug(data.debug);
             }
@@ -506,6 +628,10 @@ $(document).ready(function() {
             } else {
                 $('#simon-says-container').fadeOut(500);
             }
+        } else if (window.hackGames && window.hackGames[data.action]) {
+            // hack games pack (js/hackGamesKit.js): startShapeRecall, startMemoryDiff, startTraceroute, startCarrierTune
+            cleanupAllContainers();
+            window.hackGames[data.action].start(data.config || {});
         } else if (data.action === 'keyPress') {
             window.keymashFunctions.handleKeypress(data.keyCode);
             if (window.barHitGame && window.barHitGame.active) {
@@ -581,6 +707,9 @@ $(document).ready(function() {
             if (window.pairsFunctions && typeof window.pairsFunctions.close === 'function') {
                 window.pairsFunctions.close();
             }
+            Object.keys(window.hackGames || {}).forEach(function(action) {
+                window.hackGames[action].close();
+            });
             cleanupAllContainers();
             
             // Reset all game states
@@ -651,7 +780,7 @@ $(document).ready(function() {
         if (keys.indexOf(e.key) === -1) return;
         if ($('[id$="-container"]:visible').length === 0) return;
         // typing games use Backspace to delete, so it never cancels them (ESC still does)
-        if (e.key === 'Backspace' && $('#code-crack-container:visible, #word-crack-container:visible').length > 0) return;
+        if (e.key === 'Backspace' && $('#code-crack-container:visible, #word-crack-container:visible, #shape-recall-container:visible').length > 0) return;
         e.preventDefault();
         $.post('https://glitch-minigames/minigameCancel', JSON.stringify({ key: e.key }));
     });
@@ -703,7 +832,20 @@ function preloadSounds() {
 
 // volume is optional (0-1, default full); it is set on every play so a quiet
 // call never leaves the shared audio element quiet for the next game
+// Sound theme (config.ActiveSoundTheme / per-game { sounds = ... }), sent with setStyle:
+//   'classic' = the mp3s in ui/sounds, 'gta' = native GTA frontend sounds played by Lua
+window.minigameSoundTheme = 'gta';
+
 function playSound(soundId, volume) {
+    if (window.minigameSoundTheme !== 'classic') {
+        if (window.minigameMuted) return;
+        fetch('https://glitch-minigames/playSound', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=UTF-8' },
+            body: JSON.stringify({ sound: String(soundId).replace(/^sound-/, ''), theme: window.minigameSoundTheme }),
+        }).catch(function() {});
+        return;
+    }
     if (!soundsEnabled) return;
 
     const sound = document.getElementById(soundId);
@@ -728,8 +870,6 @@ function playSound(soundId, volume) {
 }
 
 function playSoundSafe(soundId, volume) {
-    if (!soundsEnabled) return;
-
     try {
         playSound(soundId, volume);
     } catch(e) {
@@ -738,7 +878,7 @@ function playSoundSafe(soundId, volume) {
 }
 
 function cleanupAllContainers() {
-    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container, #circle-click-container, #lockpick-container, #bar-hit-container, #skill-check-container, #number-up-container, #keys-game-container, #combo-input-container, #hold-zone-container, #wire-connect-container, #simon-says-container')
+    $('#hack-container, #sequence-container, #rhythm-container, #keymash-container, #var-hack-container, #memory-container, #sequence-memory-container, #verbal-memory-container, #numbered-sequence-container, #symbol-search-container, #pipe-pressure-container, #pairs-container, #memory-colors-container, #untangle-container, #fingerprint-container, #code-crack-container, #word-crack-container, #balance-container, #aim-test-container, #circle-click-container, #lockpick-container, #bar-hit-container, #skill-check-container, #number-up-container, #keys-game-container, #combo-input-container, #hold-zone-container, #wire-connect-container, #simon-says-container, #shape-recall-container, #memory-diff-container, #traceroute-container, #carrier-tune-container')
         .removeClass('active')
         .hide();
     

@@ -361,11 +361,7 @@ var Fingerprint = (function() {
     }
 
     function playSound(soundId) {
-        var sound = document.getElementById(soundId);
-        if (sound) {
-            sound.currentTime = 0;
-            sound.play().catch(function() {});
-        }
+        playSoundSafe(soundId); // app.js: follows the sound theme
     }
 
     window.fingerprintFunctions = {

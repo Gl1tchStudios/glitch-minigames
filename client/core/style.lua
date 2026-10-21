@@ -12,13 +12,34 @@
 --       { colour = 'cyan', theme = 'tablet', keybinds = 'device' })
 --   exports['glitch-minigames']:StartDrilling({ keybinds = 'tablet' })
 --   exports['glitch-minigames']:StartPipePressureGame(6, 30000, { colour = { primary = '#ff3355' } })
+-- position = config.CircleClickPosition    where the circle click sits (other games ignore it):
+--              'bottom', 'center', 'top', 'left', 'right', 'top-left', 'top-right',
+--              'bottom-left', 'bottom-right', or { x = 0.5, y = 0.7 } (screen fractions, or 0-100 percent)
+--   exports['glitch-minigames']:StartCircleClickGame(3, 2, 40, 1, 0, true, { 'E' }, 1, { position = 'center' })
+-- sounds = 'gta' / 'classic'   sound theme for this game (default config.ActiveSoundTheme)
+-- xp = true      XP + hacking perks for games in config.XP.OptIn (circle click), off by default
 -- The style is sent at every game start, so an override never leaks into the next game.
 
 Style = {}
 
 local VISUAL_THEMES = { device = true, tablet = true, modern = true, classic = true }
-local KEYBIND_THEMES = { default = true, device = true, tablet = true }
-local STYLE_KEYS = { colour = true, color = true, theme = true, keybinds = true }
+local KEYBIND_THEMES = { tags = true, default = true, device = true, tablet = true }
+local STYLE_KEYS = { colour = true, color = true, theme = true, keybinds = true, position = true, xp = true, sounds = true }
+
+-- 'classic' = the NUI mp3s; every other theme is a table of native sounds in config.SoundThemes
+local function SoundThemeOk(name)
+    return name == 'classic' or (config.SoundThemes or {})[name] ~= nil
+end
+
+-- Sound theme picked in /uidemo (glitch-uiElements): live on this client, or saved there
+-- for everyone. nil = config.ActiveSoundTheme.
+local soundOverride = nil
+
+local function ActiveSounds()
+    if soundOverride and SoundThemeOk(soundOverride) then return soundOverride end
+    local name = config.ActiveSoundTheme or 'gta'
+    return SoundThemeOk(name) and name or 'classic'
+end
 
 Style.hud = config.ActiveKeybindTheme or 'default'
 
@@ -86,12 +107,100 @@ end
 function Style.Apply(opts)
     opts = opts or {}
     local visual = Pick(opts.theme, VISUAL_THEMES, config.ActiveVisualTheme or 'device', 'minigame theme')
-    Style.hud = Pick(opts.keybinds, KEYBIND_THEMES, config.ActiveKeybindTheme or 'default', 'keybinds theme')
+    Style.hud = Pick(opts.keybinds, KEYBIND_THEMES, config.ActiveKeybindTheme or 'tags', 'keybinds theme')
+    -- only a per-game keybinds theme goes to glitch-uiElements; otherwise its own
+    -- (possibly /uidemo-saved) default is used
+    Style.hudGiven = opts.keybinds ~= nil and Style.hud or nil
+    -- a per-game colour, passed on to glitch-uiElements for the controls HUD;
+    -- nil = glitch-uiElements' own default for the side HUD (its Config.DefaultColours)
+    Style.colour = opts.colour or opts.color
+    local sounds = ActiveSounds()
+    if opts.sounds ~= nil then
+        if SoundThemeOk(opts.sounds) then
+            sounds = opts.sounds
+        else
+            print(('[glitch-minigames] unknown sound theme "%s", using "%s"'):format(tostring(opts.sounds), sounds))
+        end
+    end
     SendNUIMessage({
         action = 'setStyle',
         colors = ResolveColours(opts.colour or opts.color),
         visualTheme = visual,
         backgroundOpacity = (config.BackgroundOpacity or {})[visual] or 0.95,
         hudTheme = Style.hud,
+        position = opts.position or config.CircleClickPosition or 'bottom',
+        soundTheme = sounds,
     })
 end
+
+-- NUI games ask for a sound by name (click / buttonPress / penalty / success / failure);
+-- a native theme plays it here with PlaySoundFrontend. Muting is handled in the NUI.
+local function PlayNative(theme, sound)
+    local set = (config.SoundThemes or {})[theme]
+    local entry = set and set[sound]
+    if entry then PlaySoundFrontend(-1, entry[1], entry[2], true) end
+    return entry ~= nil
+end
+
+RegisterNUICallback('playSound', function(data, cb)
+    cb('ok')
+    if data then PlayNative(data.theme, data.sound) end
+end)
+
+-- ---- previews (the /uidemo Sounds tab in glitch-uiElements) ---------------
+
+local SOUND_ORDER = { 'click', 'buttonPress', 'penalty', 'success', 'failure' }
+
+-- { active = 'gta', themes = { 'gta', 'classic' }, sounds = { 'click', ... },
+--   info = { gta = { click = 'NAV_UP_DOWN / HUD_FRONTEND_DEFAULT_SOUNDSET', ... }, classic = { click = 'sounds/click.mp3', ... } } }
+Minigames.RawExport('GetSoundThemes', function()
+    local themes, info = {}, { classic = {} }
+    for name, set in pairs(config.SoundThemes or {}) do
+        themes[#themes + 1] = name
+        info[name] = {}
+        for sound, entry in pairs(set) do
+            info[name][sound] = entry[2] ~= '' and (entry[1] .. ' / ' .. entry[2]) or entry[1]
+        end
+    end
+    table.sort(themes)
+    themes[#themes + 1] = 'classic'
+    for _, sound in ipairs(SOUND_ORDER) do info.classic[sound] = 'sounds/' .. sound .. '.mp3' end
+    return { active = ActiveSounds(), configDefault = config.ActiveSoundTheme or 'gta',
+        themes = themes, sounds = SOUND_ORDER, info = info }
+end)
+
+-- Sets the sound theme on this client (nil = back to config.ActiveSoundTheme).
+-- Used by /uidemo; the saved choice comes from glitch-uiElements (below).
+local function SetSoundTheme(name)
+    if name ~= nil and not SoundThemeOk(name) then return false end
+    soundOverride = name
+    SendNUIMessage({ action = 'setSoundTheme', soundTheme = ActiveSounds() })
+    return true
+end
+Minigames.RawExport('SetSoundTheme', SetSoundTheme)
+
+-- the theme saved with /uidemo Save as default (glitch-uiElements data/settings.json)
+local function LoadSavedSounds()
+    if GetResourceState('glitch-uiElements') ~= 'started' then return end
+    local ok, name = pcall(function() return exports['glitch-uiElements']:GetMinigameSoundTheme() end)
+    if ok then SetSoundTheme(name) end
+end
+
+AddEventHandler('glitch-uiElements:settingsApplied', LoadSavedSounds)
+AddEventHandler('onClientResourceStart', function(res)
+    if res == 'glitch-uiElements' then SetTimeout(2000, LoadSavedSounds) end
+end)
+CreateThread(function()
+    Wait(1000) -- after the NUI page is up (customMinigames/client.lua sends setColors at 500 ms)
+    LoadSavedSounds()
+end)
+
+-- Plays one minigame sound in a theme (nil = the active one). Ignores the player's mute.
+Minigames.RawExport('PreviewSound', function(sound, theme)
+    theme = theme or ActiveSounds()
+    if theme == 'classic' then
+        SendNUIMessage({ action = 'previewSound', sound = sound })
+        return true
+    end
+    return PlayNative(theme, sound)
+end)

@@ -24,6 +24,11 @@ config.usingGlitchNotifications = false -- true = result popups (success / faile
 -- Supported names: 'BACKSPACE', 'ESCAPE', 'ENTER'. Defaults to both BACKSPACE and ESCAPE.
 config.CancelKeys = { 'BACKSPACE', 'ESCAPE' }
 
+-- Key that mutes / unmutes minigame sounds in the full-screen games (shown in the keycap HUD).
+-- The choice is remembered on the player's client. Supported: 'TAB' (default), 'CAPS', 'M'
+-- ('M' clashes with letter input in Keys / Word Crack / Backdoor Sequence).
+config.MuteKey = 'TAB'
+
 -- XP (glitch-xpSystem)
 -- Winning a minigame gives XP in the category below. The category is hidden in the
 -- XP menu (hidden = true in glitch-xpSystem config) until the player's first XP.
@@ -42,6 +47,12 @@ config.XP = {
         Time = 'hacking_time',         -- +seconds on the game's timer
         Mistakes = 'hacking_mistakes', -- +allowed mistakes / attempts / lives
         Retry = 'hacking_retry',       -- automatic retries after a failed game
+    },
+
+    -- Games that give NO XP / perks / retry unless the caller asks for it with a trailing
+    -- { xp = true } options table, e.g. StartCircleClickGame(5, 1, 45, 3, 0.15, true, { 'W', 'A', 'S', 'D' }, 1, { xp = true })
+    OptIn = {
+        StartCircleClickGame = true,
     },
 
     -- XP per win, keyed by export name (15-40, master plan). Remove a game or set it to 0 to give no XP for it.
@@ -75,6 +86,10 @@ config.XP = {
         StartHoldZoneGame         = 15,
         StartWireConnectGame      = 20,
         StartSimonSaysGame        = 20,
+        StartShapeRecallGame      = 20,
+        StartMemoryDiffGame       = 20,
+        StartTracerouteGame       = 25,
+        StartCarrierTuneGame      = 20,
         StartBruteForce           = 35,
         StartDataCrack            = 35,
         StartCircuitBreaker       = 40,
@@ -96,8 +111,45 @@ config.ActiveTheme = 'glitch' -- 'glitch' (server purple), 'cyan' (original), 'm
 -- Active Visual Theme (the minigame panels)
 config.ActiveVisualTheme = 'device' -- 'device' (rugged handheld + LCD), 'tablet' (criminal tablet look), 'modern', 'classic'
 
--- Active Keybinds Theme (the keycap HUD on the left)
-config.ActiveKeybindTheme = 'default' -- 'default' (light keycaps), 'device' (rubber buttons), 'tablet' (graphite keys)
+-- Active Keybinds Theme (the keycap HUD on the left, drawn by glitch-uiElements)
+config.ActiveKeybindTheme = 'tags' -- 'tags' (key + label tags), 'default' (light keycaps), 'device' (rubber buttons), 'tablet' (graphite keys)
+
+-- Active Sound Theme (the click / success / failure / penalty / button sounds of the NUI games)
+--   'gta'     native GTA frontend sounds (default)
+--   'classic' the original mp3s in ui/sounds
+-- One game can override it with a trailing { sounds = 'classic' } table.
+-- The Lua games (circuit breaker, brute force, data crack, drilling) always use their own GTA sounds.
+config.ActiveSoundTheme = 'gta'
+
+-- Lockpick look: 'dial' (original tick dial), 'arc' (floating hairline ring), 'dots' (floating
+-- dot ring), 'realistic' (brass cylinder + steel pick), 'padlock' (brass padlock + shackle).
+-- Per call: 6th arg of StartLockpickGame.
+config.LockpickStyle = 'padlock'
+
+-- Native sounds per theme: [sound] = { name, soundSet } for PlaySoundFrontend.
+-- 'classic' is not listed here: it plays the mp3s in the NUI.
+config.SoundThemes = {
+    gta = {
+        click       = { 'NAV_UP_DOWN', 'HUD_FRONTEND_DEFAULT_SOUNDSET' },  -- selecting / small ticks
+        buttonPress = { 'SELECT', 'HUD_FRONTEND_DEFAULT_SOUNDSET' },       -- correct input
+        penalty     = { 'ERROR', 'HUD_FRONTEND_DEFAULT_SOUNDSET' },        -- wrong input / mistake
+        success     = { 'HACKING_SUCCESS', '' },                           -- game won
+        failure     = { 'HACKING_FAILURE', '' },                           -- game lost
+    },
+}
+
+-- Where the controls HUD comes from:
+--   'auto'       glitch-uiElements when it is running, otherwise ox_lib text UI
+--   'uiElements' glitch-uiElements (falls back to ox_lib if it is not running)
+--   'standalone' ox_lib text UI only - glitch-uiElements is not needed at all
+-- With neither running, the old built-in HUD in this resource's NUI is used.
+config.KeybindDisplay = 'auto'
+config.KeybindPosition = nil             -- glitch-uiElements position ('left', 'right', 'bottom', ...); nil = its default
+                                         -- (the side HUD default, which /uidemo Save can change)
+config.CircleClickPosition = 'bottom' -- circle click (and ox_lib skillCheck): 'bottom', 'center', 'top', 'left', 'right',
+                                      -- 'top-left', 'top-right', 'bottom-left', 'bottom-right' or { x = 0.5, y = 0.8 };
+                                      -- one game can override it with a trailing { position = ... } table
+config.OxTextUIPosition = 'left-center'  -- ox_lib text UI position ('left-center', 'right-center', 'top-center')
 
 -- Background Transparency (0.0 = fully transparent, 1.0 = fully opaque)
 config.BackgroundOpacity = {

@@ -37,7 +37,8 @@ Citizen.CreateThread(function()
         backgroundOpacity = activeOpacity,
         hudTheme = config.ActiveKeybindTheme,
         debug = config.DebugPrints,
-        cancelKeys = config.CancelKeys
+        cancelKeys = config.CancelKeys,
+        soundTheme = config.ActiveSoundTheme or 'gta'
     })
 end)
 
@@ -1154,7 +1155,7 @@ exports('StartAimTestGame', function(timeLimit, targetsToHit, targetLifetime, ta
     return Citizen.Await(p)
 end)
 
-exports('StartCircleClickGame', function(rounds, rotationSpeed, targetZoneSize, maxFailures, speedIncrease, randomizeDirection, keys)
+local function StartCircleClick(rounds, rotationSpeed, targetZoneSize, maxFailures, speedIncrease, randomizeDirection, keys, timeoutRotations)
     local p = promise.new()
     
     if isHacking then return false end
@@ -1166,7 +1167,8 @@ exports('StartCircleClickGame', function(rounds, rotationSpeed, targetZoneSize, 
         maxFailures = maxFailures or 3, -- Max failures before game over
         speedIncrease = speedIncrease or 0.15, -- Speed increase per round
         randomizeDirection = randomizeDirection ~= false, -- Randomize rotation direction
-        keys = keys or {'W', 'A', 'S', 'D'} -- Possible keys to display
+        keys = keys or {'W', 'A', 'S', 'D'}, -- Possible keys to display
+        timeoutRotations = tonumber(timeoutRotations) or 1 -- Full turns per round without a press = miss (0 = never)
     }
     
     callback = function(success, successes, failures)
@@ -1181,12 +1183,51 @@ exports('StartCircleClickGame', function(rounds, rotationSpeed, targetZoneSize, 
         action = 'startCircleClick',
         config = circleClickConfig
     })
-    
+
     startDeathCheck()
     return Citizen.Await(p)
+end
+
+exports('StartCircleClickGame', StartCircleClick)
+
+-- ox_lib lib.skillCheck is redirected here (patched ox_lib skillcheck.lua).
+-- Own export name so the wrapper gives no hacking XP / perks for everyday skill checks.
+-- difficulty: 'easy' | 'medium' | 'hard' | { areaSize, speedMultiplier }, or a list of those (one round each)
+local OX_DIFFICULTY = {
+    easy = { areaSize = 50, speedMultiplier = 1 },
+    medium = { areaSize = 40, speedMultiplier = 1.5 },
+    hard = { areaSize = 25, speedMultiplier = 1.75 },
+}
+
+exports('OxSkillCheck', function(difficulty, inputs)
+    local list = (type(difficulty) == 'table' and difficulty[1] ~= nil) and difficulty or { difficulty }
+    local n, area, firstSpeed, lastSpeed = 0, 0, nil, nil
+    for _, d in ipairs(list) do
+        local cfg = type(d) == 'table' and d or OX_DIFFICULTY[d] or OX_DIFFICULTY.easy
+        local speed = (tonumber(cfg.speedMultiplier) or 1) * 1.5 -- degrees per frame
+        n = n + 1
+        area = area + (tonumber(cfg.areaSize) or 50)
+        firstSpeed = firstSpeed or speed
+        lastSpeed = speed
+    end
+    if n == 0 then return false end
+
+    local keys = {}
+    for _, k in ipairs(type(inputs) == 'table' and inputs or {}) do
+        keys[#keys + 1] = tostring(k):upper()
+    end
+    if #keys == 0 then keys = { 'E' } end
+
+    -- ox rules: every round must be hit, one miss fails the whole check
+    local speedIncrease = n > 1 and (lastSpeed - firstSpeed) / (n - 1) or 0
+    return StartCircleClick(n, firstSpeed, math.floor(area / n), 1, speedIncrease, true, keys) == true
 end)
 
-exports('StartLockpickGame', function(rounds, sweetSpotSize, maxFailures, shakeRange, lockTime)
+-- Used by ox_lib lib.cancelSkillCheck (rawExports in core/client.lua)
+Minigames.CancelActive = cancelActiveMinigame
+
+-- style (optional): 'dial' | 'arc' | 'dots' | 'realistic' | 'padlock', default config.LockpickStyle
+exports('StartLockpickGame', function(rounds, sweetSpotSize, maxFailures, shakeRange, lockTime, style)
     local p = promise.new()
     
     if isHacking then return false end
@@ -1196,7 +1237,8 @@ exports('StartLockpickGame', function(rounds, sweetSpotSize, maxFailures, shakeR
         sweetSpotSize = sweetSpotSize or 30, -- sweet spot size in degrees (smaller = harder)
         maxFailures = maxFailures or 2, -- max failures before game over
         shakeRange = shakeRange or 40, -- how far from sweet spot shake starts (degrees)
-        lockTime = lockTime or 500 -- how long to hold to lock (ms)
+        lockTime = lockTime or 350, -- how long to hold to lock (ms); each lock after the first gets harder (ui/js/lockpick.js)
+        style = style or config.LockpickStyle or 'dial'
     }
     
     callback = function(success, successes, failures)
@@ -1206,7 +1248,7 @@ exports('StartLockpickGame', function(rounds, sweetSpotSize, maxFailures, shakeR
     
     isHacking = true
     disableMovementControls = true
-    SetNuiFocus(true, false)
+    SetNuiFocus(true, true) -- cursor on: the pick is turned by dragging around the lock
     SendNUIMessage({ 
         action = 'startLockpick',
         config = lockpickConfig
@@ -1216,7 +1258,8 @@ exports('StartLockpickGame', function(rounds, sweetSpotSize, maxFailures, shakeR
     return Citizen.Await(p)
 end)
 
-exports('StartBarHitGame', function(key, rounds, speed, zoneSize, zoneStart, maxFailures, timeLimit)
+-- texts (optional): { success = 'ORE CUT', fail = 'MISSED' } replaces ACCESS GRANTED / DENIED
+exports('StartBarHitGame', function(key, rounds, speed, zoneSize, zoneStart, maxFailures, timeLimit, texts)
     local p = promise.new()
 
     if isHacking then return false end
@@ -1228,7 +1271,9 @@ exports('StartBarHitGame', function(key, rounds, speed, zoneSize, zoneStart, max
         zoneSize = zoneSize or 20,    -- target zone width in % (10-40)
         zoneStart = zoneStart,        -- fixed zone position %, nil = random each round
         maxFailures = maxFailures or 3, -- wrong presses before fail
-        timeLimit = timeLimit or 30000  -- overall time limit in ms
+        timeLimit = timeLimit or 30000, -- overall time limit in ms
+        successText = type(texts) == 'table' and texts.success or nil,
+        failText = type(texts) == 'table' and texts.fail or nil,
     }
 
     callback = function(success, roundsCompleted, failures)
@@ -1411,7 +1456,7 @@ exports('StartWireConnectGame', function(wireCount, timeLimit)
     if isHacking then return false end
 
     local wireConfig = {
-        wireCount = wireCount or 4, -- number of wire pairs (3–5)
+        wireCount = wireCount or 8, -- number of cables (3-8), placed at random spots each game
         timeLimit = timeLimit or 0  -- seconds, 0 = no time limit
     }
 
@@ -1461,6 +1506,104 @@ exports('StartSimonSaysGame', function(rounds, flashSpeed, timeLimit, maxMistake
     startDeathCheck()
     return Citizen.Await(p)
 end)
+
+-- ---- Hack games pack: Shape Recall, Memory Diff, Traceroute, Carrier Tune -------
+-- Each export takes ONE settings table (and the usual trailing style table), e.g.
+--   exports['glitch-minigames']:StartShapeRecallGame({ preset = 'hard', rounds = 5 }, { theme = 'tablet' })
+-- `preset` picks the starting values below; any other key overrides them. The NUI
+-- clamps every value again (ui/js/shapeRecall.js etc.), so a bad value never breaks a game.
+-- Perks from client/core/client.lua arrive as settings._perk[field] = { add, scale }.
+
+local HackPresets = {
+    startShapeRecall = {
+        normal  = { tiles = 4, rounds = 4, questionsPerRound = 2, answerTime = 7000, numberTime = 1500, shrinkTime = 1500, maxStrikes = 0 },
+        nopixel = { tiles = 4, rounds = 4, questionsPerRound = 2, answerTime = 7000, numberTime = 1500, shrinkTime = 1500, maxStrikes = 0, order = 'strict' },
+        easy    = { tiles = 3, rounds = 3, questionsPerRound = 1, answerTime = 10000, numberTime = 2000, shrinkTime = 1500, maxStrikes = 1,
+                    questionTypes = { 'shape', 'shapeText', 'background' },
+                    palette = { 'black', 'white', 'blue', 'red', 'yellow', 'green' } },
+        hard    = { tiles = 6, rounds = 6, questionsPerRound = 3, answerTime = 8000, speedUp = 400, numberTime = 1000, shrinkTime = 1000, maxStrikes = 1 },
+    },
+    startMemoryDiff = {
+        normal  = { cols = 6, rows = 6, differences = 4, rounds = 1, mode = 'memory', memoriseTime = 5000, timeLimit = 20000, maxStrikes = 2, peeks = 1, peekTime = 1000 },
+        nopixel = { cols = 6, rows = 6, differences = 4, rounds = 1, mode = 'side', timeLimit = 20000, maxStrikes = 2, peeks = 0 },
+        easy    = { cols = 5, rows = 5, differences = 3, rounds = 1, mode = 'memory', memoriseTime = 7000, timeLimit = 25000, maxStrikes = 3, peeks = 2, peekTime = 1200 },
+        hard    = { cols = 7, rows = 6, differences = 5, rounds = 2, mode = 'memory', memoriseTime = 4000, timeLimit = 15000, maxStrikes = 1, peeks = 0, subtle = true },
+    },
+    startTraceroute = {
+        normal  = { cols = 10, rows = 6, ids = 8, extraLinks = 0.3, traces = 1, maxHops = 25, ttl = 30000, maxStrikes = 0 },
+        nopixel = { cols = 10, rows = 6, ids = 8, extraLinks = 0.3, traces = 1, maxHops = 25, ttl = 30000, maxStrikes = 0 },
+        easy    = { cols = 8, rows = 5, ids = 5, extraLinks = 0.4, traces = 1, maxHops = 30, ttl = 40000, maxStrikes = 1 },
+        hard    = { cols = 12, rows = 7, ids = 14, extraLinks = 0.2, traces = 2, maxHops = 28, ttl = 25000, maxStrikes = 1, hiddenIds = true },
+    },
+    startCarrierTune = {
+        normal  = { locks = 5, timeLimit = 40000, holdTime = 1500, holdDecay = 'drain', freqTolerance = 0.15, ampTolerance = 0.08 },
+        nopixel = { locks = 5, timeLimit = 40000, holdTime = 1500, holdDecay = 'drain', freqTolerance = 0.15, ampTolerance = 0.08 },
+        easy    = { locks = 3, timeLimit = 45000, holdTime = 1000, holdDecay = 'drain', freqTolerance = 0.25, ampTolerance = 0.12 },
+        hard    = { locks = 5, timeLimit = 35000, holdTime = 2000, holdDecay = 'reset', freqTolerance = 0.1, ampTolerance = 0.05, drift = 0.4, noise = true },
+    },
+}
+
+local function CopyValue(v)
+    if type(v) ~= 'table' then return v end
+    local out = {}
+    for k, x in pairs(v) do out[k] = CopyValue(x) end
+    return out
+end
+
+local function BuildHackConfig(action, settings)
+    settings = type(settings) == 'table' and settings or {}
+    local presets = HackPresets[action]
+    local cfg = CopyValue(presets[settings.preset] or presets.normal)
+    for k, v in pairs(settings) do
+        if k ~= 'preset' and k ~= '_perk' then cfg[k] = CopyValue(v) end
+    end
+    -- Hacking perks / timed buffs (client/core/client.lua PERK_ARGS field slots)
+    if type(settings._perk) == 'table' then
+        for field, perk in pairs(settings._perk) do
+            local base = tonumber(cfg[field]) or 0
+            cfg[field] = (base + (tonumber(perk.add) or 0)) * (tonumber(perk.scale) or 1)
+        end
+    end
+    return cfg
+end
+
+local function StartHackPack(action, settings, typing)
+    if isHacking then return false end
+    local p = promise.new()
+
+    callback = function(success)
+        p:resolve(success)
+        callback = nil
+    end
+
+    isHacking = true
+    backspaceTypes = typing == true   -- typing games: Backspace deletes, only ESC cancels
+    disableMovementControls = true
+    SetNuiFocus(true, true)
+    SendNUIMessage({ action = action, config = BuildHackConfig(action, settings) })
+
+    startDeathCheck()
+    return Citizen.Await(p)
+end
+
+exports('StartShapeRecallGame', function(settings) return StartHackPack('startShapeRecall', settings, true) end)
+exports('StartMemoryDiffGame', function(settings) return StartHackPack('startMemoryDiff', settings) end)
+exports('StartTracerouteGame', function(settings) return StartHackPack('startTraceroute', settings) end)
+exports('StartCarrierTuneGame', function(settings) return StartHackPack('startCarrierTune', settings) end)
+
+for _, name in ipairs({ 'shapeRecall', 'memoryDiff', 'traceroute', 'carrierTune' }) do
+    RegisterNUICallback(name .. 'Result', function(data, cb)
+        cleanupMinigame()
+        if callback then
+            callback(data.success == true)
+        end
+        cb('ok')
+    end)
+    RegisterNUICallback(name .. 'Close', function(_, cb)
+        cleanupMinigame()
+        cb('ok')
+    end)
+end
 
 if config.DebugCommands then
     RegisterCommand('testsurge', function()
@@ -1624,7 +1767,7 @@ if config.DebugCommands then
     end, false)
 
     RegisterCommand('testwireconnect', function()
-        local success = exports['glitch-minigames']:StartWireConnectGame(4, 0) -- 4 wires, no time limit
+        local success = exports['glitch-minigames']:StartWireConnectGame(nil, 0) -- default 8 cables, no time limit
         print("Wire Connect Result: ", success)
     end, false)
 
@@ -1662,8 +1805,12 @@ if config.DebugCommands then
         { 'keys',             function() return exports['glitch-minigames']:StartKeysGame(18, 15000, 6, 3) end },
         { 'comboinput',       function() return exports['glitch-minigames']:StartComboInputGame(3, 4, 6, 2, 1) end },
         { 'holdzone',         function() return exports['glitch-minigames']:StartHoldZoneGame('E', 3, 18, 18, 5, 2) end },
-        { 'wireconnect',      function() return exports['glitch-minigames']:StartWireConnectGame(4, 0) end },
+        { 'wireconnect',      function() return exports['glitch-minigames']:StartWireConnectGame(nil, 0) end },
         { 'simonsays',        function() return exports['glitch-minigames']:StartSimonSaysGame(5, 550, 0, 1) end },
+        { 'shaperecall',      function() return exports['glitch-minigames']:StartShapeRecallGame({ preset = 'normal' }) end },
+        { 'memorydiff',       function() return exports['glitch-minigames']:StartMemoryDiffGame({ preset = 'normal' }) end },
+        { 'traceroute',       function() return exports['glitch-minigames']:StartTracerouteGame({ preset = 'normal' }) end },
+        { 'carriertune',      function() return exports['glitch-minigames']:StartCarrierTuneGame({ preset = 'normal' }) end },
     }
 
     local testAllRunning = false

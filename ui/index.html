@@ -23,9 +23,10 @@
     <title>Luma Minigames</title>
     <!-- fonts for the tablet (Figtree, JetBrains Mono) and device (Chakra Petch, VT323) themes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Chakra+Petch:wght@500;600;700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Chakra+Petch:wght@500;600;700&family=VT323&family=Barlow+Condensed:ital,wght@1,800&family=Archivo+Black&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/hackGames.css"> <!-- shape recall, memory diff, traceroute, carrier tune -->
     <script>
         // Debug print gate — routes console.log through a flag set from the Lua
         // config (config.DebugPrints). Off by default so the console stays quiet.
@@ -736,7 +737,7 @@
         </div>
         <div id="wc-board" class="wc-board"></div>
         <div class="wc-footer">
-            <span id="wc-status" class="wc-status">Select a left terminal to begin</span>
+            <span id="wc-status" class="wc-status">Drag each cable to its socket</span>
             <div class="wc-timer-row">
                 <div class="wc-timer-bar"><div id="wc-timer-fill" class="wc-timer-fill"></div></div>
                 <span id="wc-time-text" class="wc-time-text"></span>
@@ -792,6 +793,126 @@
         </div>
     </div>
 
+    <!-- ===== Hack games pack (css/hackGames.css, js/hackGamesKit.js) ===== -->
+    <!-- Shape Recall Container -->
+    <div id="shape-recall-container" class="game-container ng-shell">
+        <div class="hack-title">
+            <h2><span id="sr-title">SHAPE RECALL</span> <span class="blink" id="sr-tag">[CAPTCHA]</span></h2>
+        </div>
+        <div class="sr-display">
+            <div id="sr-grid"><div id="sr-board"></div></div>
+        </div>
+        <div class="hack-info">
+            <div class="ng-msg" id="sr-msg"></div>
+            <div class="sr-qrow" id="sr-question"></div>
+            <div class="sr-answer" id="sr-answer">
+                <input type="text" id="sr-input" class="mc-answer-input" autocomplete="off" spellcheck="false" placeholder="e.g. blue square">
+                <button id="sr-submit" class="mc-submit-btn">Submit</button>
+            </div>
+            <div class="sr-reveal" id="sr-reveal" style="display:none"></div>
+            <div class="sr-foot mc-stats">
+                <span>Round: <span id="sr-round">1 / 4</span></span>
+                <div class="sr-pips" id="sr-pips"></div>
+                <span>Strikes: <span id="sr-strikes">0 / 0</span></span>
+            </div>
+        </div>
+        <div class="timer-container mc-timer-container">
+            <div class="timer-bar"><div class="mc-timer-progress" id="sr-bar"></div></div>
+            <div class="timer-text">Time: <span id="sr-time">0.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Memory Diff Container -->
+    <div id="memory-diff-container" class="game-container ng-shell">
+        <div class="hack-title">
+            <h2><span id="md-title">MEMORY DIFF</span> <span class="blink" id="md-tag">[SCAN]</span></h2>
+        </div>
+        <div class="md-boards">
+            <div class="md-side"><span class="ng-label">Image A</span><div class="md-grid" id="md-gridA"></div></div>
+            <div class="md-side"><span class="ng-label">Image B</span><div class="md-grid" id="md-gridB"></div></div>
+        </div>
+        <div class="md-mem" id="md-mem"><i></i></div>
+        <div class="hack-info">
+            <div class="ng-msg" id="md-msg"></div>
+            <div class="ng-stats mc-stats">
+                <span>Found: <b id="md-found">0 / 0</b></span>
+                <div class="ng-pips" id="md-pips"></div>
+                <span id="md-peeks-wrap">Peeks: <b id="md-peeks">0</b></span>
+                <span>Strikes: <b id="md-strikes">0 / 0</b></span>
+            </div>
+        </div>
+        <div class="timer-container mc-timer-container">
+            <div class="timer-bar"><div class="mc-timer-progress" id="md-bar"></div></div>
+            <div class="timer-text">Time: <span id="md-time">0.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Traceroute Container -->
+    <div id="traceroute-container" class="game-container ng-shell">
+        <div class="hack-title">
+            <h2><span id="tr-title">TRACEROUTE</span> <span class="blink" id="tr-tag">[ROUTING]</span></h2>
+        </div>
+        <div class="tr-body">
+            <div class="tr-board" id="tr-board"></div>
+            <div class="tr-side">
+                <span class="ng-label">Hops</span>
+                <div class="tr-big" id="tr-hops-big">0 / 0</div>
+                <div class="tr-hops" id="tr-hop-grid"></div>
+                <span class="ng-label">TTL</span>
+                <div class="tr-ttl"><i id="tr-ttl"></i></div>
+                <span class="ng-label">Route</span>
+                <div class="tr-route-txt" id="tr-route"></div>
+            </div>
+        </div>
+        <div class="hack-info">
+            <div class="ng-msg" id="tr-msg"></div>
+            <div class="ng-stats mc-stats">
+                <span>Trace: <b id="tr-round">1 / 1</b></span>
+                <div class="ng-pips" id="tr-pips"></div>
+                <span>Strikes: <b id="tr-strikes">0 / 0</b></span>
+            </div>
+        </div>
+        <div class="timer-container mc-timer-container">
+            <div class="timer-bar"><div class="mc-timer-progress" id="tr-bar"></div></div>
+            <div class="timer-text">TTL: <span id="tr-time">0.0</span>s</div>
+        </div>
+    </div>
+
+    <!-- Carrier Tune Container -->
+    <div id="carrier-tune-container" class="game-container ng-shell">
+        <div class="hack-title">
+            <h2><span id="ct-title">CARRIER TUNE</span> <span class="blink" id="ct-tag">[TUNE]</span></h2>
+        </div>
+        <div class="ct-top">
+            <div class="ng-pips" id="ct-pips"></div>
+            <div class="ct-status"><div class="ct-sig" id="ct-sig"></div><span class="ng-label" id="ct-stat">Tune</span></div>
+        </div>
+        <div class="ct-scope" id="ct-scope"></div>
+        <div class="ct-hold"><i id="ct-hold"></i></div>
+        <div class="ct-ctrls">
+            <div class="ct-knob">
+                <div class="ct-knob-head"><span class="ng-label">Frequency</span><span class="ct-val" id="ct-fval">0.0</span></div>
+                <div class="ct-btns"><div class="ct-btn" data-k="f" data-d="-1">-</div><div class="ct-btn" data-k="f" data-d="1">+</div></div>
+            </div>
+            <div class="ct-knob">
+                <div class="ct-knob-head"><span class="ng-label">Amplitude</span><span class="ct-val" id="ct-aval">0.00</span></div>
+                <div class="ct-btns"><div class="ct-btn" data-k="a" data-d="-1">-</div><div class="ct-btn" data-k="a" data-d="1">+</div></div>
+            </div>
+        </div>
+        <div class="hack-info">
+            <div class="ng-msg" id="ct-msg"></div>
+            <div class="ng-stats mc-stats">
+                <span>Locks: <b id="ct-locks">0 / 0</b></span>
+                <span>Freq off: <b id="ct-foff">0.00</b></span>
+                <span>Amp off: <b id="ct-aoff">0.00</b></span>
+            </div>
+        </div>
+        <div class="timer-container mc-timer-container">
+            <div class="timer-bar"><div class="mc-timer-progress" id="ct-bar"></div></div>
+            <div class="timer-text">TTL: <span id="ct-time">0.0</span>s</div>
+        </div>
+    </div>
+
     <script src="js/numberedSequence.js"></script>
     <script src="js/balance.js"></script>
     <script src="js/firewallPulse.js"></script>
@@ -822,5 +943,10 @@
     <script src="js/holdZone.js"></script>
     <script src="js/wireConnect.js"></script>
     <script src="js/simonSays.js"></script>
+    <script src="js/hackGamesKit.js"></script>
+    <script src="js/shapeRecall.js"></script>
+    <script src="js/memoryDiff.js"></script>
+    <script src="js/traceroute.js"></script>
+    <script src="js/carrierTune.js"></script>
 </body>
 </html>

@@ -4391,20 +4391,21 @@ body::before, body::after,
 }
 
 /* ===== CIRCLE CLICK MINIGAME ===== */
+/* floating, no panel (CC1 Hairline); circleClick.js sets left / top from the position option */
 #circle-click-container {
     position: fixed;
-    bottom: 100px;
     left: 50%;
-    transform: translateX(-50%);
+    top: 80%;
     display: none;
-    flex-direction: column;
-    align-items: center;
     z-index: 9999;
+    pointer-events: none;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 
 #circle-click-canvas {
     display: block;
-    filter: drop-shadow(0 0 20px rgba(0, 0, 0, 0.5));
 }
 
 /* ===== LOCKPICK MINIGAME ===== */
@@ -4423,6 +4424,19 @@ body::before, body::after,
     display: block;
     filter: drop-shadow(0 0 25px rgba(0, 0, 0, 0.6));
 }
+
+/* new lockpick styles float: no panel from any visual theme */
+body #lockpick-container:not([data-style="dial"]) {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+body #lockpick-container:not([data-style="dial"]) #lockpick-canvas {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    filter: none;
+}
+#lockpick-container.dragging #lockpick-canvas { cursor: grabbing; }
 
 /* ===== MODERN VISUAL THEME ===== */
 
@@ -4468,7 +4482,6 @@ body::before, body::after,
 .theme-modern #word-crack-container,
 .theme-modern #balance-container,
 .theme-modern #aim-test-container,
-.theme-modern #circle-click-container,
 .theme-modern #lockpick-container {
     border-radius: 4px !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 1px rgba(255, 255, 255, 0.1) inset !important;
@@ -4633,7 +4646,6 @@ body::before, body::after,
 .theme-modern #untangle-canvas,
 .theme-modern #fingerprint-canvas,
 .theme-modern #balance-gauge,
-.theme-modern #circle-click-canvas,
 .theme-modern #lockpick-canvas {
     border-radius: 3px !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 0, 0, 0.3) !important;
@@ -5256,55 +5268,71 @@ body::before, body::after,
 
 
 /* ===== Wire Connect Minigame ===== */
-#wire-connect-container { display: none; width: 600px; }
+#wire-connect-container { display: none; width: 640px; }
 .wc-board {
     position: relative;
     width: 100%;
-    height: 320px;
-    background: rgba(0,0,0,0.3);
+    height: 420px;
+    background:
+        radial-gradient(circle at 50% 40%, rgba(255,255,255,0.035), transparent 70%),
+        rgba(0,0,0,0.32);
     border-radius: 8px;
     border: 1px solid rgba(var(--border-rgba, 80,80,80), 0.3);
     margin-bottom: 10px;
+    touch-action: none;
+    user-select: none;
+    cursor: default;
+    overflow: hidden;
 }
 .wc-svg {
     position: absolute;
     top: 0; left: 0;
     pointer-events: none;
     overflow: visible;
+    z-index: 5;
 }
-.wc-dot {
+/* left jacks: a panel port the cable comes out of */
+.wc-term {
     position: absolute;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
     transform: translate(-50%, -50%);
-    cursor: pointer;
-    border: 2.5px solid transparent;
     box-sizing: border-box;
-    transition: transform 0.1s ease, box-shadow 0.12s ease;
-    z-index: 10;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    z-index: 4;
+    pointer-events: none;
 }
-.wc-dot:hover { transform: translate(-50%, -50%) scale(1.2); }
-.wc-dot.wc-selected {
-    border-color: #fff;
-    box-shadow: 0 0 14px rgba(255,255,255,0.5);
-    transform: translate(-50%, -50%) scale(1.25);
+.wc-jack {
+    width: 26px;
+    height: 34px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #2a2a2e, #161618);
+    border: 2px solid var(--wc-c);
+    box-shadow: 0 0 7px var(--wc-c);
 }
-.wc-dot.wc-connected { opacity: 0.75; }
+.wc-jack.wc-selected { box-shadow: 0 0 16px var(--wc-c), 0 0 0 3px rgba(255,255,255,0.55); }
+/* right sockets: hollow until a cable is in */
+.wc-socket {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #050505 38%, #1e1e22 40%, #2b2b30 100%);
+    border: 2.5px solid var(--wc-c);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.wc-socket.wc-hover { transform: translate(-50%, -50%) scale(1.22); box-shadow: 0 0 18px var(--wc-c); }
+.wc-socket.wc-plugged { box-shadow: 0 0 12px var(--wc-c); }
+.wc-socket.wc-reject { animation: wc-shake 0.4s ease; border-color: #ff4444; box-shadow: 0 0 18px #ff4444; }
 .wc-label {
     position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     font-family: 'Courier New', monospace;
-    font-size: 0.55rem;
+    font-size: 0.6rem;
     font-weight: bold;
     color: rgba(255,255,255,0.65);
     pointer-events: none;
     white-space: nowrap;
 }
-.wc-label.right { left: calc(100% + 7px); }
-.wc-label.left  { right: calc(100% + 7px); }
+.wc-label.right { left: calc(100% + 8px); }
+.wc-label.left  { right: calc(100% + 8px); }
 .wc-footer { display: flex; flex-direction: column; gap: 6px; }
 .wc-status {
     font-family: 'Courier New', monospace;
@@ -5336,13 +5364,15 @@ body::before, body::after,
     min-width: 28px;
     text-align: right;
 }
-@keyframes wc-draw {
-    from { stroke-dashoffset: 1; }
-    to   { stroke-dashoffset: 0; }
-}
-.wc-wire-new {
-    stroke-dasharray: 1;
-    animation: wc-draw 0.4s cubic-bezier(.22,.8,.36,1) forwards;
+/* a cable that just went in: quick snap flash */
+.wc-cable-in { animation: wc-snap 0.35s ease-out; }
+.wc-cable-picked { animation: wc-pulse 0.9s ease-in-out infinite; }
+@keyframes wc-snap { 0% { opacity: 0.4; filter: brightness(2.2); } 100% { opacity: 1; filter: none; } }
+@keyframes wc-pulse { 50% { filter: brightness(1.6); } }
+@keyframes wc-shake {
+    0%, 100% { transform: translate(-50%, -50%); }
+    25% { transform: translate(-58%, -50%); }
+    75% { transform: translate(-42%, -50%); }
 }
 
 

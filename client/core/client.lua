@@ -5,7 +5,8 @@
 --   * one shared busy lock: only one minigame (NUI, scaleform or drill) at a time
 --   * XP reporting to the server for games listed in config.XP.Games
 --   * Hacking perks from glitch-xpSystem (extra time, extra mistakes, retry)
---   * per-game style: a trailing { colour, theme, keybinds } table (client/core/style.lua)
+--   * per-game style: a trailing { colour, theme, keybinds, position, xp } table (client/core/style.lua)
+--     (xp = true turns XP + perks on for games in config.XP.OptIn; xp = false turns them off)
 -- Arguments and return values otherwise pass through untouched.
 
 Minigames = {
@@ -48,6 +49,11 @@ local PERK_ARGS = {
     StartHoldZoneGame         = { mistakes = { 6, 2 } },
     StartWireConnectGame      = { time = { 2, 's', 0 } },
     StartSimonSaysGame        = { time = { 3, 's', 20 }, mistakes = { 4, 1 } },
+    -- hack games pack: one settings table at arg 1, `field` names the key inside it
+    StartShapeRecallGame      = { time = { 1, 'ms', field = 'answerTime' }, mistakes = { 1, field = 'maxStrikes' } },
+    StartMemoryDiffGame       = { time = { 1, 'ms', field = 'timeLimit' }, mistakes = { 1, field = 'maxStrikes' } },
+    StartTracerouteGame       = { time = { 1, 'ms', field = 'ttl' }, mistakes = { 1, field = 'maxStrikes' } },
+    StartCarrierTuneGame      = { time = { 1, 'ms', field = 'timeLimit' } },
     StartBruteForce           = { mistakes = { 1, 5 } },
     -- Balance: its timer is how long you must survive, so extra time would make it harder
 }
@@ -90,7 +96,26 @@ local function FetchPerks()
     return perks
 end
 
+-- Settings-table games (slot.field): the bonus is stored as settings._perk[field] = { add, scale }
+-- and applied after the preset is merged (customMinigames/client.lua BuildHackConfig).
+local function FieldPerk(args, slot)
+    local index = slot[1]
+    if type(args[index]) ~= 'table' then
+        args[index] = {}
+        if index > args.n then args.n = index end
+    end
+    local settings = args[index]
+    settings._perk = settings._perk or {}
+    settings._perk[slot.field] = settings._perk[slot.field] or { add = 0, scale = 1 }
+    return settings._perk[slot.field]
+end
+
 local function AddBonus(args, slot, bonus)
+    if slot.field then
+        local perk = FieldPerk(args, slot)
+        perk.add = perk.add + bonus
+        return
+    end
     local index, default = slot[1], slot[#slot]
     local value = args[index]
     if value == nil then value = default end
@@ -112,8 +137,29 @@ local function ApplyPerks(name, args, perks)
     end
 end
 
+-- Timed buffs (glitch-drugs joint sets LocalPlayer.state.hackTimeBonus = 0.05 while it lasts):
+-- the game's time limit, perks included, gets that share longer
+local function ApplyHackBuff(name, args)
+    local slot = PERK_ARGS[name] and PERK_ARGS[name].time
+    local bonus = tonumber(LocalPlayer.state.hackTimeBonus) or 0
+    if not slot or bonus <= 0 then return end
+    if slot.field then
+        local perk = FieldPerk(args, slot)
+        perk.scale = perk.scale * (1 + math.min(bonus, 0.5))
+        return
+    end
+    local index, default = slot[1], slot[#slot]
+    local value = args[index]
+    if value == nil then value = default end
+    if type(value) ~= 'number' or value <= 0 then return end
+    local longer = value * (1 + math.min(bonus, 0.5))
+    args[index] = slot[2] == 'ms' and math.floor(longer) or longer
+    if index > args.n then args.n = index end
+end
+
 local function Wrap(name, fn)
-    local reportXP = xpEnabled and xpConfig.Games and xpConfig.Games[name] ~= nil
+    local listedXP = xpEnabled and xpConfig.Games and xpConfig.Games[name] ~= nil
+    local optIn = xpConfig.OptIn and xpConfig.OptIn[name] == true
 
     return function(...)
         if Minigames.busy then return false end
@@ -129,8 +175,13 @@ local function Wrap(name, fn)
         local args = table.pack(...)
         -- optional trailing { colour, theme, keybinds } table (client/core/style.lua)
         local styleOpts = Style and Style.Extract(args)
+        -- opt-in games only give XP (and perks / retry) when the call passes { xp = true }
+        local reportXP = listedXP and (not optIn or (styleOpts ~= nil and styleOpts.xp == true))
+        -- { xp = false } opts out (civilian jobs use these games without hacking XP)
+        if styleOpts ~= nil and styleOpts.xp == false then reportXP = false end
         local perks = perksEnabled and reportXP and FetchPerks() or {}
         ApplyPerks(name, args, perks)
+        if reportXP then ApplyHackBuff(name, args) end
 
         if reportXP then
             TriggerServerEvent('glitch-minigames:xpStart', name)
@@ -244,7 +295,17 @@ CreateThread(function()
     end
 end)
 
+-- other client files register non-game exports (no busy lock / XP) through this
+Minigames.RawExport = rawExports
+
 -- For other scripts: check before starting a game (registered unwrapped)
 rawExports('IsBusy', function()
     return Minigames.busy
+end)
+
+-- ox_lib lib.cancelSkillCheck: closes the redirected skill check (fails it)
+rawExports('CancelOxSkillCheck', function()
+    if Minigames.busy and Minigames.name == 'OxSkillCheck' and Minigames.CancelActive then
+        Minigames.CancelActive()
+    end
 end)

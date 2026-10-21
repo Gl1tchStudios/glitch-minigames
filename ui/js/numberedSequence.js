@@ -482,10 +482,7 @@ function playNumberedSequenceSound(type) {
             default:
                 audio = document.getElementById('sound-buttonPress');
         }        
-        if (audio) {
-            audio.currentTime = 0;
-            audio.play().catch(() => {});
-        }
+        if (audio) playSoundSafe(audio.id); // app.js: follows the sound theme
     } catch (e) {
         
     }

@@ -99,7 +99,7 @@
 .theme-device :is(
     .pulse-container, .sequence-display, .rhythm-display, .var-display, .memory-display,
     .sequence-memory-display, .numbered-sequence-display, .verbal-memory-display,
-    .symbol-search-display, .pipe-pressure-display, .pairs-display, .memory-colors-display,
+    .symbol-search-display, .pipe-pressure-display, .pairs-display, .memory-colors-display, .sr-display,
     .untangle-display, .fingerprint-display, .code-crack-display, .word-crack-display,
     .balance-display, .aim-test-display, .skill-check-track-wrapper, #number-up-grid,
     #keys-game-grid, .wc-board, .ss-grid
@@ -123,7 +123,7 @@
 .theme-device :is(
     .sequence-display, .rhythm-display, .var-display, .memory-display, .sequence-memory-display,
     .numbered-sequence-display, .verbal-memory-display, .symbol-search-display, .pipe-pressure-display,
-    .pairs-display, .memory-colors-display, .code-crack-display, .word-crack-display,
+    .pairs-display, .memory-colors-display, .sr-display, .code-crack-display, .word-crack-display,
     #number-up-grid, #keys-game-grid, .ss-grid, .hack-info, .timer-text
 ) :is(*) {
     font-family: 'VT323', 'Chakra Petch', monospace;
@@ -516,7 +516,7 @@
 .theme-tablet :is(
     .pulse-container, .sequence-display, .rhythm-display, .var-display, .memory-display,
     .sequence-memory-display, .numbered-sequence-display, .verbal-memory-display,
-    .symbol-search-display, .pipe-pressure-display, .pairs-display, .memory-colors-display,
+    .symbol-search-display, .pipe-pressure-display, .pairs-display, .memory-colors-display, .sr-display,
     .untangle-display, .fingerprint-display, .code-crack-display, .word-crack-display,
     .balance-display, .aim-test-display, .skill-check-track-wrapper, .wc-board
 ) {
@@ -736,7 +736,7 @@
     color: var(--tb-muted) !important;
     font-size: 13px !important;
 }
-.theme-tablet :is(.counter, #pairs-pairs, #pairs-attempts, #mc-round, #mc-score, #untangle-crossings,
+.theme-tablet :is(.counter, #pairs-pairs, #pairs-attempts, #mc-round, #mc-score, #sr-round, #sr-strikes, #untangle-crossings,
                   #fingerprint-matched, .number-up-next-value, #rhythm-score, #combo-number) {
     color: var(--tb-text) !important;
     font-family: 'JetBrains Mono', monospace !important;
@@ -870,13 +870,13 @@
 }
 
 /* device: grids / canvases sit straight on the LCD, no extra framed box */
-.theme-device :is(#pairs-grid, #memory-colors-grid, #pipe-grid, .symbol-search-grid, #untangle-canvas, #fingerprint-canvas,
+.theme-device :is(#pairs-grid, #memory-colors-grid, #sr-grid, #pipe-grid, .symbol-search-grid, #untangle-canvas, #fingerprint-canvas,
                   .memory-grid, .sequence-memory-grid, .numbered-sequence-grid, .aim-test-area, .var-groups) {
     background: transparent !important;
     border: 1px dashed rgba(var(--primary-rgb), 0.22) !important;
     box-shadow: none !important;
 }
-.theme-tablet :is(#pairs-grid, #memory-colors-grid, #pipe-grid, .symbol-search-grid, #untangle-canvas, #fingerprint-canvas,
+.theme-tablet :is(#pairs-grid, #memory-colors-grid, #sr-grid, #pipe-grid, .symbol-search-grid, #untangle-canvas, #fingerprint-canvas,
                   .memory-grid, .sequence-memory-grid, .numbered-sequence-grid, .aim-test-area, .var-groups) {
     background: transparent !important;
     border: none !important;
@@ -983,3 +983,7 @@
     border-color: rgba(var(--primary-rgb), 0.65);
     transform: none;
 }
+
+/* keycap HUD: mute row while muted (any keybind theme) */
+:is(#mg-controls, .mg-controls) .mgc-row.mute.muted .mgc-key { opacity: 0.6; }
+:is(#mg-controls, .mg-controls) .mgc-row.mute.muted .mgc-label { color: #ff9f43; }

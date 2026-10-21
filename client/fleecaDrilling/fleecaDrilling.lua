@@ -226,7 +226,7 @@ Drilling.LoadAnimations = function()
     end
 end
 
-Drilling.ClearDrillProp = function()
+Drilling.ClearDrillProp = function(soft)
     if DrillPropHandle and DoesEntityExist(DrillPropHandle) then
         DetachEntity(DrillPropHandle, true, true)
         DeleteObject(DrillPropHandle)
@@ -238,6 +238,7 @@ Drilling.ClearDrillProp = function()
         
         DrillPropHandle = nil
     end
+    if soft then return end
     
     ClearPedTasks(PlayerPedId())
     local playerPed = PlayerPedId()
@@ -543,8 +544,10 @@ Drilling.HandleControls = function()
 
         PlaySoundFrontend(-1, "Drill_Heat_Failure", "DLC_HEIST_FLEECA_SOUNDSET", true)
         
+        -- late safety net: only our own prop (soft). A full clear here wiped the props
+        -- and anims the calling script had started since (heist drill progress)
         Citizen.SetTimeout(2000, function()
-            Drilling.ClearDrillProp()
+            Drilling.ClearDrillProp(true)
         end)
 
     elseif Drilling.DrillPos >= 0.975 then
@@ -569,8 +572,10 @@ Drilling.HandleControls = function()
 
         PlaySoundFrontend(-1, "Drill_Pin_Break", "DLC_HEIST_FLEECA_SOUNDSET", true)
         
+        -- late safety net: only our own prop (soft). A full clear here wiped the props
+        -- and anims the calling script had started since (heist drill progress)
         Citizen.SetTimeout(2000, function()
-            Drilling.ClearDrillProp()
+            Drilling.ClearDrillProp(true)
         end)
     end
     

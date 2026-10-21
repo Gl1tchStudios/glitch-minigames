@@ -308,10 +308,7 @@ function playMemorySound(type) {
                 audio = document.getElementById('sound-buttonPress');
         }
         
-        if (audio) {
-            audio.currentTime = 0;
-            audio.play().catch(e => console.log('Audio play failed:', e));
-        }
+        if (audio) playSoundSafe(audio.id); // app.js: follows the sound theme
     } catch (e) {
         console.log('Error playing sound:', e);
     }

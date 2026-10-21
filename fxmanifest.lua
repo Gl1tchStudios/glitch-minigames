@@ -37,6 +37,7 @@ files {
     'ui/index.html',
     'ui/css/style.css',
     'ui/css/themes.css', -- 'device' + 'tablet' visual themes and keybind HUD themes
+    'ui/css/hackGames.css', -- shape recall, memory diff, traceroute, carrier tune
     'ui/js/jquery-3.6.0.min.js',
     'ui/js/app.js',
     'ui/js/firewallPulse.js',
@@ -68,6 +69,11 @@ files {
     'ui/js/holdZone.js',
     'ui/js/wireConnect.js',
     'ui/js/simonSays.js',
+    'ui/js/hackGamesKit.js',
+    'ui/js/shapeRecall.js',
+    'ui/js/memoryDiff.js',
+    'ui/js/traceroute.js',
+    'ui/js/carrierTune.js',
     'ui/sounds/*.mp3',
     'ui/sounds/songs/*.mp3' -- Going to be used for the rhythm game later down the track
 }

@@ -229,7 +229,8 @@ let barHitGame = {
         this.animationFrame = null;
 
         playSoundSafe(success ? 'sound-success' : 'sound-failure');
-        $('#bar-hit-message').text(success ? 'ACCESS GRANTED' : 'ACCESS DENIED');
+        const cfg = this.config || {};
+        $('#bar-hit-message').text(success ? (cfg.successText || 'ACCESS GRANTED') : (cfg.failText || 'ACCESS DENIED'));
 
         const resultData = {
             success: success,
