@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="https://store.glitchstudios.dev/img/b3848e6c055da759.png" alt="Minigames" width="100%">
+
 # glitch-minigames
 
 ### 38 minigames for FiveM, one export each.
