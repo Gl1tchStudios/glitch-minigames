@@ -20,6 +20,8 @@ Standalone: it needs only ox_lib and works with Qbox, QBCore, ESX or no framewor
 
 [Features](#features) &middot; [What you need](#what-you-need) &middot; [Install](#install) &middot; [Configuration](#configuration) &middot; [Exports](#exports) &middot; [How it works](#how-it-works) &middot; [Troubleshooting](#troubleshooting)
 
+<img src="media/demo.gif" alt="Minigames in the city" width="100%">
+
 </div>
 
 ---
