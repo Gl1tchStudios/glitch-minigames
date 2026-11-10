@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // --
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -170,7 +170,7 @@ let keysGame = {
 
         setTimeout(function() {
             $('#keys-game-container').fadeOut(500, function() {
-                $.post('https://glitch-minigames/keysResult', JSON.stringify(resultData));
+                $.post('https://' + GetParentResourceName() + '/keysResult', JSON.stringify(resultData));
             });
         }, 700);
     },

@@ -1,18 +1,18 @@
-// -- Glitch Minigames — Combo Input
-// -- Minimal HUD: directional combo (W/A/S/D shown as ↑←↓→) type it fast
+// -- Glitch Minigames - Combo Input
+// -- Minimal HUD: directional combo (W/A/S/D shown as ^<-v->) type it fast
 
 window.comboInputGame = (function () {
 
-    // Direction key map: JS keyCode → display symbol & axis label
+    // Direction key map: JS keyCode -> display symbol & axis label
     const DIR_MAP = {
-        87: { sym: '↑', label: 'W' },
-        65: { sym: '←', label: 'A' },
-        83: { sym: '↓', label: 'S' },
-        68: { sym: '→', label: 'D' }
+        87: { sym: '\u2191', label: 'W' },
+        65: { sym: '\u2190', label: 'A' },
+        83: { sym: '\u2193', label: 'S' },
+        68: { sym: '\u2192', label: 'D' }
     };
     const DIR_KEYS = [87, 65, 83, 68];
 
-    // Arrow key aliases → WASD equivalents
+    // Arrow key aliases -> WASD equivalents
     const ARROW_MAP = { 38: 87, 37: 65, 40: 83, 39: 68 };
 
     let config   = {};
@@ -25,7 +25,7 @@ window.comboInputGame = (function () {
     let timerInt = null;
     let _gen     = 0;       // incremented on each start(); guards stale endGame callbacks
 
-    // ── helpers ─────────────────────────────────────────────
+    // -- helpers ---------------------------------------------
 
     function generateCombo(length) {
         const arr = [];
@@ -53,7 +53,7 @@ window.comboInputGame = (function () {
         if (timerInt) { clearInterval(timerInt); timerInt = null; }
     }
 
-    // ── round/game flow ──────────────────────────────────────
+    // -- round/game flow --------------------------------------
 
     function startRound() {
         round++;
@@ -117,12 +117,12 @@ window.comboInputGame = (function () {
             if (_gen !== thisGen) return;
             $c.fadeOut(300, function() {
                 if (_gen !== thisGen) return;
-                $.post('https://glitch-minigames/comboInputResult', JSON.stringify({ success: success }));
+                $.post('https://' + GetParentResourceName() + '/comboInputResult', JSON.stringify({ success: success }));
             });
         }, success ? 600 : 450);
     }
 
-    // ── key handler ──────────────────────────────────────────
+    // -- key handler ------------------------------------------
 
     function handleKey(keyCode) {
         if (!active) return;
@@ -144,7 +144,7 @@ window.comboInputGame = (function () {
                 }, 330);
             }
         } else {
-            // Wrong key — reset combo progress (not a full failure)
+            // Wrong key - reset combo progress (not a full failure)
             playSoundSafe('sound-penalty');
             cursor = 0;
             renderArrows();
@@ -154,7 +154,7 @@ window.comboInputGame = (function () {
         }
     }
 
-    // ── public API ───────────────────────────────────────────
+    // -- public API -------------------------------------------
 
     let _onKeyDown = null;
 

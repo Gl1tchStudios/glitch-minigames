@@ -41,7 +41,7 @@ window.HackKit = (function () {
     }
 
     function post(name, data) {
-        $.post('https://glitch-minigames/' + name, JSON.stringify(data || {}));
+        $.post('https://' + GetParentResourceName() + '/' + name, JSON.stringify(data || {}));
     }
 
     function sound(id) {

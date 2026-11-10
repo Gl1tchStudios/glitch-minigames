@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-local Class = require 'class'
+local Class = CircuitBreaker.Class -- loaded in init.lua
 
 local generic = {}
 
@@ -150,8 +150,8 @@ local function getRandomPortPosition(portBounds)
         return vec2(0)
     end
 
-    local portX = math.random(math.round(portBounds[1].x * 1000, -1), math.round(portBounds[2].x * 1000, -1)) / 1000
-    local portY = math.random(math.round(portBounds[1].y * 1000, -1), math.round(portBounds[2].y * 1000, -1)) / 1000
+    local portX = math.random(CircuitBreaker.round(portBounds[1].x * 1000, -1), CircuitBreaker.round(portBounds[2].x * 1000, -1)) / 1000
+    local portY = math.random(CircuitBreaker.round(portBounds[1].y * 1000, -1), CircuitBreaker.round(portBounds[2].y * 1000, -1)) / 1000
 
     return vec2(portX, portY)
 end
@@ -249,7 +249,7 @@ function generic:getWinBounds()
     local portBounds = {}
     for i = 1, #magnitudeAngleOffsetPairs do
         local data = magnitudeAngleOffsetPairs[i]
-        portBounds[i] = GetOffsetPosition(self.finishPortPos, data[1], (self.finishPortHeading + data[2]) % 360, multiplier)
+        portBounds[i] = CircuitBreaker.GetOffsetPosition(self.finishPortPos, data[1], (self.finishPortHeading + data[2]) % 360, multiplier)
     end
 
     return portBounds
@@ -275,7 +275,7 @@ local function getPortCollisionBounds(position, heading, isStartPort)
     local portBounds = {}
     for i = 1, #angles do
         local angle = angles[i]
-        portBounds[i] = GetOffsetPosition(position, magnitude, (heading + angle) % 360, multiplier)
+        portBounds[i] = CircuitBreaker.GetOffsetPosition(position, magnitude, (heading + angle) % 360, multiplier)
     end
 
     return portBounds
@@ -295,14 +295,14 @@ end
 ---@param cursorPosition vector2
 ---@return boolean
 function generic:IsCursorInGameWinningPosition(cursorPosition)
-    return IsInPoly(self.winBounds, cursorPosition)
+    return CircuitBreaker.IsInPoly(self.winBounds, cursorPosition)
 end
 
 ---Determines wether the specified cursor position is colliding with port
 ---@param cursorPosition vector2
 ---@return boolean
 function generic:IsCollisionWithPort(cursorPosition)
-    return IsInPoly(self.startPortBounds, cursorPosition) or IsInPoly(self.finishPortBounds, cursorPosition) and self:IsCursorInGameWinningPosition(cursorPosition)
+    return CircuitBreaker.IsInPoly(self.startPortBounds, cursorPosition) or CircuitBreaker.IsInPoly(self.finishPortBounds, cursorPosition) and self:IsCursorInGameWinningPosition(cursorPosition)
 end
 
 function generic:DrawPorts()
@@ -318,22 +318,22 @@ function generic:DrawPorts()
     self.finishPortLights:DrawLights()
 end
 
-Generic = Class.new(generic)
+CircuitBreaker.Generic = Class.new(generic)
 
 ---@param levelNumber integer
 ---@return table
-function newGeneric(levelNumber)
+function CircuitBreaker.newGeneric(levelNumber)
     local startPortPos = getStartPortPosition(levelNumber)
     local finishPortPos = getFinishPortPosition(levelNumber, startPortPos)
     local startPortHeading = getPortHeading(startPortPos)
     local finishPortHeading = getPortHeading(finishPortPos)
-    local gen = Generic.new({
+    local gen = CircuitBreaker.Generic.new({
         startPortPos = startPortPos,
         finishPortPos = finishPortPos,
         startPortHeading = startPortHeading,
         finishPortHeading = finishPortHeading,
-        startPortLights = newPortLights(startPortPos, startPortHeading, PortPositionType.Start),
-        finishPortLights = newPortLights(finishPortPos, finishPortHeading, PortPositionType.Finish),
+        startPortLights = CircuitBreaker.newPortLights(startPortPos, startPortHeading, CircuitBreaker.PortPositionType.Start),
+        finishPortLights = CircuitBreaker.newPortLights(finishPortPos, finishPortHeading, CircuitBreaker.PortPositionType.Finish),
         startPortBounds = {},
         finishPortBounds = {},
         winBounds = {}
@@ -345,8 +345,3 @@ function newGeneric(levelNumber)
 
     return gen
 end
-
-return {
-    newGeneric = newGeneric,
-    Generic = Generic
-}

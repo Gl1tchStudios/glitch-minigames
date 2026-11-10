@@ -1,6 +1,6 @@
 /* 
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see <https://www.gnu.org/licenses/>. */
 
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+/* Share Tech Mono and the other fonts are bundled in ui/fonts (loaded by index.html) */
 
 :root {
     /* Themeable colors */
@@ -4779,7 +4779,7 @@ body #lockpick-container:not([data-style="dial"]) #lockpick-canvas {
     z-index: 0;
 }
 
-/* Normal (wider) zone — primary/blue */
+/* Normal (wider) zone - primary/blue */
 .skill-check-zone {
     position: absolute;
     top: 0;
@@ -4812,7 +4812,7 @@ body #lockpick-container:not([data-style="dial"]) #lockpick-canvas {
     user-select: none;
 }
 
-/* Perfect (narrower) zone — safe/green */
+/* Perfect (narrower) zone - safe/green */
 .skill-check-perfect {
     position: absolute;
     top: 0;

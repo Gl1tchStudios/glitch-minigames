@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // --
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -396,7 +396,7 @@ let circleClickGame = {
 
         setTimeout(function() {
             $('#circle-click-container').fadeOut(150, function() {
-                $.post('https://glitch-minigames/circleClickResult', JSON.stringify({
+                $.post('https://' + GetParentResourceName() + '/circleClickResult', JSON.stringify({
                     success: success,
                     successes: self.successes,
                     failures: self.failures
@@ -410,7 +410,7 @@ let circleClickGame = {
         cancelAnimationFrame(this.animationFrame);
         $(document).off('keydown.circleclick');
         $('#circle-click-container').hide();
-        $.post('https://glitch-minigames/circleClickClose', JSON.stringify({}));
+        $.post('https://' + GetParentResourceName() + '/circleClickClose', JSON.stringify({}));
     }
 };
 

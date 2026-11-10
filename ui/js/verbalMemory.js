@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -215,8 +215,6 @@ function showNextWord() {
     
     verbalMemoryGameState.currentWord = word;
     verbalMemoryGameState.isNewWord = isNewWord;
-    
-    console.log(`Showing word: ${word} (${isNewWord ? 'NEW' : 'SEEN'})`);
     
     $('#verbal-memory-current-word').text(word);
     $('.verbal-memory-btn').removeClass('correct wrong');

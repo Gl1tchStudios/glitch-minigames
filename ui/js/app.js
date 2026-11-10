@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -50,7 +50,90 @@ const CANCEL_KEY_NAMES = {
 // Cancel keys for mouse games; overwritten by setColors.
 window.minigameCancelKeys = ['Escape', 'Backspace'];
 
-// ── Mute (full-screen games, config.MuteKey) ─────────────────────────────────
+// -- Game id on every post back to Lua -----------------------------------------
+// The Lua side moves to a new game id whenever a game ends and sends it here
+// (any message with a numeric gameId). Every JSON post to this resource carries
+// the id that was current when it was sent, so a late result from a game that
+// was already closed (timer firing just before forceClose) cannot resolve the
+// next game. Covers $.post and fetch, so the game files need no changes.
+(function () {
+    let currentGameId = null;
+    window.addEventListener('message', function (event) {
+        const data = event.data;
+        if (data && typeof data.gameId === 'number') currentGameId = data.gameId;
+    });
+
+    const ownPrefix = 'https://' + GetParentResourceName() + '/';
+    function withGameId(body) {
+        if (currentGameId === null || typeof body !== 'string') return body;
+        try {
+            const parsed = body === '' ? {} : JSON.parse(body);
+            if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return body;
+            parsed.gameId = currentGameId;
+            return JSON.stringify(parsed);
+        } catch (e) {
+            return body;
+        }
+    }
+
+    if (window.jQuery && jQuery.ajaxPrefilter) {
+        jQuery.ajaxPrefilter(function (options) {
+            if (typeof options.url === 'string' && options.url.indexOf(ownPrefix) === 0) {
+                options.data = withGameId(options.data);
+            }
+        });
+    }
+
+    const nativeFetch = window.fetch.bind(window);
+    window.fetch = function (url, init) {
+        if (typeof url === 'string' && url.indexOf(ownPrefix) === 0 && init && typeof init.body === 'string') {
+            init = Object.assign({}, init, { body: withGameId(init.body) });
+        }
+        return nativeFetch(url, init);
+    };
+})();
+
+// -- Text overrides (config.Text) --------------------------------------------
+// Swaps any text node whose whole (trimmed) text is a key of config.Text, once over
+// the page and then on DOM changes. Does nothing while config.Text is empty.
+window.minigameText = {};
+let minigameTextObserver = null;
+const minigameTextWritten = new WeakMap(); // node -> value we wrote (no re-translating our own write)
+
+function translateTextNode(node) {
+    if (!node) return;
+    if (node.nodeType === 3) {
+        const raw = node.nodeValue;
+        if (minigameTextWritten.get(node) === raw) return;
+        const key = raw.trim();
+        if (key && Object.prototype.hasOwnProperty.call(window.minigameText, key)) {
+            const out = raw.replace(key, String(window.minigameText[key]));
+            minigameTextWritten.set(node, out);
+            if (out !== raw) node.nodeValue = out;
+        }
+        return;
+    }
+    if (node.nodeType !== 1 || node.tagName === 'SCRIPT' || node.tagName === 'STYLE') return;
+    const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+    let t;
+    while ((t = walker.nextNode())) translateTextNode(t);
+}
+
+function applyMinigameText(map) {
+    if (!map || typeof map !== 'object' || Array.isArray(map) || Object.keys(map).length === 0) return;
+    window.minigameText = map;
+    translateTextNode(document.body);
+    if (minigameTextObserver) return;
+    minigameTextObserver = new MutationObserver(function(list) {
+        for (const m of list) {
+            if (m.type === 'characterData') translateTextNode(m.target);
+            else m.addedNodes.forEach(translateTextNode);
+        }
+    });
+    minigameTextObserver.observe(document.body, { childList: true, subtree: true, characterData: true });
+}
+
+// -- Mute (full-screen games, config.MuteKey) ---------------------------------
 // The muted state is remembered in localStorage (per player, across restarts) and
 // silences every minigame sound: playSound() and the games that call .play() directly.
 const MUTE_STORE = 'glitchMinigames.muted';
@@ -93,7 +176,7 @@ function toggleMinigameMute() {
 // The controls HUD is drawn by glitch-uiElements / ox_lib (client/core/controls.lua):
 // tell Lua the muted state so the row there reads Mute / Unmute.
 function reportMute() {
-    fetch('https://glitch-minigames/muteState', {
+    fetch('https://' + GetParentResourceName() + '/muteState', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
         body: JSON.stringify({ muted: !!window.minigameMuted }),
@@ -116,7 +199,7 @@ const heldKeys = {};
 function sendKeyState(key, down) {
     if (!key || !!heldKeys[key] === down) return;
     if (down) heldKeys[key] = true; else delete heldKeys[key];
-    fetch('https://glitch-minigames/keyState', {
+    fetch('https://' + GetParentResourceName() + '/keyState', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json; charset=UTF-8' },
         body: JSON.stringify({ key: key, down: down }),
@@ -212,6 +295,7 @@ $(document).ready(function() {
             if (data.debug !== undefined && typeof window.setGlitchDebug === 'function') {
                 window.setGlitchDebug(data.debug);
             }
+            if (data.text) applyMinigameText(data.text);
             if (Array.isArray(data.cancelKeys)) {
                 window.minigameCancelKeys = data.cancelKeys.map(function(k) {
                     return CANCEL_KEY_NAMES[String(k).toUpperCase()];
@@ -782,7 +866,7 @@ $(document).ready(function() {
         // typing games use Backspace to delete, so it never cancels them (ESC still does)
         if (e.key === 'Backspace' && $('#code-crack-container:visible, #word-crack-container:visible, #shape-recall-container:visible').length > 0) return;
         e.preventDefault();
-        $.post('https://glitch-minigames/minigameCancel', JSON.stringify({ key: e.key }));
+        $.post('https://' + GetParentResourceName() + '/minigameCancel', JSON.stringify({ key: e.key }));
     });
 
     // Panel subtitles without the [BRACKETS], for the tablet / device themes (CSS attr(data-label))
@@ -839,7 +923,7 @@ window.minigameSoundTheme = 'gta';
 function playSound(soundId, volume) {
     if (window.minigameSoundTheme !== 'classic') {
         if (window.minigameMuted) return;
-        fetch('https://glitch-minigames/playSound', {
+        fetch('https://' + GetParentResourceName() + '/playSound', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json; charset=UTF-8' },
             body: JSON.stringify({ sound: String(soundId).replace(/^sound-/, ''), theme: window.minigameSoundTheme }),

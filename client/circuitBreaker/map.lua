@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 ---Out of bounds areas for each map
 ---@param mapNumber integer
 ---@return vector2[][]
-function GetBoxBounds(mapNumber)
+function CircuitBreaker.GetBoxBounds(mapNumber)
     if mapNumber == 1 then
         return {
             {

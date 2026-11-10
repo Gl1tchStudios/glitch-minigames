@@ -3,20 +3,89 @@
 -- Loaded before every other client file. Every function the resource exports
 -- goes through Wrap(), which adds:
 --   * one shared busy lock: only one minigame (NUI, scaleform or drill) at a time
---   * XP reporting to the server for games listed in config.XP.Games
---   * Hacking perks from glitch-xpSystem (extra time, extra mistakes, retry)
+--   * XP reporting to the server for games listed in config.XP.Games (server/xp.lua)
+--   * Hacking perks from glitch-xpSystem (extra time, extra mistakes, retry), read
+--     through lib.callback when an XP resource is running
 --   * per-game style: a trailing { colour, theme, keybinds, position, xp } table (client/core/style.lua)
 --     (xp = true turns XP + perks on for games in config.XP.OptIn; xp = false turns them off)
 -- Arguments and return values otherwise pass through untouched.
+--
+-- Resource-wide globals (only visible inside this resource). These are the only
+-- intended ones; everything else in the client files is local:
+--   Minigames      this file: lock state, helpers, stop hooks
+--   Style          client/core/style.lua
+--   ShowControls, HideControls   client/core/controls.lua
+--   CircuitBreaker client/circuitBreaker/init.lua (all circuit breaker modules)
+--   Scaleforms     client/utils/scaleforms.lua
+--   Drilling       client/fleecaDrilling/fleecaDrilling.lua
+--   PlasmaDrilling client/plasmaDrilling/plasmaDrilling.lua
+--   config         shared/config.lua
 
 Minigames = {
     busy = false,      -- a minigame is running
     cancelled = false, -- set by the cancel key / death handlers in customMinigames/client.lua
 }
 
+-- Console output for testing; silent unless config.DebugPrints is on
+function Minigames.Debug(...)
+    if config.DebugPrints then print('[glitch-minigames]', ...) end
+end
+
+-- Player-facing text: config.Text replaces a string by its exact English text
+function Minigames.T(text)
+    local map = config.Text
+    return (type(map) == 'table' and type(text) == 'string' and map[text]) or text
+end
+
+-- A function, or a function reference passed in from another resource through an
+-- export (that arrives as a table with a __call metamethod, not as a function)
+function Minigames.IsCallable(value)
+    if type(value) == 'function' then return true end
+    if type(value) ~= 'table' then return false end
+    local mt = getmetatable(value)
+    return type(mt) == 'table' and rawget(mt, '__call') ~= nil
+end
+
+-- Stop hooks: each game file registers how to end its game early. The lock
+-- watchdog below runs them so a stuck game resolves its caller with a fail.
+Minigames.stopHooks = {}
+function Minigames.OnRelease(fn)
+    Minigames.stopHooks[#Minigames.stopHooks + 1] = fn
+end
+
+-- Model / anim dict loaders with a timeout (the Lua games use these). Return true when loaded.
+function Minigames.LoadModel(model, timeoutMs)
+    local hash = type(model) == 'number' and model or joaat(model)
+    if not IsModelValid(hash) then return false end
+    RequestModel(hash)
+    local deadline = GetGameTimer() + (timeoutMs or 5000)
+    while not HasModelLoaded(hash) do
+        if GetGameTimer() > deadline then
+            print(('^3[glitch-minigames] model %s did not load^7'):format(tostring(model)))
+            return false
+        end
+        Wait(10)
+    end
+    return true
+end
+
+function Minigames.LoadAnimDict(dict, timeoutMs)
+    RequestAnimDict(dict)
+    local deadline = GetGameTimer() + (timeoutMs or 5000)
+    while not HasAnimDictLoaded(dict) do
+        if GetGameTimer() > deadline then
+            print(('^3[glitch-minigames] anim dict %s did not load^7'):format(dict))
+            return false
+        end
+        Wait(10)
+    end
+    return true
+end
+
 local xpConfig = config.XP or {}
 local xpEnabled = xpConfig.Enabled == true
 local perksEnabled = xpEnabled and xpConfig.Perks and xpConfig.Perks.Enabled == true
+local clientReported = xpEnabled and xpConfig.ClientReported ~= false
 
 -- Which argument each perk bonus touches, per export.
 -- time:     { arg index, 's' or 'ms', default when the caller passes nil }
@@ -66,8 +135,9 @@ local function IsWin(result)
 end
 
 local function Notify(text)
+    text = Minigames.T(text)
     if config.usingGlitchNotifications and GetResourceState('glitch-notifications') == 'started' then
-        exports['glitch-notifications']:ShowNotification('Hacking', text, 3000, '#A855F7')
+        exports['glitch-notifications']:ShowNotification(Minigames.T('Hacking'), text, 3000, config.NotifyColour or '#A855F7')
     else
         BeginTextCommandThefeedPost('STRING')
         AddTextComponentSubstringPlayerName(text)
@@ -75,25 +145,23 @@ local function Notify(text)
     end
 end
 
--- Perk values come from the server (glitch-xpSystem GetEffect). One request per game start.
-local pendingPerks = nil
-
-RegisterNetEvent('glitch-minigames:perks', function(perks)
-    if pendingPerks then
-        pendingPerks:resolve(type(perks) == 'table' and perks or {})
-    end
-end)
-
-local function FetchPerks()
+-- Server callback with a timeout: a slow or missing answer gives the fallback
+-- instead of holding up the game (lib.callback.await would wait 5 minutes).
+local function AskServer(name, timeoutMs, fallback)
     local p = promise.new()
-    pendingPerks = p
-    TriggerServerEvent('glitch-minigames:getPerks')
-    SetTimeout(1000, function()
-        if pendingPerks == p then p:resolve({}) end
+    lib.callback(name, false, function(result)
+        if p.state == 0 then p:resolve(result) end
     end)
-    local perks = Citizen.Await(p)
-    pendingPerks = nil
-    return perks
+    SetTimeout(timeoutMs, function()
+        if p.state == 0 then p:resolve(fallback) end
+    end)
+    return Citizen.Await(p)
+end
+
+-- Perk values come from the server (glitch-xpSystem GetEffect). One request per game start.
+local function FetchPerks()
+    local perks = AskServer('glitch-minigames:getPerks', 1000, {})
+    return type(perks) == 'table' and perks or {}
 end
 
 -- Settings-table games (slot.field): the bonus is stored as settings._perk[field] = { add, scale }
@@ -137,8 +205,8 @@ local function ApplyPerks(name, args, perks)
     end
 end
 
--- Timed buffs (glitch-drugs joint sets LocalPlayer.state.hackTimeBonus = 0.05 while it lasts):
--- the game's time limit, perks included, gets that share longer
+-- Timed buffs: any script can set LocalPlayer.state.hackTimeBonus (e.g. 0.05 for a consumable
+-- buff while it lasts) and the game's time limit, perks included, gets that share longer (max 0.5)
 local function ApplyHackBuff(name, args)
     local slot = PERK_ARGS[name] and PERK_ARGS[name].time
     local bonus = tonumber(LocalPlayer.state.hackTimeBonus) or 0
@@ -155,6 +223,68 @@ local function ApplyHackBuff(name, args)
     local longer = value * (1 + math.min(bonus, 0.5))
     args[index] = slot[2] == 'ms' and math.floor(longer) or longer
     if index > args.n then args.n = index end
+end
+
+-- Keylogger perk (config.XP.Perks.Keylogger): a game won within the last 10 minutes
+-- runs again with its time limit half as long again
+local lastWin = {}   -- [export name] = GetGameTimer() of the last win
+local KEYLOGGER_MS = 10 * 60 * 1000
+
+local function ScaleTime(name, args, factor)
+    local slot = PERK_ARGS[name] and PERK_ARGS[name].time
+    if not slot then return false end
+    if slot.field then
+        local perk = FieldPerk(args, slot)
+        perk.scale = perk.scale * factor
+        return true
+    end
+    local index, default = slot[1], slot[#slot]
+    local value = args[index]
+    if value == nil then value = default end
+    if type(value) ~= 'number' or value <= 0 then return false end
+    local longer = value * factor
+    args[index] = slot[2] == 'ms' and math.floor(longer) or longer
+    if index > args.n then args.n = index end
+    return true
+end
+
+-- Zero day perk (config.XP.Perks.Skip): once a day the player may skip a hack outright.
+-- Offered on the left keycap HUD for a few seconds before the game. Never offered
+-- for games started by a resource in config.XP.ZeroDayNever (the endgame heists)
+-- or a call that passes { noSkip = true }. Saying no hides the offer for 10 minutes.
+local zeroDeclinedUntil = 0
+
+local function OfferZeroDay(owner)
+    if GetGameTimer() < zeroDeclinedUntil then return false end
+    for _, res in ipairs(xpConfig.ZeroDayNever or {}) do
+        if res == owner then return false end
+    end
+    local ui = GetResourceState('glitch-uiElements') == 'started'
+    if ui then
+        exports['glitch-uiElements']:ShowKeybinds(Minigames.T('Zero day'), {
+            { keys = { 'E' }, label = Minigames.T('Skip this hack (once a day)'), active = true },
+            { keys = { 'BACKSPACE' }, label = Minigames.T('Hack it myself'), cancel = true },
+        })
+    else
+        Notify('Zero day ready: press E to skip this hack')
+    end
+    local chosen, started = nil, GetGameTimer()
+    while chosen == nil and GetGameTimer() - started < (xpConfig.ZeroDaySeconds or 4) * 1000 do
+        Wait(0)
+        DisableControlAction(0, 38, true)    -- E (INPUT_PICKUP)
+        DisableControlAction(0, 177, true)   -- BACKSPACE (INPUT_CELLPHONE_CANCEL)
+        if IsDisabledControlJustPressed(0, 38) then chosen = true
+        elseif IsDisabledControlJustPressed(0, 177) then chosen = false end
+    end
+    if ui then exports['glitch-uiElements']:HideKeybinds() end
+    if not chosen then
+        zeroDeclinedUntil = GetGameTimer() + 10 * 60 * 1000
+        return false
+    end
+    -- Long timeout on purpose: the server spends the skip (UseDaily) before it
+    -- answers, so giving up early on a slow reply would cost the player that
+    -- day's skip and still make them play the hack.
+    return AskServer('glitch-minigames:zeroDay', 15000, false) == true
 end
 
 local function Wrap(name, fn)
@@ -183,8 +313,28 @@ local function Wrap(name, fn)
         ApplyPerks(name, args, perks)
         if reportXP then ApplyHackBuff(name, args) end
 
-        if reportXP then
-            TriggerServerEvent('glitch-minigames:xpStart', name)
+        -- Zero day: skip the whole game and report a win to the caller (no XP for it)
+        if reportXP and PERK_ARGS[name] and perks.zeroday == true and not (styleOpts and styleOpts.noSkip)
+            and OfferZeroDay(Minigames.owner) then
+            Notify('Zero day: you walked straight through it')
+            if Minigames.token == token then Minigames.busy = false end
+            for i = 1, args.n do
+                if Minigames.IsCallable(args[i]) then args[i](true); return nil end
+            end
+            return true
+        end
+        -- Keylogger: this game was won a few minutes ago, so the timer runs longer
+        if reportXP and (tonumber(perks.keylogger) or 0) > 0 and lastWin[name]
+            and GetGameTimer() - lastWin[name] < KEYLOGGER_MS and ScaleTime(name, args, 1.5) then
+            Notify('Keylogger: you have seen this one before')
+        end
+
+        -- one-time session token from the server; the result is only counted with it
+        local xpToken = nil
+        if reportXP and clientReported then
+            lib.callback('glitch-minigames:xpStart', false, function(t)
+                if type(t) == 'string' then xpToken = t end
+            end, name)
         end
         if Style then Style.Apply(styleOpts) end            -- defaults unless overridden for this game
         if ShowControls then ShowControls(name, args) end   -- controls HUD on the left (client/core/controls.lua)
@@ -195,15 +345,20 @@ local function Wrap(name, fn)
             Minigames.busy = false
             if HideControls then HideControls() end
             if reportXP then
-                TriggerServerEvent('glitch-minigames:xpFinish', name, IsWin(result))
+                if IsWin(result) then lastWin[name] = GetGameTimer() end
+                if xpToken then
+                    TriggerServerEvent('glitch-minigames:xpFinish', name, IsWin(result), xpToken)
+                end
             end
         end
 
-        -- Async form (StartPlasmaDrilling with a callback): finish when the callback fires
+        -- Async form (StartPlasmaDrilling with a callback): finish when the callback fires.
+        -- A callback from another resource is a function reference; it is swapped for a
+        -- plain function here, so the game itself only ever sees functions.
         local async = false
         for i = 1, args.n do
             local userCb = args[i]
-            if type(userCb) == 'function' then
+            if Minigames.IsCallable(userCb) then
                 async = true
                 args[i] = function(result, ...)
                     Finish(result)
@@ -274,6 +429,12 @@ local function ReleaseLock(reason)
     Minigames.busy = false
     Minigames.cancelled = true
     if HideControls then HideControls() end
+    -- end whatever game is still running so the waiting export returns false
+    -- (NUI games resolve their promise, drills drop the prop and unfreeze)
+    for _, stop in ipairs(Minigames.stopHooks) do
+        local ok, err = pcall(stop)
+        if not ok then print(('^3[glitch-minigames] stop hook failed: %s^7'):format(tostring(err))) end
+    end
     SendNUIMessage({ action = 'forceClose', reason = 'lockReleased' })
 end
 

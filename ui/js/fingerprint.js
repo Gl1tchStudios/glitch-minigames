@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -337,7 +337,7 @@ var Fingerprint = (function() {
         playSound(success ? 'sound-success' : 'sound-failure');
         
         setTimeout(function() {
-            $.post('https://glitch-minigames/fingerprintResult', JSON.stringify({ success: success }));
+            $.post('https://' + GetParentResourceName() + '/fingerprintResult', JSON.stringify({ success: success }));
             close();
         }, 1500);
     }
@@ -356,7 +356,7 @@ var Fingerprint = (function() {
         $('#fingerprint-row-controls').empty();
         
         $('#fingerprint-container').removeClass('active').fadeOut(300, function() {
-            $.post('https://glitch-minigames/fingerprintClose', JSON.stringify({}));
+            $.post('https://' + GetParentResourceName() + '/fingerprintClose', JSON.stringify({}));
         });
     }
 

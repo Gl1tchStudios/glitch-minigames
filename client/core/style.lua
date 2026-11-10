@@ -18,13 +18,15 @@
 --   exports['glitch-minigames']:StartCircleClickGame(3, 2, 40, 1, 0, true, { 'E' }, 1, { position = 'center' })
 -- sounds = 'gta' / 'classic'   sound theme for this game (default config.ActiveSoundTheme)
 -- xp = true      XP + hacking perks for games in config.XP.OptIn (circle click), off by default
+-- xp = false     no XP / perks for this call (civilian jobs)
+-- noSkip = true  never offer the Zero day skip for this call (works on its own too: { noSkip = true })
 -- The style is sent at every game start, so an override never leaks into the next game.
 
 Style = {}
 
 local VISUAL_THEMES = { device = true, tablet = true, modern = true, classic = true }
 local KEYBIND_THEMES = { tags = true, default = true, device = true, tablet = true }
-local STYLE_KEYS = { colour = true, color = true, theme = true, keybinds = true, position = true, xp = true, sounds = true }
+local STYLE_KEYS = { colour = true, color = true, theme = true, keybinds = true, position = true, xp = true, sounds = true, noSkip = true }
 
 -- 'classic' = the NUI mp3s; every other theme is a table of native sounds in config.SoundThemes
 local function SoundThemeOk(name)
@@ -53,9 +55,11 @@ local function HexToRgb(hex)
     return ('%d, %d, %d'):format(r, g, b)
 end
 
--- True when the value is an options table: keyed by our style keys, no array part
+-- True when the value is an options table: keyed by our style keys, no array part.
+-- A function reference from another resource is a table too (with a metatable that
+-- errors on index), so anything with a metatable is never an options table.
 function Style.IsOptions(value)
-    if type(value) ~= 'table' or value[1] ~= nil then return false end
+    if type(value) ~= 'table' or getmetatable(value) ~= nil or rawget(value, 1) ~= nil then return false end
     for key in pairs(value) do
         if STYLE_KEYS[key] then return true end
     end

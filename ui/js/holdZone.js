@@ -1,12 +1,12 @@
-// -- Glitch Minigames — Hold Zone
+// -- Glitch Minigames - Hold Zone
 // -- Minimal HUD: hold a key to shrink a ring toward a green zone, release on cue
 
 window.holdZoneGame = (function () {
 
-    const RING_SIZE  = 220; // px — outer ring container diameter
+    const RING_SIZE  = 220; // px - outer ring container diameter
     const RING_HALF  = RING_SIZE / 2;
 
-    // Maps key letter → JS keyCode (matches FiveM key forwarding table)
+    // Maps key letter -> JS keyCode (matches FiveM key forwarding table)
     const KEY_CODE_MAP = {
         A:65,B:66,C:67,D:68,E:69,F:70,G:71,H:72,I:73,J:74,
         K:75,L:76,M:77,N:78,O:79,P:80,Q:81,R:82,S:83,T:84,
@@ -32,7 +32,7 @@ window.holdZoneGame = (function () {
     let targetKeyCode = 69;  // resolved JS keyCode
     let idleTimer    = null;
 
-    // ── helpers ──────────────────────────────────────────────
+    // -- helpers ----------------------------------------------
 
     function pctToRadius(pct) { return (pct / 100) * RING_HALF; }
 
@@ -92,7 +92,7 @@ window.holdZoneGame = (function () {
         }
     }
 
-    // ── animation loop ───────────────────────────────────────
+    // -- animation loop ---------------------------------------
 
     function tick(ts) {
         if (!active || resolved) return;
@@ -106,7 +106,7 @@ window.holdZoneGame = (function () {
             updateRingCSS();
 
             if (ringPct <= 0) {
-                // Ring collapsed — auto fail
+                // Ring collapsed - auto fail
                 onResult(false);
                 return;
             }
@@ -115,7 +115,7 @@ window.holdZoneGame = (function () {
         animFrame = requestAnimationFrame(tick);
     }
 
-    // ── round/game flow ──────────────────────────────────────
+    // -- round/game flow --------------------------------------
 
     function startRound() {
         round++;
@@ -130,7 +130,7 @@ window.holdZoneGame = (function () {
         lastTs   = null;
 
         const zoneSize = config.zoneSize || 18;
-        zoneMin = 12 + Math.random() * 28;   // 12%–40%
+        zoneMin = 12 + Math.random() * 28;   // 12%-40%
         zoneMax = zoneMin + zoneSize;
 
         buildZoneCSS();
@@ -144,7 +144,7 @@ window.holdZoneGame = (function () {
         if (animFrame) cancelAnimationFrame(animFrame);
         animFrame = requestAnimationFrame(tick);
 
-        // Idle timeout — auto-fail if the player never presses the key
+        // Idle timeout - auto-fail if the player never presses the key
         clearTimeout(idleTimer);
         idleTimer = null;
         const _idleMs = (config.idleTimeout !== undefined && config.idleTimeout !== null)
@@ -219,12 +219,12 @@ window.holdZoneGame = (function () {
             if (_gen !== thisGen) return;
             $c.fadeOut(300, function() {
                 if (_gen !== thisGen) return;
-                $.post('https://glitch-minigames/holdZoneResult', JSON.stringify({ success: success }));
+                $.post('https://' + GetParentResourceName() + '/holdZoneResult', JSON.stringify({ success: success }));
             });
         }, 400);
     }
 
-    // ── public API ───────────────────────────────────────────
+    // -- public API -------------------------------------------
 
     return {
         active: false,
@@ -255,7 +255,7 @@ window.holdZoneGame = (function () {
         handleKeyByCode: function (kc) {
             if (!active || resolved) return;
             if (parseInt(kc) !== targetKeyCode) return;
-            // Player interacted — cancel the idle timeout
+            // Player interacted - cancel the idle timeout
             clearTimeout(idleTimer);
             idleTimer = null;
             holding = true;

@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -17,14 +17,25 @@
 local scaleform = nil
 local ClickReturn 
 local lives = 5 --In the original scaleform minigame which you can play online, there are 7 lives given to the player.
-local passwords = {"HACKME01", "SECUREIT", "PASSWORD", "CYBERNET", "ENCRYPTD", "INTRUDER", "BRUTE123", "HACKING8"}
+-- Words the player cracks (config.BruteForcePasswords). The HACKING_PC roulette
+-- has 8 columns, so only 8 character words are used; the defaults fill in when
+-- the config list is missing or has none.
+local DEFAULT_PASSWORDS = {"HACKME01", "SECUREIT", "PASSWORD", "CYBERNET", "ENCRYPTD", "INTRUDER", "BRUTE123", "HACKING8"}
+local passwords = {}
+for _, word in ipairs(type(config.BruteForcePasswords) == 'table' and config.BruteForcePasswords or {}) do
+    if type(word) == 'string' and #word == 8 then passwords[#passwords + 1] = word:upper() end
+end
+if #passwords == 0 then passwords = DEFAULT_PASSWORDS end
 local gamePassword
 
 local inMinigame = false
 local minigameResult = nil
 
 local PlayerFreezed = false
+-- Set by the scaleform thread when the result screen is done (one flag, no event)
+local uiSequenceComplete = false
 local Initialize, StartHackConnect -- local, defined below
+local runGen = 0 -- bumped per game: a draw / logic thread from an older game stops
 
 local function cleanupControls()
     FreezeEntityPosition(PlayerPedId(), false)
@@ -32,18 +43,24 @@ local function cleanupControls()
     EnableControlAction(0, 25, true) -- RIGHT CLICK
 end
 
-function Initialize(scaleform)
-    local scaleform = RequestScaleformMovieInteractive(scaleform)
+Initialize = function(movieName)
+    local scaleform = RequestScaleformMovieInteractive(movieName)
+    local deadline = GetGameTimer() + 5000
     while not HasScaleformMovieLoaded(scaleform) do
+        if GetGameTimer() > deadline then
+            print('^3[glitch-minigames] HACKING_PC scaleform did not load^7')
+            SetScaleformMovieAsNoLongerNeeded(scaleform)
+            return nil
+        end
         Citizen.Wait(0)
     end
 
     PushScaleformMovieFunction(scaleform, "SET_LABELS") --this allows us to label every item inside My Computer
-    PushScaleformMovieFunctionParameterString("Local Disk (C:)")
-    PushScaleformMovieFunctionParameterString("Network")
-    PushScaleformMovieFunctionParameterString("External Device (J:)")
-    PushScaleformMovieFunctionParameterString("HackConnect.exe")
-    PushScaleformMovieFunctionParameterString("BruteForce.exe")
+    PushScaleformMovieFunctionParameterString(Minigames.T("Local Disk (C:)"))
+    PushScaleformMovieFunctionParameterString(Minigames.T("Network"))
+    PushScaleformMovieFunctionParameterString(Minigames.T("External Device (J:)"))
+    PushScaleformMovieFunctionParameterString(Minigames.T("HackConnect.exe"))
+    PushScaleformMovieFunctionParameterString(Minigames.T("BruteForce.exe"))
     PopScaleformMovieFunctionVoid()
 
     PushScaleformMovieFunction(scaleform, "SET_BACKGROUND") --We can set the background of the scaleform, so far 0-6 works.
@@ -53,13 +70,13 @@ function Initialize(scaleform)
     PushScaleformMovieFunction(scaleform, "ADD_PROGRAM") --We add My Computer application to the scaleform
     PushScaleformMovieFunctionParameterFloat(1.0) -- Position in the scaleform most left corner
     PushScaleformMovieFunctionParameterFloat(4.0)
-    PushScaleformMovieFunctionParameterString("My Computer")
+    PushScaleformMovieFunctionParameterString(Minigames.T("My Computer"))
     PopScaleformMovieFunctionVoid()
 
     PushScaleformMovieFunction(scaleform, "ADD_PROGRAM") --Power Off app.
     PushScaleformMovieFunctionParameterFloat(6.0) -- Position in the scaleform most right corner
     PushScaleformMovieFunctionParameterFloat(6.0)
-    PushScaleformMovieFunctionParameterString("Power Off")
+    PushScaleformMovieFunctionParameterString(Minigames.T("Power Off"))
     PopScaleformMovieFunctionVoid()
 
     PushScaleformMovieFunction(scaleform, "SET_COLUMN_SPEED") --Column speed used in the minigame, (0-255). 
@@ -105,9 +122,10 @@ function Initialize(scaleform)
     return scaleform
 end
 
-Citizen.CreateThread(function()
-    while true do
-        if inMinigame and scaleform then
+-- Draw + cursor loop, one per game (started by StartHackConnect)
+local function RunDrawLoop(gen)
+    Citizen.CreateThread(function()
+        while gen == runGen and inMinigame and scaleform do
             DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255, 0)
             PushScaleformMovieFunction(scaleform, "SET_CURSOR")
             PushScaleformMovieFunctionParameterFloat(GetControlNormal(0, 239)) 
@@ -123,22 +141,24 @@ Citizen.CreateThread(function()
                 PlaySoundFrontend(-1, "HACKING_CLICK", "", true)
             end
             Citizen.Wait(0)
-        else
-            Citizen.Wait(500)
         end
-    end
-end)
+    end)
+end
 
-Citizen.CreateThread(function()
-    while true do
-        if inMinigame and HasScaleformMovieLoaded(scaleform) then
+-- Game logic loop, one per game (started by StartHackConnect)
+local function RunLogicLoop(gen)
+    Citizen.CreateThread(function()
+        -- frozen once for the whole game; cleanupControls / the end of this thread unfreeze
+        if gen == runGen and inMinigame then
             FreezeEntityPosition(PlayerPedId(), true)
             PlayerFreezed = true
+        end
+        while gen == runGen and inMinigame and scaleform and HasScaleformMovieLoaded(scaleform) do
             DisableControlAction(0, 24, true)
             DisableControlAction(0, 25, true)
             
             if GetScaleformMovieFunctionReturnBool(ClickReturn) then
-                ProgramID = GetScaleformMovieFunctionReturnInt(ClickReturn)
+                local ProgramID = GetScaleformMovieFunctionReturnInt(ClickReturn)
 
                 if ProgramID == 83 or ProgramID == 82 then  --BRUTEFORCE.EXE
                     PushScaleformMovieFunction(scaleform, "RUN_PROGRAM")
@@ -172,70 +192,15 @@ Citizen.CreateThread(function()
                     
                     cleanupControls()
                     
-                    TriggerEvent('bruteforce:uiSequenceComplete')
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_ROULETTE_OUTCOME")
-                    PushScaleformMovieFunctionParameterBool(true)
-                    PushScaleformMovieFunctionParameterString("BRUTEFORCE SUCCESSFUL!")
-                    PopScaleformMovieFunctionVoid()
-                    
-                    Wait(2800) --We wait 2.8 to let the bruteforce message sink in before we continue
-                    PushScaleformMovieFunction(scaleform, "CLOSE_APP")
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "OPEN_LOADING_PROGRESS")
-                    PushScaleformMovieFunctionParameterBool(true)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_PROGRESS")
-                    PushScaleformMovieFunctionParameterInt(35)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_TIME")
-                    PushScaleformMovieFunctionParameterInt(35)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_MESSAGE")
-                    PushScaleformMovieFunctionParameterString("Writing data to buffer..")
-                    PushScaleformMovieFunctionParameterFloat(2.0)
-                    PopScaleformMovieFunctionVoid()
-                    Wait(1500)
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_MESSAGE")
-                    PushScaleformMovieFunctionParameterString("Executing malicious code..")
-                    PushScaleformMovieFunctionParameterFloat(2.0)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_TIME")
-                    PushScaleformMovieFunctionParameterInt(15)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_PROGRESS")
-                    PushScaleformMovieFunctionParameterInt(75)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    Wait(1500)
-                    PushScaleformMovieFunction(scaleform, "OPEN_LOADING_PROGRESS")
-                    PushScaleformMovieFunctionParameterBool(false)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "OPEN_ERROR_POPUP")
-                    PushScaleformMovieFunctionParameterBool(true)
-                    PushScaleformMovieFunctionParameterString("MEMORY LEAK DETECTED, DEVICE SHUTTING DOWN")
-                    PopScaleformMovieFunctionVoid()
-                    
-                    Wait(3500)
-                    SetScaleformMovieAsNoLongerNeeded(scaleform)
-                    PopScaleformMovieFunctionVoid()
-                    TriggerEvent('bruteforce:uiSequenceComplete')
+                    uiSequenceComplete = true -- the export resolves now; the draw loop stops with inMinigame
 
                 elseif ProgramID == 6 then
+                    -- Power Off: counts as giving up (the caller gets false instead of waiting forever)
                     Wait(500) -- WE WAIT 0.5 SECONDS TO EXIT SCALEFORM, JUST TO SIMULATE A SHUTDOWN, OTHERWISE IT CLOSES INSTANTLY
-                    SetScaleformMovieAsNoLongerNeeded(scaleform) --EXIT SCALEFORM
+                    minigameResult = false
                     inMinigame = false
-                    FreezeEntityPosition(PlayerPedId(), false) --unfreeze our character
-                    DisableControlAction(0, 24, false) --LEFT CLICK enabled again
-                    DisableControlAction(0, 25, false) --RIGHT CLICK enabled again
+                    cleanupControls()
+                    uiSequenceComplete = true
                 end
 
                 if lives == 0 then
@@ -245,92 +210,45 @@ Citizen.CreateThread(function()
                     
                     cleanupControls()
                     
-                    TriggerEvent('bruteforce:uiSequenceComplete')
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_ROULETTE_OUTCOME")
-                    PushScaleformMovieFunctionParameterBool(false)
-                    PushScaleformMovieFunctionParameterString("BRUTEFORCE FAILED!")
-                    PopScaleformMovieFunctionVoid()
-                    
-                    Wait(2800)
-                    PushScaleformMovieFunction(scaleform, "CLOSE_APP")
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "OPEN_LOADING_PROGRESS")
-                    PushScaleformMovieFunctionParameterBool(true)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_PROGRESS")
-                    PushScaleformMovieFunctionParameterInt(35)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_TIME")
-                    PushScaleformMovieFunctionParameterInt(35)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_MESSAGE")
-                    PushScaleformMovieFunctionParameterString("System failure detected...")
-                    PushScaleformMovieFunctionParameterFloat(2.0)
-                    PopScaleformMovieFunctionVoid()
-                    Wait(1500)
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_TIME")
-                    PushScaleformMovieFunctionParameterInt(15)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "SET_LOADING_PROGRESS")
-                    PushScaleformMovieFunctionParameterInt(75)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    Wait(1500)
-                    PushScaleformMovieFunction(scaleform, "OPEN_LOADING_PROGRESS")
-                    PushScaleformMovieFunctionParameterBool(false)
-                    PopScaleformMovieFunctionVoid()
-                    
-                    PushScaleformMovieFunction(scaleform, "OPEN_ERROR_POPUP")
-                    PushScaleformMovieFunctionParameterBool(true)
-                    PushScaleformMovieFunctionParameterString("MEMORY LEAK DETECTED, DEVICE SHUTTING DOWN")
-                    PopScaleformMovieFunctionVoid()
-                    
-                    Wait(3500)
-                    SetScaleformMovieAsNoLongerNeeded(scaleform)
-                    PopScaleformMovieFunctionVoid()
-
-                    TriggerEvent('bruteforce:uiSequenceComplete')
+                    uiSequenceComplete = true -- the export resolves now; the draw loop stops with inMinigame
                 end
             end
             Citizen.Wait(0)
-        else
-            if PlayerFreezed then 
-                FreezeEntityPosition(PlayerPedId(), false)
-                PlayerFreezed = false
-            end
-            Citizen.Wait(500)
         end
-    end
-end)
+        -- only this game unfreezes: a newer game may have frozen the player again
+        if PlayerFreezed and gen == runGen then
+            FreezeEntityPosition(PlayerPedId(), false)
+            PlayerFreezed = false
+        end
+    end)
+end
 
-function StartHackConnect(numLives)
+StartHackConnect = function(numLives)
     local p = promise.new()
     
     lives = numLives or 5
     inMinigame = true
     minigameResult = nil
-    local uiSequenceComplete = false
+    uiSequenceComplete = false
     
     gamePassword = passwords[math.random(#passwords)]
     
     scaleform = Initialize("HACKING_PC")
+    if not scaleform then
+        inMinigame = false
+        uiSequenceComplete = true
+        cleanupControls()
+        return false
+    end
     
     PushScaleformMovieFunction(scaleform, "SET_LIVES")
     PushScaleformMovieFunctionParameterInt(lives)
     PushScaleformMovieFunctionParameterInt(lives)
     PopScaleformMovieFunctionVoid()
-    
-    RegisterNetEvent('bruteforce:uiSequenceComplete')
-    AddEventHandler('bruteforce:uiSequenceComplete', function()
-        uiSequenceComplete = true
-    end)
+
+    runGen = runGen + 1
+    RunDrawLoop(runGen)
+    RunLogicLoop(runGen)
     
     Citizen.CreateThread(function()
         while inMinigame do
@@ -346,9 +264,9 @@ function StartHackConnect(numLives)
                     scaleform = nil
                 end
                 
-                TriggerEvent('bruteforce:uiSequenceComplete')
+                uiSequenceComplete = true
 
-                print("Hack cancelled - player died")
+                Minigames.Debug('brute force cancelled: player died')
 
                 p:resolve(minigameResult)
             end
@@ -374,9 +292,18 @@ end
 
 exports('StartBruteForce', StartHackConnect)
 
+-- Lock watchdog (client/core/client.lua): end a stuck game as a fail
+Minigames.OnRelease(function()
+    if not inMinigame then return end
+    minigameResult = false
+    inMinigame = false
+    uiSequenceComplete = true
+    cleanupControls()
+end)
+
 if config.DebugCommands then 
     RegisterCommand('testbruteforce', function()
-        local success = exports['glitch-minigames']:StartBruteForce(3)
+        local success = exports[GetCurrentResourceName()]:StartBruteForce(3)
         
         if success then
             print("Hacking successful!")

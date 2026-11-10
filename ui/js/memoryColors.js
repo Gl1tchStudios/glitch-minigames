@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -49,8 +49,8 @@ var MemoryColors = (function() {
     function normalizeDigits(str) {
         if (typeof str !== 'string') return str;
         return str
-            .replace(/[٠-٩]/g, function(d) { return d.charCodeAt(0) - 0x0660; })
-            .replace(/[۰-۹]/g, function(d) { return d.charCodeAt(0) - 0x06F0; });
+            .replace(/[\u0660-\u0669]/g, function(d) { return d.charCodeAt(0) - 0x0660; })
+            .replace(/[\u06F0-\u06F9]/g, function(d) { return d.charCodeAt(0) - 0x06F0; });
     }
 
     function colorSwatch(name) {

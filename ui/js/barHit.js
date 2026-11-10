@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ let barHitGame = {
     animationFrame: null,
     timerInterval: null,
     timeRemaining: 0,
-    barPosition: 0,   // 0–100
+    barPosition: 0,   // 0-100
     direction: 1,     // 1 = right, -1 = left
     lastTimestamp: null,
     currentRound: 0,
@@ -45,10 +45,12 @@ let barHitGame = {
             key: (config.key || 'E').toUpperCase(),
             rounds: config.rounds || 3,
             speed: config.speed || 55,           // % per second
-            zoneSize: config.zoneSize || 20,     // width of zone in % (10–40)
+            zoneSize: config.zoneSize || 20,     // width of zone in % (10-40)
             zoneStart: config.zoneStart || null, // fixed start %, null = random each round
             maxFailures: config.maxFailures || 3,
-            timeLimit: config.timeLimit || 30000
+            timeLimit: config.timeLimit || 30000,
+            successText: config.successText,
+            failText: config.failText
         };
 
         this.active = true;
@@ -71,7 +73,7 @@ let barHitGame = {
             self.animate(performance.now());
         });
 
-        console.log('[BarHit] Game started — key:', this.config.key, 'rounds:', this.config.rounds, 'speed:', this.config.speed);
+        console.log('[BarHit] Game started \u2014 key:', this.config.key, 'rounds:', this.config.rounds, 'speed:', this.config.speed);
     },
 
     setupRound: function() {
@@ -142,7 +144,7 @@ let barHitGame = {
         }
     },
 
-    // Key name → JS keyCode map for FiveM keyPress forwarding
+    // Key name -> JS keyCode map for FiveM keyPress forwarding
     keyCodeMap: {
         'E': 69, 'F': 70, 'R': 82, 'G': 71, 'H': 72, 'T': 84, 'Y': 89,
         'Q': 81, 'Z': 90, 'X': 88, 'C': 67, 'V': 86, 'B': 66, 'N': 78,
@@ -190,7 +192,7 @@ let barHitGame = {
             $('#bar-hit-failures').text(this.failures);
             playSoundSafe('sound-penalty');
             $('#bar-hit-container').addClass('flash-fail');
-            $('#bar-hit-message').text('MISSED — ' + (this.config.maxFailures - this.failures) + ' LEFT');
+            $('#bar-hit-message').text('MISSED \u2014 ' + (this.config.maxFailures - this.failures) + ' LEFT');
 
             const self = this;
             setTimeout(function() {
@@ -244,7 +246,7 @@ let barHitGame = {
             if (self._gen !== gen) return;
             $('#bar-hit-container').fadeOut(500, function() {
                 if (self._gen !== gen) return;
-                $.post('https://glitch-minigames/barHitResult', JSON.stringify(resultData));
+                $.post('https://' + GetParentResourceName() + '/barHitResult', JSON.stringify(resultData));
             });
         }, 700);
     },

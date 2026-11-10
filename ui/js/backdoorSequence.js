@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -238,7 +238,7 @@
         
         updateSequenceProgress();
         
-        fetch('https://glitch-minigames/sequenceResult', {
+        fetch('https://' + GetParentResourceName() + '/sequenceResult', {
             method: 'POST',
             body: JSON.stringify({ success: true })
         });
@@ -256,7 +256,7 @@
         
         $('.sequence-attempt[data-attempt="' + (currentStage + 1) + '"] .attempt-indicator').addClass('failure');
         
-        fetch('https://glitch-minigames/sequenceResult', {
+        fetch('https://' + GetParentResourceName() + '/sequenceResult', {
             method: 'POST',
             body: JSON.stringify({ success: false })
         });

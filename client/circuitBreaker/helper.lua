@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -14,14 +14,14 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see <https://www.gnu.org/licenses/>.
 
----A function to get the x variable of a table, used in IsInPoly
+---A function to get the x variable of a table, used in CircuitBreaker.IsInPoly
 ---@param tbl vector2
 ---@return number
 local function getX(tbl)
     return tbl.x
 end
 
----A function to get the y variable of a table, used in IsInPoly
+---A function to get the y variable of a table, used in CircuitBreaker.IsInPoly
 ---@param tbl vector2
 ---@return number
 local function getY(tbl)
@@ -58,7 +58,7 @@ end
 ---@param poly vector2[]
 ---@param point vector2
 ---@return boolean
-function IsInPoly(poly, point)
+function CircuitBreaker.IsInPoly(poly, point)
     local minX = min(poly, getX)
     local minY = min(poly, getY)
     local maxX = max(poly, getX)
@@ -111,7 +111,7 @@ end
 ---@param heading number
 ---@param multiplier integer
 ---@return vector2
-function GetOffsetPosition(startPosition, magnitude, heading, multiplier)
+function CircuitBreaker.GetOffsetPosition(startPosition, magnitude, heading, multiplier)
     local degree = math.pi / 180
     local headingDegrees = heading * degree
     local cosX = multiplier * math.cos(headingDegrees)
@@ -119,60 +119,3 @@ function GetOffsetPosition(startPosition, magnitude, heading, multiplier)
     return vec2(startPosition.x + magnitude * cosX, startPosition.y + magnitude * sinY)
 end
 
----@return integer
-function GetDebugCursorDirectionInput()
-    local newDirection = -1
-
-    if IsDisabledControlPressed(0, 34) then -- INPUT_MOVE_LEFT_ONLY
-        newDirection = Directions.Left
-    elseif IsDisabledControlPressed(0, 35) then -- INPUT_MOVE_RIGHT_ONLY
-        newDirection = Directions.Right
-    elseif IsDisabledControlPressed(0, 32) then -- INPUT_MOVE_UP_ONLY
-        newDirection = Directions.Up
-    elseif IsDisabledControlPressed(0, 33) then -- INPUT_MOVE_DOWN_ONLY
-        newDirection = Directions.Down
-    end
-
-    return newDirection
-end
-
----@return number
-function GetDebugCursorSpeedInput()
-    local debugCursorSpeed = 0
-
-    if IsControlPressed(0, 127) then -- INPUT_VEH_SUB_PITCH_UP_ONLY
-        debugCursorSpeed = 0.00025
-    elseif IsControlPressed(0, 128) then -- INPUT_VEH_SUB_PITCH_DOWN_ONLY
-        debugCursorSpeed = -0.00025
-    end
-
-    return debugCursorSpeed
-end
-
----@param spriteName string
----@param position vector2
----@param heading number
----@param width number
----@param height number
-function DrawDebugSprite(spriteName, position, heading, width, height)
-    DrawSprite('MPCircuitHack', spriteName, position.x, position.y, width, height, heading, 255, 255, 255, 255)
-end
-
----@param position vector2
----@param heading number
-function DebugPortSprite(position, heading)
-    local width = (heading == 0 or heading == 180) and 0.02 or 0.0325
-    local height = (heading == 0 or heading == 180) and 0.055 or 0.03
-    DrawDebugSprite('GenericPort', position, heading, width, height)
-    DrawRect(position.x, position.y, 0.005, 0.01, 20, 255, 20, 255)
-end
-
-function GetPortDebugHeading(currentHeading)
-    if IsControlPressed(0, 124) then -- INPUT_VEH_SUB_TURN_LEFT_ONLY
-        currentHeading -= 90
-    elseif IsControlPressed(0, 125) then -- INPUT_VEH_SUB_TURN_RIGHT_ONLY
-        currentHeading += 90
-    end
-
-    return currentHeading
-end

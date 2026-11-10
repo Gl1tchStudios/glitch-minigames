@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ let skillCheckGame = {
     animFrame: null,
     timerInterval: null,
     timeRemaining: 0,
-    position: 0,        // 0–100 %
+    position: 0,        // 0-100 %
     direction: 1,       // 1 = right, -1 = left
     lastTimestamp: null,
     currentRound: 0,
@@ -162,7 +162,7 @@ let skillCheckGame = {
         const expectedCode = this.keyCodeMap[this.currentKey];
 
         if (expectedCode && keyCode === expectedCode) {
-            // Correct key — check position
+            // Correct key - check position
             this.locked = true;
             const inZone = this.position >= this.zoneStart && this.position <= (this.zoneStart + this.config.zoneSize);
             const inPerfect = this.config.perfectZoneSize > 0 &&
@@ -198,7 +198,7 @@ let skillCheckGame = {
         $('#skill-check-failures').text(this.failures);
         $('#skill-check-container').addClass('sc-flash-fail');
         const left = this.config.maxFailures - this.failures;
-        $('#skill-check-message').text((reason || 'MISSED') + (left > 0 ? ' — ' + left + ' LEFT' : ''));
+        $('#skill-check-message').text((reason || 'MISSED') + (left > 0 ? ' \u2014 ' + left + ' LEFT' : ''));
 
         const self = this;
         setTimeout(function() {
@@ -244,7 +244,7 @@ let skillCheckGame = {
             if (self._gen !== gen) return;
             $('#skill-check-container').fadeOut(500, function() {
                 if (self._gen !== gen) return;
-                $.post('https://glitch-minigames/skillCheckResult', JSON.stringify(resultData));
+                $.post('https://' + GetParentResourceName() + '/skillCheckResult', JSON.stringify(resultData));
             });
         }, 700);
     },

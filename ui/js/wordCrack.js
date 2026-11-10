@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -118,8 +118,6 @@ var WordCrack = (function() {
         
         // pick a random word from the list
         correctWord = wordList[Math.floor(Math.random() * wordList.length)];
-        
-        console.log('word to crack mate:', correctWord);
         
         createDisplay();
         setupEventListeners();
@@ -376,7 +374,7 @@ var WordCrack = (function() {
         playSound(success ? 'sound-success' : 'sound-failure');
         
         setTimeout(function() {
-            $.post('https://glitch-minigames/wordCrackResult', JSON.stringify({ 
+            $.post('https://' + GetParentResourceName() + '/wordCrackResult', JSON.stringify({ 
                 success: success,
                 attempts: attempts
             }));
@@ -399,7 +397,7 @@ var WordCrack = (function() {
         $('.word-crack-result').remove();
         
         $('#word-crack-container').removeClass('active').fadeOut(300, function() {
-            $.post('https://glitch-minigames/wordCrackClose', JSON.stringify({}));
+            $.post('https://' + GetParentResourceName() + '/wordCrackClose', JSON.stringify({}));
         });
     }
 

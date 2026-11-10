@@ -1,247 +1,277 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
--- 
+-- Copyright (C) 2024-2026 Glitch Studios
+--
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
 -- the Free Software Foundation, either version 3 of the License, or
 -- (at your option) any later version.
--- 
+--
 -- This program is distributed in the hope that it will be useful,
 -- but WITHOUT ANY WARRANTY; without even the implied warranty of
 -- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 -- GNU General Public License for more details.
--- 
+--
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-local output = {}
-local stophack = false
--- Declared local up front so these helpers do not leak into the resource-wide globals
-local F_02536, F_02539, F_02540, F_02541, F_02542, F_02668, Abort, Start
-local Dat_1 = { [1] = { val1 = 0.4, }, [2] = { val1 = 0.4, }, [3] = { val1 = 0.4, }, [4] = { val1 = 0.4, }, [5] = { val1 = 0.4, }, [6] = { val1 = 0.4, }, [7] = { val1 = 0.4, }, }
-local Dat_2 = { [1] = { val0 = 1, val1 = (0.02 * 0.55), val2 = 0, val3 = 1, val4 = true }, [2] = { val0 = 1, val1 = (0.025 * 0.55), val2 = 0, val3 = 1, val4 = true }, [3] = { val0 = 1, val1 = (0.03 * 0.55), val2 = 0, val3 = 1, val4 = true }, [4] = { val0 = 1, val1 = (0.035 * 0.55), val2 = 0, val3 = 1, val4 = true }, [5] = { val0 = 1, val1 = (0.04 * 0.55), val2 = 0, val3 = 1, val4 = true }, [6] = { val0 = 1, val1 = (0.045 * 0.55), val2 = 0, val3 = 1, val4 = true }, [7] = { val0 = 1, val1 = (0.05 * 0.55), val2 = 0, val3 = 1, val4 = true } }
-function F_02536(arg1) BeginTextCommandDisplayHelp('STRING') AddTextComponentSubstringPlayerName(arg1) EndTextCommandDisplayHelp(0, false, true, -1) end
-function F_02539() DisableControlAction(0, 73, false) DisableControlAction(0, 24, true) DisableControlAction(0, 257, true) DisableControlAction(0, 25, true) DisableControlAction(0, 263, true) DisableControlAction(0, 32, true) DisableControlAction(0, 34, true) DisableControlAction(0, 31, true) DisableControlAction(0, 30, true) DisableControlAction(0, 45, true) DisableControlAction(0, 22, true) DisableControlAction(0, 44, true) DisableControlAction(0, 37, true) DisableControlAction(0, 23, true) DisableControlAction(0, 288, true) DisableControlAction(0, 289, true) DisableControlAction(0, 170, true) DisableControlAction(0, 167, true) DisableControlAction(0, 73, true) DisableControlAction(2, 199, true) DisableControlAction(0, 47, true) DisableControlAction(0, 264, true) DisableControlAction(0, 257, true) DisableControlAction(0, 140, true) DisableControlAction(0, 141, true) DisableControlAction(0, 142, true) DisableControlAction(0, 143, true) end
-function F_02540(arg1) if (Dat_1[arg1].val1 >= 0.51) and (Dat_1[arg1].val1 <= 0.62) then return true end return false end
-function F_02541(arg1, arg2, arg3) local number number = ((1.0 - Cos(F_02542((arg3 * 3.141593)))) * 0.5); return ((arg1 * (1 - number)) + (arg2 * number)); end
-function F_02542(arg1) return (arg1 * 57.29578) end
-function F_02668(arg1)
-    Citizen.CreateThread(function()
-        local current = 1
-        Dat_2[current].val0 = 0
-        while true do
-            F_02539()
-            F_02536("Press ~INPUT_FRONTEND_CANCEL~ to abort hack")
-            if IsControlJustReleased(2, 237) then
-                if F_02540(current) then
-                    PlaySoundFrontend(-1, "Pin_Good", "DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS", true)
-                    Dat_2[current].val0 = 1
-                    Dat_2[current].val4 = false
-                    Dat_1[current].val1 = 0.572
-                    if current < 7 then
-                        Dat_2[current+1].val0 = 0
-                    end
-                    current = current + 1
-                    if current > 7 then
-                        return
-                    end
-                else
-                    PlaySoundFrontend(-1, "Pin_Bad", "DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS", true)
-                    if current > 1 then
-                        Dat_2[current].val0 = 1
-                        current = current - 1
-                        Dat_2[current].val0 = 0
-                        Dat_1[current].val1 = 0.572
-                        Dat_2[current].val4 = true
-                    end
-                end
-            elseif IsControlJustReleased(2, 202) then
-                Abort()
-                return
-            end
-            if stophack then
-                return
-            end
-            Citizen.Wait(1)
-        end
-    end)
-    Citizen.CreateThread(function()
-        while true do
-            for i = 1, #Dat_2, 1 do
-                if Dat_2[i].val3 == 1 then
-                    if Dat_2[i].val2 < 1.0 then
-                        Dat_2[i].val2 = Dat_2[i].val2 + ((Dat_2[i].val1 * Timestep()) * (arg1 * 1.0))
-                    else
-                        Dat_2[i].val3 = 0
-                    end
-                elseif Dat_2[i].val2 > 0.0 then
-                    Dat_2[i].val2 = Dat_2[i].val2 - ((Dat_2[i].val1 * Timestep()) * (arg1 * 1.0))
-                else
-                    Dat_2[i].val3 = 1
-                end
-                if Dat_2[i].val0 == 0 or Dat_2[i].val4 then
-                    Dat_1[i].val1 = F_02541(0.744, 0.4, Dat_2[i].val2)
-                end
-                if stophack then
-                    return
-                end
-            end
-            Citizen.Wait(1)
-        end
-    end)
-    Citizen.CreateThread(function()
-        RequestStreamedTextureDict("HACKING_PC_desktop_0", false)
-        RequestStreamedTextureDict("hackingNG", false)
-        local scaleform = RequestScaleformMovieInteractive("HACKING_PC")
+-- Data Crack: seven columns slide up and down; click while the highlighted one
+-- sits in the sweet spot to lock it and move on, a miss steps back one column.
+-- Lock all seven to win. One thread per game does input, motion and drawing.
 
-        while not HasScaleformMovieLoaded(scaleform) do
-            Citizen.Wait(0)
-        end
-        PushScaleformMovieFunction(scaleform, "ADD_PROGRAM")
-        PushScaleformMovieFunctionParameterFloat(1.0)
-        PushScaleformMovieFunctionParameterFloat(4.0)
-        PushScaleformMovieFunctionParameterString("My Computer")
-        PopScaleformMovieFunctionVoid()
+local COLUMN_COUNT = 7
+local COLUMN_X0, COLUMN_DX = 0.35, 0.05     -- screen x of column 1 and the gap between columns
+local Y_TOP, Y_BOTTOM = 0.744, 0.4          -- the range a column slides through
+local Y_LOCKED = 0.572                      -- where a locked (or stepped back) column rests
+local SWEET_MIN, SWEET_MAX = 0.51, 0.62     -- a click inside this range locks the column
+local SUCCESS_SCREEN_MS = 2500
 
-        PushScaleformMovieFunction(scaleform, "ADD_PROGRAM")
-        PushScaleformMovieFunctionParameterFloat(6.0)
-        PushScaleformMovieFunctionParameterFloat(6.0)
-        PushScaleformMovieFunctionParameterString("Power Off")
-        PopScaleformMovieFunctionVoid()
+local INPUT_CLICK = 237   -- INPUT_CURSOR_ACCEPT (control group 2)
+local INPUT_ABORT = 202   -- INPUT_FRONTEND_CANCEL (control group 2)
 
-        PushScaleformMovieFunction(scaleform, "SET_BACKGROUND")
-        PushScaleformMovieFunctionParameterInt(1)
-        PopScaleformMovieFunctionVoid()
+-- Blocked for the whole game (group 0), plus the pause menu on group 2
+local BLOCKED_CONTROLS = {
+    24, 257, 25, 263, 32, 34, 31, 30, 45, 22, 44, 37, 23, 288, 289, 170, 167, 73, 47, 264, 140, 141, 142, 143,
+}
 
-        while not HasStreamedTextureDictLoaded("hackingNG") do
-            Citizen.Wait(1)
-        end
-        while true do
-            DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255, 0)
-            DrawSprite("hackingNG", "DHMain",0.50, 0.50, 0.731, 1.306, 0, 255, 255, 255, 255, 0)
-            if Dat_2[1].val0 == 1 then
-                DrawSprite("hackingNG", "DHComp", 0.35, Dat_1[1].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            elseif Dat_2[1].val0 == 0 then
-                DrawSprite("hackingNG", "DHCompHi", 0.35, Dat_1[1].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            end
-            if Dat_2[2].val0 == 1 then
-                DrawSprite("hackingNG", "DHComp", 0.40, Dat_1[2].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            elseif Dat_2[2].val0 == 0 then
-                DrawSprite("hackingNG", "DHCompHi", 0.40, Dat_1[2].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            end
-            if Dat_2[3].val0 == 1 then
-                DrawSprite("hackingNG", "DHComp", 0.45, Dat_1[3].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            elseif Dat_2[3].val0 == 0 then
-                DrawSprite("hackingNG", "DHCompHi", 0.45, Dat_1[3].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            end
-            if Dat_2[4].val0 == 1 then
-                DrawSprite("hackingNG", "DHComp", 0.50, Dat_1[4].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            elseif Dat_2[4].val0 == 0 then
-                DrawSprite("hackingNG", "DHCompHi", 0.50, Dat_1[4].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            end
-            if Dat_2[5].val0 == 1 then
-                DrawSprite("hackingNG", "DHComp", 0.55, Dat_1[5].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            elseif Dat_2[5].val0 == 0 then
-                DrawSprite("hackingNG", "DHCompHi", 0.55, Dat_1[5].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            end
-            if Dat_2[6].val0 == 1 then
-                DrawSprite("hackingNG", "DHComp", 0.60, Dat_1[6].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            elseif Dat_2[6].val0 == 0 then
-                DrawSprite("hackingNG", "DHCompHi", 0.60, Dat_1[6].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            end
-            if Dat_2[7].val0 == 1 then
-                DrawSprite("hackingNG", "DHComp", 0.65, Dat_1[7].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            elseif Dat_2[7].val0 == 0 then
-                DrawSprite("hackingNG", "DHCompHi", 0.65, Dat_1[7].val1, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
-            end
-            if stophack == true then
-                return
-            end
-            if Dat_2[1].val4 == false and Dat_2[2].val4 == false and Dat_2[3].val4 == false and Dat_2[4].val4 == false and Dat_2[5].val4 == false and Dat_2[6].val4 == false and Dat_2[7].val4 == false then
-                PlaySoundFrontend(-1, "HACKING_SUCCESS", "", true)
-                Citizen.Wait(2500)
-                stophack = true
-                TriggerEvent("datacrack", true)
-                return
-            end
-            Citizen.Wait(1)
-        end
-    end)
-    Citizen.CreateThread(function()
-        while not stophack do
-            if IsEntityDead(PlayerPedId()) then
-                print("DataCrack hack cancelled - player died")
-                PlaySoundFrontend(-1, "HACKING_FAILURE", "", true)
-                Abort()
-                break
-            end
-            Citizen.Wait(500)
-        end
-    end)
-end
+local active = false        -- a Data Crack game is in progress (for the lock watchdog)
+local stopRequested = false -- set by the lock watchdog: end the game as a fail
 
-function Abort()
-    stophack = true
-    TriggerEvent("datacrack", false)
-end
-
-function Start(arg1)
-    local loc1
-    if arg1 == nil then
-        loc1 = 25
-    elseif arg1 < 2 then
-        loc1 = 25
-    elseif arg1 > 5 then
-        loc1 = 25
-    else
-        loc1 = arg1 * 10
+-- Slide speed per column: later columns move faster
+local function NewColumns()
+    local columns = {}
+    for i = 1, COLUMN_COUNT do
+        columns[i] = {
+            y = Y_BOTTOM,
+            speed = (0.02 + 0.005 * (i - 1)) * 0.55,
+            phase = 0.0,       -- 0..1 position along the slide
+            rising = true,     -- phase direction
+            highlighted = false, -- the column the player is working on
+            moving = true,     -- false once locked
+        }
     end
-    Dat_1 = { [1] = { val1 = 0.4, }, [2] = { val1 = 0.4, }, [3] = { val1 = 0.4, }, [4] = { val1 = 0.4, }, [5] = { val1 = 0.4, }, [6] = { val1 = 0.4, }, [7] = { val1 = 0.4, }, }
-    Dat_2 = { [1] = { val0 = 1, val1 = (0.02 * 0.55), val2 = 0, val3 = 1, val4 = true }, [2] = { val0 = 1, val1 = (0.025 * 0.55), val2 = 0, val3 = 1, val4 = true }, [3] = { val0 = 1, val1 = (0.03 * 0.55), val2 = 0, val3 = 1, val4 = true }, [4] = { val0 = 1, val1 = (0.035 * 0.55), val2 = 0, val3 = 1, val4 = true }, [5] = { val0 = 1, val1 = (0.04 * 0.55), val2 = 0, val3 = 1, val4 = true }, [6] = { val0 = 1, val1 = (0.045 * 0.55), val2 = 0, val3 = 1, val4 = true }, [7] = { val0 = 1, val1 = (0.05 * 0.55), val2 = 0, val3 = 1, val4 = true } }
-    stophack = false
-    F_02668(loc1)
+    return columns
+end
+
+-- Cosine ease between a and b, t from 0 to 1
+local function Ease(a, b, t)
+    local n = (1.0 - math.cos(t * math.pi)) * 0.5
+    return a * (1 - n) + b * n
+end
+
+local function InSweetSpot(column)
+    return column.y >= SWEET_MIN and column.y <= SWEET_MAX
+end
+
+local function DrawHelp(text)
+    BeginTextCommandDisplayHelp('STRING')
+    AddTextComponentSubstringPlayerName(text)
+    EndTextCommandDisplayHelp(0, false, true, -1)
+end
+
+local function DisableControls()
+    for i = 1, #BLOCKED_CONTROLS do
+        DisableControlAction(0, BLOCKED_CONTROLS[i], true)
+    end
+    DisableControlAction(2, 199, true)
+end
+
+local function ReleaseAssets(scaleform)
+    if scaleform then SetScaleformMovieAsNoLongerNeeded(scaleform) end
+    SetStreamedTextureDictAsNoLongerNeeded('hackingNG')
+    SetStreamedTextureDictAsNoLongerNeeded('HACKING_PC_desktop_0')
+end
+
+-- Loads the HACKING_PC movie and the sprites. Returns the scaleform, or nil when
+-- it did not load in time or the game was stopped while loading.
+local function LoadAssets()
+    RequestStreamedTextureDict('HACKING_PC_desktop_0', false)
+    RequestStreamedTextureDict('hackingNG', false)
+    local scaleform = RequestScaleformMovieInteractive('HACKING_PC')
+
+    local deadline = GetGameTimer() + 5000
+    while not HasScaleformMovieLoaded(scaleform) do
+        if GetGameTimer() > deadline or stopRequested then
+            ReleaseAssets(scaleform)
+            return nil
+        end
+        Wait(0)
+    end
+
+    PushScaleformMovieFunction(scaleform, 'ADD_PROGRAM')
+    PushScaleformMovieFunctionParameterFloat(1.0)
+    PushScaleformMovieFunctionParameterFloat(4.0)
+    PushScaleformMovieFunctionParameterString(Minigames.T('My Computer'))
+    PopScaleformMovieFunctionVoid()
+
+    PushScaleformMovieFunction(scaleform, 'ADD_PROGRAM')
+    PushScaleformMovieFunctionParameterFloat(6.0)
+    PushScaleformMovieFunctionParameterFloat(6.0)
+    PushScaleformMovieFunctionParameterString(Minigames.T('Power Off'))
+    PopScaleformMovieFunctionVoid()
+
+    PushScaleformMovieFunction(scaleform, 'SET_BACKGROUND')
+    PushScaleformMovieFunctionParameterInt(1)
+    PopScaleformMovieFunctionVoid()
+
+    while not HasStreamedTextureDictLoaded('hackingNG') do
+        if GetGameTimer() > deadline + 5000 or stopRequested then
+            ReleaseAssets(scaleform)
+            return nil
+        end
+        Wait(0)
+    end
+    return scaleform
+end
+
+local function MoveColumns(columns, rate)
+    local step = Timestep() * rate
+    for i = 1, #columns do
+        local column = columns[i]
+        if column.rising then
+            if column.phase < 1.0 then
+                column.phase = column.phase + column.speed * step
+            else
+                column.rising = false
+            end
+        elseif column.phase > 0.0 then
+            column.phase = column.phase - column.speed * step
+        else
+            column.rising = true
+        end
+        if column.highlighted or column.moving then
+            column.y = Ease(Y_TOP, Y_BOTTOM, column.phase)
+        end
+    end
+end
+
+local function DrawBoard(scaleform, columns)
+    DrawScaleformMovieFullscreen(scaleform, 255, 255, 255, 255, 0)
+    DrawSprite('hackingNG', 'DHMain', 0.50, 0.50, 0.731, 1.306, 0, 255, 255, 255, 255, 0)
+    for i = 1, #columns do
+        local column = columns[i]
+        local sprite = column.highlighted and 'DHCompHi' or 'DHComp'
+        DrawSprite('hackingNG', sprite, COLUMN_X0 + COLUMN_DX * (i - 1), column.y, 0.4, 0.4, 0, 255, 255, 255, 255, 0)
+    end
+end
+
+-- Difficulty 2-5 sets the slide rate (x10); anything else plays at 25
+local function RateFromDifficulty(difficulty)
+    difficulty = tonumber(difficulty)
+    if not difficulty or difficulty < 2 or difficulty > 5 then return 25 end
+    return difficulty * 10
+end
+
+-- One game, start to finish, on the calling thread. Returns true on a win.
+local function RunGame(rate)
+    local scaleform = LoadAssets()
+    if not scaleform then return false end
+
+    local columns = NewColumns()
+    local current = 1
+    columns[current].highlighted = true
+    local helpText = Minigames.T('Press ~INPUT_FRONTEND_CANCEL~ to abort hack')
+    local nextDeathCheck = 0
+    local wonAt = nil
+
+    while true do
+        DisableControls()
+
+        if stopRequested then
+            ReleaseAssets(scaleform)
+            return false
+        end
+
+        local now = GetGameTimer()
+        if now >= nextDeathCheck then
+            nextDeathCheck = now + 500
+            if IsEntityDead(PlayerPedId()) then
+                Minigames.Debug('data crack cancelled: player died')
+                PlaySoundFrontend(-1, 'HACKING_FAILURE', '', true)
+                ReleaseAssets(scaleform)
+                return false
+            end
+        end
+
+        if not wonAt then
+            DrawHelp(helpText)
+            if IsControlJustReleased(2, INPUT_CLICK) then
+                local column = columns[current]
+                if InSweetSpot(column) then
+                    PlaySoundFrontend(-1, 'Pin_Good', 'DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS', true)
+                    column.highlighted = false
+                    column.moving = false
+                    column.y = Y_LOCKED
+                    current = current + 1
+                    if current <= COLUMN_COUNT then
+                        columns[current].highlighted = true
+                    else
+                        PlaySoundFrontend(-1, 'HACKING_SUCCESS', '', true)
+                        wonAt = now
+                    end
+                else
+                    PlaySoundFrontend(-1, 'Pin_Bad', 'DLC_HEIST_BIOLAB_PREP_HACKING_SOUNDS', true)
+                    if current > 1 then
+                        column.highlighted = false
+                        current = current - 1
+                        local previous = columns[current]
+                        previous.highlighted = true
+                        previous.y = Y_LOCKED
+                        previous.moving = true
+                    end
+                end
+            elseif IsControlJustReleased(2, INPUT_ABORT) then
+                ReleaseAssets(scaleform)
+                return false
+            end
+        elseif now - wonAt >= SUCCESS_SCREEN_MS then
+            ReleaseAssets(scaleform)
+            return true
+        end
+
+        MoveColumns(columns, rate)
+        DrawBoard(scaleform, columns)
+        Wait(0)
+    end
 end
 
 local function StartDataCrack(difficulty)
     local p = promise.new()
-    
-    Start(difficulty)
-    
-    Citizen.CreateThread(function()
-        while stophack == false do 
-            Citizen.Wait(100)
+    active = true
+    stopRequested = false
+
+    CreateThread(function()
+        local ok, result = pcall(RunGame, RateFromDifficulty(difficulty))
+        if not ok then
+            print(('^1[glitch-minigames] data crack error: %s^7'):format(tostring(result)))
+            ReleaseAssets(nil)
+            result = false
         end
-        
-        local success = Dat_2[1].val4 == false and 
-                       Dat_2[2].val4 == false and 
-                       Dat_2[3].val4 == false and 
-                       Dat_2[4].val4 == false and 
-                       Dat_2[5].val4 == false and 
-                       Dat_2[6].val4 == false and 
-                       Dat_2[7].val4 == false
-                       
-        p:resolve(success)
+        active = false
+        -- local event kept for older scripts that listen for the result
+        TriggerEvent('datacrack', result == true)
+        p:resolve(result == true)
     end)
-    
+
     return Citizen.Await(p)
 end
 
 exports('StartDataCrack', StartDataCrack)
 
-AddEventHandler('datacrack:start', function(arg1, cb)
-    local success = StartDataCrack(arg1)
-    cb(success)
+-- Lock watchdog (client/core/client.lua): end a stuck game as a fail
+Minigames.OnRelease(function()
+    if active then stopRequested = true end
 end)
 
-if config.DebugCommands then 
-    RegisterCommand("testdatacrack", function(source, args, rawCommand)
-        local difficulty = tonumber(args[1]) or 3
-        local success = exports['glitch-minigames']:StartDataCrack(difficulty)
-        
-        if success then
-            print("Hacking successful!")
-        else
-            print("Hacking failed!")
-        end
+-- Legacy local event (older scripts): goes through the wrapped export, so the busy
+-- lock, controls HUD and XP rules apply exactly as for a direct export call
+AddEventHandler('datacrack:start', function(difficulty, cb)
+    local success = exports[GetCurrentResourceName()]:StartDataCrack(difficulty)
+    if Minigames.IsCallable(cb) then cb(success) end
+end)
+
+if config.DebugCommands then
+    RegisterCommand('testdatacrack', function(_, args)
+        local success = exports[GetCurrentResourceName()]:StartDataCrack(tonumber(args[1]) or 3)
+        Minigames.Debug(('[testdatacrack] %s'):format(success and 'completed' or 'failed'))
     end, false)
 end

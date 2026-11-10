@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -17,8 +17,14 @@
 config = {}
 
 config.DebugCommands = false -- Testing only. true = anyone can run /testall, /testdrill etc. (and earn XP with them).
-config.DebugPrints = false -- Set to true to show minigame console.log output in the UI (F8/devtools). Off keeps the console quiet.
-config.usingGlitchNotifications = false -- true = result popups (success / failed / cancelled) through glitch-notifications. Off for now.
+config.DebugPrints = false -- true = chatty client console output (F8) and the NUI console.log output (devtools). Off keeps both quiet.
+config.usingGlitchNotifications = false -- true = result popups (success / failed / cancelled) through glitch-notifications when it is running.
+config.NotifyColour = '#A855F7'         -- accent colour of glitch-notifications popups (perk messages, results)
+
+-- Server: report this resource's net events (counts and malformed arguments) to
+-- glitch-poolcleaning (Glitch Studios anticheat) when that resource is installed.
+-- Nothing from it is loaded here, and without it nothing happens (server/guard.lua).
+config.NetGuard = true
 
 -- Keys that close/cancel any active minigame (returns a fail result to the calling script).
 -- Supported names: 'BACKSPACE', 'ESCAPE', 'ENTER'. Defaults to both BACKSPACE and ESCAPE.
@@ -29,25 +35,72 @@ config.CancelKeys = { 'BACKSPACE', 'ESCAPE' }
 -- ('M' clashes with letter input in Keys / Word Crack / Backdoor Sequence).
 config.MuteKey = 'TAB'
 
--- XP (glitch-xpSystem)
--- Winning a minigame gives XP in the category below. The category is hidden in the
--- XP menu (hidden = true in glitch-xpSystem config) until the player's first XP.
--- XP is awarded server-side, whichever script started the minigame.
+-- Player-facing text (translations / rewording). The resource is written in English;
+-- add an entry to replace one string, keyed by the exact English text. It covers the
+-- Lua side (notifications, help text, controls HUD titles and labels, the Brute Force
+-- and Data Crack screen text) and the game
+-- panels: the NUI swaps any element whose whole text matches a key. Empty = English.
+config.Text = {
+    -- ['Cancel'] = 'Annuler',
+    -- ['Backdoor open - one more try'] = 'Porte derobee ouverte - encore un essai',
+    -- ['[BREACH IN PROGRESS]'] = '[INTRUSION EN COURS]',
+}
+
+-- Brute Force: the words the player cracks, one picked at random per game. Exactly
+-- 8 characters each (the HACKING_PC roulette has 8 columns); other lengths are skipped.
+config.BruteForcePasswords = {
+    'HACKME01', 'SECUREIT', 'PASSWORD', 'CYBERNET', 'ENCRYPTD', 'INTRUDER', 'BRUTE123', 'HACKING8',
+}
+
+-- XP (glitch-xpSystem, optional)
+-- Winning a minigame gives XP in the category below. Nothing here is needed when no XP
+-- resource from Resources is running: games then work without XP or perks.
+-- How XP is awarded (README: XP and perks), safest first:
+--   * ClientReported = false: XP only through the server export AwardXP(src, game, won),
+--     called by your own server script after it checked the result.
+--   * RequireServerSession = true: the client reports the result, but only for a game
+--     your server script opened with OpenXPSession(src, game) when the player reached
+--     a real hack. A modified client cannot start a session on its own.
+--   * ClientReported = true on its own (default): the client reports each wrapped game.
+--     The server checks a one-time token, the minimum play time, the cooldown and the
+--     hourly cap, but a modified client can still claim wins up to that cap. Fine when
+--     hacking XP only unlocks hacking perks; switch to one of the above if it buys more.
 config.XP = {
     Enabled = true,                -- false = minigames never touch the XP system
     Resources = { 'glitch-xpSystem', 'glitch_xpSystem' }, -- first one started is used
     Category = 'hacking',          -- must exist in glitch-xpSystem Config.Categories
     FailXP = 0,                    -- XP for a failed attempt (0 = none)
-    MinDuration = 2,               -- seconds a game must run before a win counts
+    ClientReported = true,         -- see above; false = XP only through the AwardXP server export
+    RequireServerSession = false,  -- see above; true = client results count only after OpenXPSession
+    MinDuration = 2,               -- seconds a game must run before a client-reported result counts
+    MinDurations = {               -- per game minimum (seconds), for the games no one can win faster
+        StartDrilling = 8,
+        StartPlasmaDrilling = 8,
+        StartBruteForce = 5,
+        StartDataCrack = 4,
+    },
     Cooldown = 15,                 -- seconds between XP awards per player (stops farming)
+    MaxAwardsPerHour = 20,         -- XP awards per character per hour, both paths together
 
     -- Hacking skill tree perks applied to the games (values from glitch-xpSystem GetEffect)
     Perks = {
         Enabled = true,
-        Time = 'hacking_time',         -- +seconds on the game's timer
+        Time = 'hacking_time',         -- +seconds on the minigame timer
         Mistakes = 'hacking_mistakes', -- +allowed mistakes / attempts / lives
         Retry = 'hacking_retry',       -- automatic retries after a failed game
+        Keylogger = 'hacking_keylogger', -- a game won in the last 10 minutes runs with 1.5x the time
+        Skip = 'hacking_skip',         -- Zero day: skip one hack a day (needs CanUseDaily / UseDaily)
     },
+
+    -- Zero day perk (Perks.Skip, once a day): never offered for games these resources start.
+    -- The default list is the Glitch Studios heist products. Replace it with your own heist
+    -- resources or set it to {}; names that are not installed are ignored.
+    -- A single call can also opt out with a trailing { noSkip = true } table.
+    ZeroDayNever = {
+        'glitch-casinoHeist', 'glitch-unionDepository', 'glitch-humaneHeist',
+        'glitch-yachtHeist', 'glitch-trainHeist', 'glitch-bankRobbery',
+    },
+    ZeroDaySeconds = 4,            -- how long the E to skip offer stays up
 
     -- Games that give NO XP / perks / retry unless the caller asks for it with a trailing
     -- { xp = true } options table, e.g. StartCircleClickGame(5, 1, 45, 3, 0.15, true, { 'W', 'A', 'S', 'D' }, 1, { xp = true })
@@ -55,7 +108,7 @@ config.XP = {
         StartCircleClickGame = true,
     },
 
-    -- XP per win, keyed by export name (15-40, master plan). Remove a game or set it to 0 to give no XP for it.
+    -- XP per win, keyed by export name. Remove a game or set it to 0 to give no XP for it.
     Games = {
         StartFirewallPulse        = 35,
         StartBackdoorSequence     = 35,
@@ -106,7 +159,7 @@ config.XP = {
 -- (see client/core/style.lua; colour can also be a table of colour overrides).
 
 -- Active Color Theme
-config.ActiveTheme = 'glitch' -- 'glitch' (server purple), 'cyan' (original), 'monochrome' (black & white)
+config.ActiveTheme = 'glitch' -- 'glitch' (purple), 'cyan' (original), 'monochrome' (black & white)
 
 -- Active Visual Theme (the minigame panels)
 config.ActiveVisualTheme = 'device' -- 'device' (rugged handheld + LCD), 'tablet' (criminal tablet look), 'modern', 'classic'
@@ -261,7 +314,7 @@ config.Themes = {
         minigameColor5 = '#eb87deff',  -- VarHack block 5
     },
 
-    -- Glitch Purple Theme (server brand: the magenta / violet of the Glitch Studios logo)
+    -- Glitch Purple Theme (the magenta / violet of the Glitch Studios logo)
     glitch = {
         -- Primary Theme Colors
         primary = '#c04cff',          -- Brand magenta-purple - highlights, accents, borders

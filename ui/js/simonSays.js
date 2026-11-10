@@ -1,5 +1,5 @@
-// -- Glitch Minigames — Simon Says
-// -- Full container: growing colour/button sequence — watch then repeat
+// -- Glitch Minigames - Simon Says
+// -- Full container: growing colour/button sequence - watch then repeat
 
 window.simonSaysGame = (function () {
 
@@ -19,10 +19,10 @@ window.simonSaysGame = (function () {
     let timerInt    = null;
     let timeLeft    = 0;
     let showTimeout = null;
-    let buttonPool  = [];   // cycling pool — each colour used once before any repeats
+    let buttonPool  = [];   // cycling pool - each colour used once before any repeats
     let _gen        = 0;    // guards stale endGame callbacks after Reload
 
-    // ── sequences ────────────────────────────────────────────
+    // -- sequences --------------------------------------------
 
     function extendSequence() {
         if (config.allowRepeats) {
@@ -41,7 +41,7 @@ window.simonSaysGame = (function () {
         sequence.push(buttonPool.shift());
     }
 
-    // ── playback ─────────────────────────────────────────────
+    // -- playback ---------------------------------------------
 
     function playSequence(cb) {
         phase = 'showing';
@@ -82,7 +82,7 @@ window.simonSaysGame = (function () {
         }, duration);
     }
 
-    // ── input handling ───────────────────────────────────────
+    // -- input handling ---------------------------------------
 
     function setInputEnabled(enabled) {
         $('.ss-button').toggleClass('ss-disabled', !enabled);
@@ -123,7 +123,7 @@ window.simonSaysGame = (function () {
         $('#ss-progress-text').text(playerInput.length + ' / ' + sequence.length);
     }
 
-    // ── round flow ───────────────────────────────────────────
+    // -- round flow -------------------------------------------
 
     function startRound() {
         clearInterval(timerInt);
@@ -135,7 +135,7 @@ window.simonSaysGame = (function () {
         const maxRounds = config.rounds || 5;
 
         $('#ss-round').text('Round ' + roundNum + ' / ' + maxRounds);
-        $('#ss-status').text('Watch carefully…').removeClass('ss-ok ss-fail');
+        $('#ss-status').text('Watch carefully\u2026').removeClass('ss-ok ss-fail');
         setInputEnabled(false);
 
         // Brief pause before showing
@@ -150,7 +150,7 @@ window.simonSaysGame = (function () {
 
     function startInputTimer() {
         if (!config.timeLimit) {
-            // No time limit — hide the bar entirely
+            // No time limit - hide the bar entirely
             $('.ss-timer-row').hide();
             return;
         }
@@ -176,7 +176,7 @@ window.simonSaysGame = (function () {
         clearInterval(timerInt);
         setInputEnabled(false);
         phase = 'idle';
-        $('#ss-status').text('Correct! ✓').addClass('ss-ok');
+        $('#ss-status').text('Correct! \u2713').addClass('ss-ok');
 
         if (sequence.length >= (config.rounds || 5)) {
             endGame(true);
@@ -216,12 +216,12 @@ window.simonSaysGame = (function () {
             if (_gen !== thisGen) return;
             $c.fadeOut(300, function() {
                 if (_gen !== thisGen) return;
-                $.post('https://glitch-minigames/simonSaysResult', JSON.stringify({ success: success }));
+                $.post('https://' + GetParentResourceName() + '/simonSaysResult', JSON.stringify({ success: success }));
             });
         }, 600);
     }
 
-    // ── public API ───────────────────────────────────────────
+    // -- public API -------------------------------------------
 
     return {
         active: false,
@@ -235,7 +235,7 @@ window.simonSaysGame = (function () {
             phase     = 'idle';
             buttonPool = [];
             _gen++;
-            // allowRepeats: default false — use cycling pool (each colour once per 4 before repeating)
+            // allowRepeats: default false - use cycling pool (each colour once per 4 before repeating)
             if (config.allowRepeats === undefined) config.allowRepeats = false;
 
             clearInterval(timerInt);
@@ -243,7 +243,7 @@ window.simonSaysGame = (function () {
 
             $('#simon-says-container').show().removeClass('flash-success flash-fail');
 
-            // Hide timer bar by default — startInputTimer() shows it if timeLimit is set
+            // Hide timer bar by default - startInputTimer() shows it if timeLimit is set
             $('.ss-timer-row').hide();
 
             // Bind button clicks

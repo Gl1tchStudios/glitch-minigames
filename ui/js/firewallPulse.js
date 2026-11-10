@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -197,7 +197,7 @@
             $('#message').text('FIREWALL BYPASSED!');
             playSoundSafe('sound-success');
             
-            fetch('https://glitch-minigames/hackSuccess', {
+            fetch('https://' + GetParentResourceName() + '/hackSuccess', {
                 method: 'POST',
                 body: JSON.stringify({})
             });
@@ -224,7 +224,7 @@
         $('#message').text(reason || 'BREACH FAILED! Security alerted.');
         playSoundSafe('sound-failure');
         
-        fetch('https://glitch-minigames/hackFail', {
+        fetch('https://' + GetParentResourceName() + '/hackFail', {
             method: 'POST',
             body: JSON.stringify({})
         });

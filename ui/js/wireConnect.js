@@ -285,7 +285,7 @@ window.wireConnectGame = (function () {
         playSoundSafe(success ? 'sound-success' : 'sound-failure');
         setTimeout(() => {
             $c.fadeOut(300, function () {
-                $.post('https://glitch-minigames/wireConnectResult', JSON.stringify({ success: success }));
+                $.post('https://' + GetParentResourceName() + '/wireConnectResult', JSON.stringify({ success: success }));
             });
         }, 550);
     }

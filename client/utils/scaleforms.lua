@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -34,7 +34,14 @@ end
 
 Scaleforms.LoadInteractive = function(name)
   local scaleform = RequestScaleformMovieInteractive(name)
-  while not HasScaleformMovieLoaded(scaleform) do Wait(0); end
+  local deadline = GetGameTimer() + 5000
+  while not HasScaleformMovieLoaded(scaleform) do
+    if GetGameTimer() > deadline then
+      SetScaleformMovieAsNoLongerNeeded(scaleform)
+      return nil
+    end
+    Wait(0)
+  end
   return scaleform
 end
 
@@ -42,17 +49,7 @@ Scaleforms.UnloadMovie = function(scaleform)
   SetScaleformMovieAsNoLongerNeeded(scaleform)
 end
 
--- Text & labels
-Scaleforms.LoadAdditionalText = function(gxt,count)
-  for i=0,count,1 do
-    if not HasThisAdditionalTextLoaded(gxt,i) then
-      ClearAdditionalText(i, true)
-      RequestAdditionalText(gxt, i)
-      while not HasThisAdditionalTextLoaded(gxt,i) do Wait(0); end
-    end
-  end
-end
-
+-- Labels
 Scaleforms.SetLabels = function(scaleform,labels)
   PushScaleformMovieFunction(scaleform, "SET_LABELS")
   for i=1,#labels,1 do

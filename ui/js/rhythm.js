@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -25,7 +25,8 @@ let totalScore = 0;
 let noteSpeed = 300; // pixels per second
 let noteSpawnRate = 1000; // ms between notes
 let spawnInterval;
-let moveInterval;
+let moveFrame = null; // requestAnimationFrame handle for the note movement loop
+let lastMoveTime = 0;
 let totalNotes = 0;
 let notesHit = 0;
 let wrongKeyCount = 0;
@@ -145,12 +146,13 @@ function spawnNote() {
     updateProgressBar();
 }
 
-function moveNotes() {
+// Moves every note by noteSpeed (px per second) x the time since the last frame,
+// so the speed is the same at any frame rate
+function moveNotes(dtMs) {
     if (!rhythmActive) return;
     
-    const now = Date.now();
     const hitZonePos = $('.hit-zone').position().top;
-    const moveAmount = noteSpeed / 60; // this may cause issues down the line due to FPS differences
+    const moveAmount = noteSpeed * dtMs / 1000;
     
     for (let i = rhythmNotes.length - 1; i >= 0; i--) {
         const note = rhythmNotes[i];
@@ -176,6 +178,15 @@ function moveNotes() {
             rhythmNotes.splice(i, 1);
         }
     }
+}
+
+function moveLoop(ts) {
+    if (!rhythmActive) { moveFrame = null; return; }
+    // clamp the step so a stalled frame does not teleport notes past the hit zone
+    const dt = lastMoveTime ? Math.min(ts - lastMoveTime, 100) : 1000 / 60;
+    lastMoveTime = ts;
+    moveNotes(dt);
+    moveFrame = requestAnimationFrame(moveLoop);
 }
 
 function handleRhythmKeyPress(e) {
@@ -346,7 +357,9 @@ function startRhythmGame() {
     $('.rhythm-note').remove();
     
     spawnInterval = setInterval(spawnNote, noteSpawnRate);
-    moveInterval = setInterval(moveNotes, 1000 / 60); // this may cause issues down the line due to FPS differences
+    lastMoveTime = 0;
+    if (moveFrame) cancelAnimationFrame(moveFrame);
+    moveFrame = requestAnimationFrame(moveLoop);
     
     document.addEventListener('keydown', handleRhythmKeyPress);
     document.addEventListener('keyup', handleRhythmKeyRelease);
@@ -356,7 +369,7 @@ function stopRhythmGame(success) {
     rhythmActive = false;
     
     clearInterval(spawnInterval);
-    clearInterval(moveInterval);
+    if (moveFrame) { cancelAnimationFrame(moveFrame); moveFrame = null; }
     
     document.removeEventListener('keydown', handleRhythmKeyPress);
     document.removeEventListener('keyup', handleRhythmKeyRelease);
@@ -385,7 +398,7 @@ function stopRhythmGame(success) {
             accuracy: notesHit > 0 ? Math.round((notesHit / totalNotes) * 100) : 0
         };
         
-        fetch('https://glitch-minigames/rhythmResult', {
+        fetch('https://' + GetParentResourceName() + '/rhythmResult', {
             method: 'POST',
             body: JSON.stringify(result)
         });

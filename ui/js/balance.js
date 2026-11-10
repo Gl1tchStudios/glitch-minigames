@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -315,7 +315,7 @@ let balanceGame = {
                 $('.balance-danger-fill').css('width', '0%');
             });
             
-            $.post('https://glitch-minigames/balanceResult', JSON.stringify({ success: success }));
+            $.post('https://' + GetParentResourceName() + '/balanceResult', JSON.stringify({ success: success }));
         }, 1500);
     },
     
@@ -326,7 +326,7 @@ let balanceGame = {
         clearInterval(this.gameInterval);
         $(document).off('keydown.balance keyup.balance');
         $('#balance-container').hide();
-        $.post('https://glitch-minigames/balanceClose', JSON.stringify({}));
+        $.post('https://' + GetParentResourceName() + '/balanceClose', JSON.stringify({}));
     }
 };
 

@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -47,8 +47,6 @@ var CodeCrack = (function() {
         for (var i = 0; i < digitCount; i++) {
             correctPin.push(Math.floor(Math.random() * 10));
         }
-        
-        console.log('pin to crack mate:', correctPin.join('')); // for testing ya know
         
         createDisplay();
         setupEventListeners();
@@ -308,7 +306,7 @@ var CodeCrack = (function() {
         playSound(success ? 'sound-success' : 'sound-failure');
         
         setTimeout(function() {
-            $.post('https://glitch-minigames/codeCrackResult', JSON.stringify({ 
+            $.post('https://' + GetParentResourceName() + '/codeCrackResult', JSON.stringify({ 
                 success: success,
                 attempts: attempts
             }));
@@ -331,7 +329,7 @@ var CodeCrack = (function() {
         $('.code-crack-result').remove();
         
         $('#code-crack-container').removeClass('active').fadeOut(300, function() {
-            $.post('https://glitch-minigames/codeCrackClose', JSON.stringify({}));
+            $.post('https://' + GetParentResourceName() + '/codeCrackClose', JSON.stringify({}));
         });
     }
 

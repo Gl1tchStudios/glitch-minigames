@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -16,11 +16,11 @@
 
 // Preset symbol sets
 const SYMBOL_PRESETS = {
-    symbols: ['◆', '◇', '○', '●', '□', '■', '△', '▲', '▽', '▼', '◈', '◉', '◎', '★', '☆', '✦', '✧', '⬟', '⬢', '⬡', '⬠', '⯃', '⯂', '⬤', '⬣', '⬬', '⬭', '⬮', '⬯', '⌬'],
+    symbols: ['\u25C6', '\u25C7', '\u25CB', '\u25CF', '\u25A1', '\u25A0', '\u25B3', '\u25B2', '\u25BD', '\u25BC', '\u25C8', '\u25C9', '\u25CE', '\u2605', '\u2606', '\u2726', '\u2727', '\u2B1F', '\u2B22', '\u2B21', '\u2B20', '\u2BC3', '\u2BC2', '\u2B24', '\u2B23', '\u2B2C', '\u2B2D', '\u2B2E', '\u2B2F', '\u232C'],
     letters: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'],
     numbers: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'],
-    dots: ['⠁', '⠂', '⠃', '⠄', '⠅', '⠆', '⠇', '⠈', '⠉', '⠊', '⠋', '⠌', '⠍', '⠎', '⠏', '⠐', '⠑', '⠒', '⠓', '⠔', '⠕', '⠖', '⠗', '⠘', '⠙', '⠚', '⠛', '⠜', '⠝', '⠞'],
-    emojis: ['🔴', '🟠', '🟡', '🟢', '🔵', '🟣', '⚫', '⚪', '🟤', '💀', '👽', '🤖', '👾', '🎮', '💎', '🔥', '⚡', '💧', '🌟', '🎯', '🔑', '🔒', '💰', '🎲', '🃏', '♠️', '♥️', '♦️', '♣️', '🎪']
+    dots: ['\u2801', '\u2802', '\u2803', '\u2804', '\u2805', '\u2806', '\u2807', '\u2808', '\u2809', '\u280A', '\u280B', '\u280C', '\u280D', '\u280E', '\u280F', '\u2810', '\u2811', '\u2812', '\u2813', '\u2814', '\u2815', '\u2816', '\u2817', '\u2818', '\u2819', '\u281A', '\u281B', '\u281C', '\u281D', '\u281E'],
+    emojis: ['\uD83D\uDD34', '\uD83D\uDFE0', '\uD83D\uDFE1', '\uD83D\uDFE2', '\uD83D\uDD35', '\uD83D\uDFE3', '\u26AB', '\u26AA', '\uD83D\uDFE4', '\uD83D\uDC80', '\uD83D\uDC7D', '\uD83E\uDD16', '\uD83D\uDC7E', '\uD83C\uDFAE', '\uD83D\uDC8E', '\uD83D\uDD25', '\u26A1', '\uD83D\uDCA7', '\uD83C\uDF1F', '\uD83C\uDFAF', '\uD83D\uDD11', '\uD83D\uDD12', '\uD83D\uDCB0', '\uD83C\uDFB2', '\uD83C\uDCCF', '\u2660\uFE0F', '\u2665\uFE0F', '\u2666\uFE0F', '\u2663\uFE0F', '\uD83C\uDFAA']
 };
 
 const SYMBOL_SEARCH_MIN_SHIFT = 1500;
@@ -101,8 +101,9 @@ function startSymbolSearchGame(config = {}) {
     symbolSearchState.gameActive = false;
     symbolSearchState.timeRemaining = symbolSearchState.config.timeLimit;
     
-    $('#symbol-search-container').show();
-    
+    // finish the last game's fade-out first, or it ends after this show() and hides the next round
+    $('#symbol-search-container').stop(true, true).show();
+
     $('.symbol-search-grid').hide();
     $('.symbol-search-target-display').hide();
     $('.symbol-search-splash').show();
@@ -498,7 +499,7 @@ function endSymbolSearchGame(success, reason) {
     }
     
     setTimeout(() => {
-        fetch('https://glitch-minigames/symbolSearchResult', {
+        fetch('https://' + GetParentResourceName() + '/symbolSearchResult', {
             method: 'POST',
             body: JSON.stringify({ success: success, reason: reason })
         });
@@ -530,7 +531,7 @@ function closeSymbolSearchGame() {
     
     $('#symbol-search-container').hide();
     
-    fetch('https://glitch-minigames/symbolSearchClose', {
+    fetch('https://' + GetParentResourceName() + '/symbolSearchClose', {
         method: 'POST',
         body: JSON.stringify({})
     });

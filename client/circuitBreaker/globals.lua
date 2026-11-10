@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 -- along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 ---@enum Difficulty
-Difficulty = {
+CircuitBreaker.Difficulty = {
     Beginner = 0,
     Easy = 1,
     Medium = 2,
@@ -23,7 +23,7 @@ Difficulty = {
 }
 
 ---@enum Directions
-Directions = {
+CircuitBreaker.Directions = {
     Up = 0,
     Down = 1,
     Left = 2,
@@ -31,10 +31,11 @@ Directions = {
 }
 
 ---@enum GameStatus
-GameStatus = {
+CircuitBreaker.GameStatus = {
     Error = -5,
     FailedToStart = -4,
     MissingHackKit = -3,
+    PlayerDied = -6,
     TakingDamage = -2,
     Failure = -1,
     PlayerQuit = 0,
@@ -42,7 +43,7 @@ GameStatus = {
 }
 
 ---@enum PortPositionType
-PortPositionType = {
+CircuitBreaker.PortPositionType = {
     Start = 0,
     Finish = 1
 }
@@ -52,7 +53,7 @@ PortPositionType = {
 ---@param min number
 ---@param max number
 ---@return number
-function math.clamp(value, min, max)
+function CircuitBreaker.clamp(value, min, max)
     return value < min and min or value > max and max or value
 end
 
@@ -60,7 +61,7 @@ end
 ---@param number number
 ---@param decimalPoint number
 ---@return number
-function math.round(number, decimalPoint)
+function CircuitBreaker.round(number, decimalPoint)
     local multiplier = 10 ^ (decimalPoint or 0)
     return math.floor(number * multiplier + 0.5) / multiplier
 end

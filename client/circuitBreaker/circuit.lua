@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
 
 --#region Static Variables
 
-HasCircuitFailed = false
+CircuitBreaker.HasCircuitFailed = false
 local hasCircuitCompleted = false
 local gameBounds = {
     vec2(0.159, 0.153), -- Top Left
@@ -45,7 +45,8 @@ local reconnectingTime
 local backgroundSoundId
 local trailSoundId
 local startingHealth
-local debugPortHeading = 0
+local running = false        -- a circuit breaker game is on screen
+local stopRequested = false  -- set by CircuitBreaker.StopNow (lock watchdog / resource stop)
 
 --#endregion Static Variables
 
@@ -60,15 +61,8 @@ local maxDisconnectChance <const> = 0.9
 local minDisconnectCheckRateMs <const> = 500
 local minCursorSpeed <const> = 0.00085
 local maxCursorSpeed <const> = 0.01
-local debuggingMapPosition = false
 
 local winOrLoss = false
-
----Checks if you have the hacking kit item, the item name must have a number in it, ranging from 1 to 3
----@return boolean
-local function doesPlayerHaveHackingKit()
-    return true
-end
 
 ---Returns the version number of the hacking kit item, number ranging from 1 to 3
 ---@return integer
@@ -101,12 +95,12 @@ local function isCursorOutOfBounds(polyBounds, mapBounds)
 
     for i = 1, #headPts do
         for i2 = 1, #polyBounds do
-            if IsInPoly(polyBounds[i2], headPts[i]) then
+            if CircuitBreaker.IsInPoly(polyBounds[i2], headPts[i]) then
                 return true
             end
         end
 
-        if not IsInPoly(mapBounds, headPts[i]) then
+        if not CircuitBreaker.IsInPoly(mapBounds, headPts[i]) then
             return true
         end
     end
@@ -129,24 +123,26 @@ local function disposeTextureDictionaries()
     end
 end
 
+-- Safe to call more than once: each sound id is stopped and released once and
+-- then cleared, so a second call never touches an id another script owns by now
 local function disposeSounds()
-    StopSound(trailSoundId)
-    StopSound(backgroundSoundId)
-    
-    if backgroundSoundId > 0 then
-        ReleaseSoundId(backgroundSoundId)
-        backgroundSoundId = 0
-    end
-    
-    if trailSoundId > 0 then
+    if trailSoundId then
+        StopSound(trailSoundId)
         ReleaseSoundId(trailSoundId)
-        trailSoundId = 0
+        trailSoundId = nil
     end
-    
+
+    if backgroundSoundId then
+        StopSound(backgroundSoundId)
+        ReleaseSoundId(backgroundSoundId)
+        backgroundSoundId = nil
+    end
+
     ReleaseScriptAudioBank('DLC_MPHEIST/HEIST_HACK_SNAKE')
 end
 
 local function dispose()
+    running = false
     disposeSounds()
     disposeTextureDictionaries()
     disposeScaleform()
@@ -231,6 +227,8 @@ end
 local function playStartSound(delayMs)
     CreateThread(function()
         Wait(delayMs)
+        -- the game may have ended (and released its sound ids) during the delay
+        if not running or not trailSoundId then return end
         PlaySoundFrontend(-1, 'Start', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true)
         PlaySoundFrontend(trailSoundId, 'Trail_Custom', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true)
     end)
@@ -252,13 +250,13 @@ end
 ---@param currentDifficulty Difficulty
 ---@return integer
 local function getDisconnectCheckRateMsFromDifficulty(currentDifficulty)
-    if currentDifficulty == Difficulty.Beginner then
+    if currentDifficulty == CircuitBreaker.Difficulty.Beginner then
         return 10000
-    elseif currentDifficulty == Difficulty.Easy then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Easy then
         return 2000
-    elseif currentDifficulty == Difficulty.Medium then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Medium then
         return 1000
-    elseif currentDifficulty == Difficulty.Hard then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Hard then
         return 500
     end
 
@@ -268,13 +266,13 @@ end
 ---@param currentDifficulty Difficulty
 ---@return integer
 local function getDisconnectChanceFromDifficulty(currentDifficulty)
-    if currentDifficulty == Difficulty.Beginner then
+    if currentDifficulty == CircuitBreaker.Difficulty.Beginner then
         return 0
-    elseif currentDifficulty == Difficulty.Easy then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Easy then
         return 0.15
-    elseif currentDifficulty == Difficulty.Medium then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Medium then
         return 0.30
-    elseif currentDifficulty == Difficulty.Hard then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Hard then
         return 0.45
     end
 
@@ -284,13 +282,13 @@ end
 ---@param currentDifficulty Difficulty
 ---@return number
 local function getCursorSpeedFromDifficulty(currentDifficulty)
-    if currentDifficulty == Difficulty.Beginner then
+    if currentDifficulty == CircuitBreaker.Difficulty.Beginner then
         return 0.00085
-    elseif currentDifficulty == Difficulty.Easy then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Easy then
         return 0.002
-    elseif currentDifficulty == Difficulty.Medium then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Medium then
         return 0.004
-    elseif currentDifficulty == Difficulty.Hard then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Hard then
         return 0.006
     end
 
@@ -300,13 +298,13 @@ end
 ---@param currentDifficulty Difficulty
 ---@return number
 local function getMaxSpeedIncreaseOnReconnect(currentDifficulty)
-    if currentDifficulty == Difficulty.Beginner then
+    if currentDifficulty == CircuitBreaker.Difficulty.Beginner then
         return 0.002
-    elseif currentDifficulty == Difficulty.Easy then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Easy then
         return 0.004
-    elseif currentDifficulty == Difficulty.Medium then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Medium then
         return 0.006
-    elseif currentDifficulty == Difficulty.Hard then
+    elseif currentDifficulty == CircuitBreaker.Difficulty.Hard then
         return 0.01
     end
 
@@ -319,12 +317,12 @@ local function getCursorSpeedOnReconnect(currentDifficulty)
     if hackingKitVersionNumber == 3 then return _cursorSpeed end
 
     local maxSpeed = getMaxSpeedIncreaseOnReconnect(currentDifficulty) * 100000
-    local speedDelta = math.random(0, math.round(maxSpeed * 0.25, -1)) / 100000
+    local speedDelta = math.random(0, CircuitBreaker.round(maxSpeed * 0.25, -1)) / 100000
     if math.random() > 0.75 then
         speedDelta *= -1
     end
 
-    return math.clamp(_cursorSpeed + speedDelta, initCursorSpeed, maxSpeed)
+    return CircuitBreaker.clamp(_cursorSpeed + speedDelta, initCursorSpeed, maxSpeed)
 end
 
 local function finishReconnection()
@@ -360,15 +358,15 @@ end
 local function startReconnection(minReconnectTimeMs, maxReconnectTimeMs)
     minReconnectTimeMs = minReconnectTimeMs or defaultMinReconnectTimeMs
     maxReconnectTimeMs = maxReconnectTimeMs or defaultMaxReconnectTimeMs
-    minReconnectTimeMs = math.clamp(minReconnectTimeMs, defaultMinReconnectTimeMs, maxReconnectTimeMs)
-    maxReconnectTimeMs = math.clamp(maxReconnectTimeMs, minReconnectTimeMs + 1, defaultMaxReconnectTimeMs)
+    minReconnectTimeMs = CircuitBreaker.clamp(minReconnectTimeMs, defaultMinReconnectTimeMs, maxReconnectTimeMs)
+    maxReconnectTimeMs = CircuitBreaker.clamp(maxReconnectTimeMs, minReconnectTimeMs + 1, defaultMaxReconnectTimeMs)
 
     PlaySoundFrontend(-1, 'Power_Down', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true)
 
     showDisplayScaleform('CONNECTION LOST', 'Reconnecting...', 188, 49, 43, false)
 
     local reconnectTime = math.random(minReconnectTimeMs, maxReconnectTimeMs) + applyHackingKitBonusToReconnectTime()
-    reconnectingTime = GetGameTimer() + math.clamp(reconnectTime, 0, reconnectTime)
+    reconnectingTime = GetGameTimer() + CircuitBreaker.clamp(reconnectTime, 0, reconnectTime)
 end
 
 ---@param disconnectChance number
@@ -376,7 +374,7 @@ end
 local function checkIfHackingDisconnected(disconnectChance, disconnectCheckRateMs)
     disconnectCheckRateMs = disconnectCheckRateMs or minDisconnectCheckRateMs
     local maxDisconnectCheckRateMs = 10000
-    disconnectCheckRateMs = math.clamp(disconnectCheckRateMs, minDisconnectCheckRateMs, maxDisconnectCheckRateMs)
+    disconnectCheckRateMs = CircuitBreaker.clamp(disconnectCheckRateMs, minDisconnectCheckRateMs, maxDisconnectCheckRateMs)
 
     if GetGameTimer() - (lastDisconnectCheckTime + disconnectCheckRateMs + applyHackingKitBonusToDisconnectCheckRate()) < 0 then return end
 
@@ -387,19 +385,19 @@ end
 
 local function showFailureScreenAndPlaySound()
     PlaySoundFrontend(-1, 'Crash', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true)
-    StopSound(trailSoundId)
+    if trailSoundId then StopSound(trailSoundId) end
     showDisplayScaleform('CIRCUIT FAILED', 'Security Tunnel Detected', 188, 49, 43, false)
 end
 
 local function showSuccessScreenAndPlaySound()
     PlaySoundFrontend(-1, 'Goal', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true)
-    StopSound(trailSoundId)
+    if trailSoundId then StopSound(trailSoundId) end
     showDisplayScaleform('CIRCUIT COMPLETE', 'Decryption Execution x86 Tunneling', 45, 203, 134, true)
 end
 
 ---@param cursorSpeed number
 local function initializeCursorSpeed(cursorSpeed)
-    cursorSpeed = math.clamp(cursorSpeed - applyHackingKitBonusToCursorSpeed(), 0.001, cursorSpeed)
+    cursorSpeed = CircuitBreaker.clamp(cursorSpeed - applyHackingKitBonusToCursorSpeed(), 0.001, cursorSpeed)
     initCursorSpeed = cursorSpeed
     _cursorSpeed = cursorSpeed
 end
@@ -409,15 +407,16 @@ end
 ---@param cursorSpeed number
 ---@param delayStartMs integer
 local function initializeLevelVariables(levelNumber, difficultyLevel, cursorSpeed, delayStartMs)
-    HasCircuitFailed = false
+    CircuitBreaker.HasCircuitFailed = false
     hasCircuitCompleted = false
     _isEndScreenActive = false
     isHackingKitDisconnected = false
+    isDisconnectedScreenActive = false
     hackingKitVersionNumber = getHackingKitVersionNumber()
     _currentLevelNumber = levelNumber
-    illegalAreas = GetBoxBounds(levelNumber)
-    genericPorts = newGeneric(levelNumber)
-    _cursor = newCursor(genericPorts)
+    illegalAreas = CircuitBreaker.GetBoxBounds(levelNumber)
+    genericPorts = CircuitBreaker.newGeneric(levelNumber)
+    _cursor = CircuitBreaker.newCursor(genericPorts)
     initializeCursorSpeed(cursorSpeed)
     _currentDifficulty = difficultyLevel
     gameStartTime = GetGameTimer()
@@ -455,11 +454,11 @@ local function runMinigameTask(levelNumber, difficultyLevel, cursorSpeed, delayS
     if not NetworkIsSessionStarted() then
         Wait(1000)
         endGame()
-        return GameStatus.FailedToStart
+        return CircuitBreaker.GameStatus.FailedToStart
     end
 
-    if not doesPlayerHaveHackingKit() then return GameStatus.MissingHackKit end
-
+    stopRequested = false
+    running = true
     initializeResources()
 
     PlaySoundFrontend(backgroundSoundId, 'Background', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true)
@@ -467,47 +466,35 @@ local function runMinigameTask(levelNumber, difficultyLevel, cursorSpeed, delayS
 
     initializeLevelVariables(levelNumber, difficultyLevel, cursorSpeed, delayStartMs)
 
-    local debugCursorSpeed = 0.0015
     while true do
         DisableAllControlActions(0)
-        
-        if IsEntityDead(PlayerPedId()) then
-            print("Circuit breaker cancelled - player died")
-            -- Stop sounds explicitly before ending game
-            StopSound(backgroundSoundId)
-            StopSound(trailSoundId)
-            -- Play crash sound and make sure it completes
-            PlaySoundFrontend(-1, 'Crash', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', false)
-            -- Properly dispose of all resources
+
+        -- lock watchdog or resource stop (CircuitBreaker.StopNow): end as a quit
+        if stopRequested then
             endGame()
-            return GameStatus.PlayerDied
+            return CircuitBreaker.GameStatus.PlayerQuit
         end
 
-        if isPlayerTakingDamage() then return GameStatus.TakingDamage end
-
-        if IsDisabledControlPressed(0, 44) and not HasCircuitFailed then -- INPUT_COVER
+        if IsEntityDead(PlayerPedId()) then
+            -- endGame stops and releases both looping sounds
+            PlaySoundFrontend(-1, 'Crash', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', false)
             endGame()
-            return GameStatus.PlayerQuit
+            return CircuitBreaker.GameStatus.PlayerDied
+        end
+
+        -- shot or hurt mid-hack: the game fails and everything it loaded is released
+        if isPlayerTakingDamage() then
+            PlaySoundFrontend(-1, 'Crash', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', false)
+            endGame()
+            return CircuitBreaker.GameStatus.TakingDamage
+        end
+
+        if IsDisabledControlPressed(0, 44) and not CircuitBreaker.HasCircuitFailed then -- INPUT_COVER (Q)
+            endGame()
+            return CircuitBreaker.GameStatus.PlayerQuit
         end
 
         drawMapSprite(_currentLevelNumber)
-
-        if debuggingMapPosition then
-            local newDirection = GetDebugCursorDirectionInput()
-            debugCursorSpeed += GetDebugCursorSpeedInput()
-            if newDirection >= 0 then
-                _cursor:DebugCursorPosition(newDirection, debugCursorSpeed)
-            end
-
-            debugPortHeading = GetPortDebugHeading(debugPortHeading)
-            DebugPortSprite(_cursor.position, debugPortHeading)
-
-            if IsDisabledControlJustPressed(0, 38) then -- INPUT_PICKUP
-                print(('vec2(%s, %s),'):format(_cursor.position.x, _cursor.position.y))
-            end
-
-            goto skipRest
-        end
 
         drawCursorAndPortSprites()
         DrawScaleformMovieFullscreen(_scaleform, 255, 255, 255, 255, 0)
@@ -521,7 +508,7 @@ local function runMinigameTask(levelNumber, difficultyLevel, cursorSpeed, delayS
 
             winOrLoss = true
         elseif not _isEndScreenActive and isCursorOutOfBounds(illegalAreas, gameBounds) or genericPorts:IsCollisionWithPort(_cursor.position) or _cursor:CheckTailCollision() then
-            HasCircuitFailed = true
+            CircuitBreaker.HasCircuitFailed = true
             if _cursor.isAlive then
                 _cursor.isAlive = false
                 _cursor:StartCursorDeathAnimation()
@@ -555,20 +542,19 @@ local function runMinigameTask(levelNumber, difficultyLevel, cursorSpeed, delayS
             _cursor:MoveCursor(_cursorSpeed)
         end
 
-        if _isEndScreenActive and (HasCircuitFailed or hasCircuitCompleted) then
+        if _isEndScreenActive and (CircuitBreaker.HasCircuitFailed or hasCircuitCompleted) then
             if GetGameTimer() - gameEndTime >= 0 then
-                StopSound(backgroundSoundId)
+                if backgroundSoundId then StopSound(backgroundSoundId) end
 
                 if hasCircuitCompleted then
                     PlaySoundFrontend(-1, 'Success', 'DLC_HEIST_HACKING_SNAKE_SOUNDS', true)
                 end
 
                 endGame()
-                return hasCircuitCompleted and GameStatus.Success or GameStatus.Failure
+                return hasCircuitCompleted and CircuitBreaker.GameStatus.Success or CircuitBreaker.GameStatus.Failure
             end
         end
 
-        :: skipRest ::
 
         Wait(0)
     end
@@ -586,28 +572,36 @@ end
 ---@param maxReconnectTimeMs integer The time in milliseconds it takes at the max to reconnect after disconnecting by chance
 ---@return boolean
 local function runMiniGame(levelNumber, difficultyLevel, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
-    levelNumber = math.clamp(levelNumber, 1, 6)
-    difficultyLevel = math.clamp(difficultyLevel, 0, 3)
+    levelNumber = CircuitBreaker.clamp(levelNumber, 1, 6)
+    difficultyLevel = CircuitBreaker.clamp(difficultyLevel, 0, 3)
     local cursorSpeed = getCursorSpeedFromDifficulty(difficultyLevel)
-    delayStartMs = math.clamp(delayStartMs, 1000, 60000)
-    minFailureDelayTimeMs = math.clamp(minFailureDelayTimeMs, minDelayEndGameTimeMs, maxFailureDelayTimeMs)
-    maxFailureDelayTimeMs = math.clamp(maxFailureDelayTimeMs, minDelayEndGameTimeMs, maxFailureDelayTimeMs > minFailureDelayTimeMs and maxFailureDelayTimeMs or minFailureDelayTimeMs + 1)
-    disconnectChance = math.clamp(disconnectChance, 0, maxDisconnectChance)
+    delayStartMs = CircuitBreaker.clamp(delayStartMs, 1000, 60000)
+    minFailureDelayTimeMs = CircuitBreaker.clamp(minFailureDelayTimeMs, minDelayEndGameTimeMs, maxFailureDelayTimeMs)
+    maxFailureDelayTimeMs = CircuitBreaker.clamp(maxFailureDelayTimeMs, minDelayEndGameTimeMs, maxFailureDelayTimeMs > minFailureDelayTimeMs and maxFailureDelayTimeMs or minFailureDelayTimeMs + 1)
+    disconnectChance = CircuitBreaker.clamp(disconnectChance, 0, maxDisconnectChance)
     local maxDisconnectCheckRateMs = 10000
     disconnectCheckRateMs = disconnectCheckRateMs or minDisconnectCheckRateMs
-    disconnectCheckRateMs = math.clamp(disconnectCheckRateMs, minDisconnectCheckRateMs, maxDisconnectCheckRateMs)
-    minReconnectTimeMs = math.clamp(minReconnectTimeMs, defaultMinReconnectTimeMs, maxReconnectTimeMs)
-    maxReconnectTimeMs = math.clamp(maxReconnectTimeMs, minReconnectTimeMs + 1, defaultMaxReconnectTimeMs)
-    local gameStatus = runMinigameTask(levelNumber, difficultyLevel, cursorSpeed, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
-    return gameStatus == GameStatus.Success
+    disconnectCheckRateMs = CircuitBreaker.clamp(disconnectCheckRateMs, minDisconnectCheckRateMs, maxDisconnectCheckRateMs)
+    minReconnectTimeMs = CircuitBreaker.clamp(minReconnectTimeMs, defaultMinReconnectTimeMs, maxReconnectTimeMs)
+    maxReconnectTimeMs = CircuitBreaker.clamp(maxReconnectTimeMs, minReconnectTimeMs + 1, defaultMaxReconnectTimeMs)
+    local ok, gameStatus = pcall(runMinigameTask, levelNumber, difficultyLevel, cursorSpeed, delayStartMs, minFailureDelayTimeMs, maxFailureDelayTimeMs, disconnectChance, disconnectCheckRateMs, minReconnectTimeMs, maxReconnectTimeMs)
+    -- Every exit path, a script error included, ends here. dispose() is safe to
+    -- repeat, so no early return can leave the looping sounds, scaleform or
+    -- texture dictionaries behind.
+    dispose()
+    if not ok then
+        print(('^1[glitch-minigames] circuit breaker error: %s^7'):format(tostring(gameStatus)))
+        return false
+    end
+    return gameStatus == CircuitBreaker.GameStatus.Success
 end
 
 ---@param levelNumber integer 1 - 6
 ---@param difficultyLevel Difficulty 0 - 3, take a look at globals.lua
 ---@return boolean
 local function runDefaultMiniGameFromDifficulty(levelNumber, difficultyLevel)
-    levelNumber = math.clamp(levelNumber, 1, 6)
-    difficultyLevel = math.clamp(difficultyLevel, 0, 3)
+    levelNumber = CircuitBreaker.clamp(levelNumber, 1, 6)
+    difficultyLevel = CircuitBreaker.clamp(difficultyLevel, 0, 3)
     -- runMiniGame derives the cursor speed from difficultyLevel itself
     return runMiniGame(levelNumber, difficultyLevel, defaultDelayStartTimeMs, minDelayEndGameTimeMs, maxDelayEndGameTimeMs, getDisconnectChanceFromDifficulty(difficultyLevel), getDisconnectCheckRateMsFromDifficulty(difficultyLevel), defaultMinReconnectTimeMs, defaultMaxReconnectTimeMs)
 end
@@ -618,6 +612,26 @@ local function runDefaultMiniGame()
     local difficultyLevel = 0
     return runMiniGame(levelNumber, difficultyLevel, defaultDelayStartTimeMs, minDelayEndGameTimeMs, maxDelayEndGameTimeMs, getDisconnectChanceFromDifficulty(difficultyLevel), getDisconnectCheckRateMsFromDifficulty(difficultyLevel), defaultMinReconnectTimeMs, defaultMaxReconnectTimeMs)
 end
+
+-- Ends a running game early as a quit. The lock watchdog calls it through
+-- Minigames.OnRelease: the game loop sees the flag on its next frame and cleans
+-- up. On resource stop (client/core/cleanup.lua) the loop never runs again, so
+-- immediate = true stops the sounds and frees the assets right here.
+function CircuitBreaker.StopNow(immediate)
+    if not running then return end
+    stopRequested = true
+    if immediate then
+        running = false
+        disposeSounds()
+        disposeTextureDictionaries()
+        if _scaleform then
+            SetScaleformMovieAsNoLongerNeeded(_scaleform)
+            _scaleform = nil
+        end
+    end
+end
+
+Minigames.OnRelease(function() CircuitBreaker.StopNow(false) end)
 
 -- Exports
 
@@ -646,9 +660,9 @@ if config.DebugCommands then
 
         local success = runDefaultMiniGameFromDifficulty(levelNumber, difficultyLevel)
         if success then
-            print('Minigame completed successfully!')
+            Minigames.Debug('[testcircuit] completed')
         else
-            print('Minigame failed.')
+            Minigames.Debug('[testcircuit] failed')
         end
     end, false)
 end

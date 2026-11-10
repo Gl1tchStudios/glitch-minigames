@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-local Class = require 'class'
+local Class = CircuitBreaker.Class -- loaded in init.lua
 
 local portLights = {}
 
@@ -27,7 +27,7 @@ local function getLightPosition(portPos, portHeading, lightNum)
     local headingSet = portHeading == 90 or portHeading == 270
     local lightNumOverZero = lightNum > 0
     local angleOffset = headingSet and (lightNumOverZero and 128.75 or 232) or (lightNumOverZero and 73 or 287.25)
-    return GetOffsetPosition(portPos, headingSet and 0.0164 or 0.0228, (angleOffset + portHeading) % 360, headingSet and -1 or 1)
+    return CircuitBreaker.GetOffsetPosition(portPos, headingSet and 0.0164 or 0.0228, (angleOffset + portHeading) % 360, headingSet and -1 or 1)
 end
 
 ---Draws the light sprite
@@ -42,7 +42,7 @@ function portLights:DrawLightSprite(position, red, green, blue, alpha)
 end
 
 function portLights:DrawLights()
-    if self.portType == PortPositionType.Start then
+    if self.portType == CircuitBreaker.PortPositionType.Start then
         self:DrawLightSprite(self.light0Position, 45, 203, 134)
         self:DrawLightSprite(self.light1Position, 45, 203, 134)
     else
@@ -56,10 +56,10 @@ function portLights:DrawLights()
     end
 end
 
-PortLights = Class.new(portLights)
+CircuitBreaker.PortLights = Class.new(portLights)
 
-function newPortLights(portPos, portHeading, _type)
-    return PortLights.new({
+function CircuitBreaker.newPortLights(portPos, portHeading, _type)
+    return CircuitBreaker.PortLights.new({
         light0Position = getLightPosition(portPos, portHeading, 0),
         light1Position = getLightPosition(portPos, portHeading, 1),
         portType = _type,
@@ -69,8 +69,3 @@ function newPortLights(portPos, portHeading, _type)
         }
     })
 end
-
-return {
-    newPortLights = newPortLights,
-    PortLights = PortLights
-}

@@ -1,6 +1,6 @@
 <!-- 
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -20,15 +20,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Luma Minigames</title>
-    <!-- fonts for the tablet (Figtree, JetBrains Mono) and device (Chakra Petch, VT323) themes -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&family=Chakra+Petch:wght@500;600;700&family=VT323&family=Barlow+Condensed:ital,wght@1,800&family=Archivo+Black&display=swap" rel="stylesheet">
+    <title>Glitch Minigames</title>
+    <!-- bundled fonts (ui/fonts, SIL OFL): tablet (Figtree, JetBrains Mono), device (Chakra Petch, VT323) and the rest -->
+    <link rel="stylesheet" href="fonts/fonts.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/themes.css">
     <link rel="stylesheet" href="css/hackGames.css"> <!-- shape recall, memory diff, traceroute, carrier tune -->
     <script>
-        // Debug print gate — routes console.log through a flag set from the Lua
+        // Debug print gate - routes console.log through a flag set from the Lua
         // config (config.DebugPrints). Off by default so the console stays quiet.
         // Early logs are buffered and flushed if debug is turned on. Warnings and
         // errors are never gated. Must run before any other script.
@@ -240,7 +239,7 @@
         
         <div class="memory-display">
             <div class="memory-splash">
-                <div class="memory-icon">🧠</div>
+                <div class="memory-icon">&#x1F9E0;</div>
                 <span class="memory-text">PREPARING MEMORY MATRIX...</span>
             </div>
             <div class="memory-grid"></div>
@@ -265,7 +264,7 @@
         
         <div class="sequence-memory-display">
             <div class="sequence-memory-splash">
-                <div class="sequence-memory-icon">🔄</div>
+                <div class="sequence-memory-icon">&#x1F504;</div>
                 <span class="sequence-memory-text">PREPARING SEQUENCE MATRIX...</span>
             </div>
             <div class="sequence-memory-grid"></div>
@@ -290,7 +289,7 @@
         
         <div class="numbered-sequence-display">
             <div class="numbered-sequence-splash">
-                <div class="numbered-sequence-icon">🔢</div>
+                <div class="numbered-sequence-icon">&#x1F522;</div>
                 <span class="numbered-sequence-text">PREPARING NUMBERED MATRIX...</span>
             </div>
             <div class="numbered-sequence-grid"></div>
@@ -317,7 +316,7 @@
         
         <div class="verbal-memory-display">
             <div class="verbal-memory-splash">
-                <div class="verbal-memory-icon">📝</div>
+                <div class="verbal-memory-icon">&#x1F4DD;</div>
                 <span class="verbal-memory-text">PREPARING WORD MATRIX...</span>
             </div>            <div class="verbal-memory-game">
                 <div class="verbal-memory-top-section">
@@ -355,12 +354,12 @@
         
         <div class="symbol-search-display">
             <div class="symbol-search-splash">
-                <div class="symbol-search-icon">🔍</div>
+                <div class="symbol-search-icon">&#x1F50D;</div>
                 <span class="symbol-search-text">INITIALIZING SCANNER...</span>
             </div>
             <div class="symbol-search-target-display">
                 <span class="symbol-search-target-label">FIND TARGET:</span>
-                <span id="symbol-search-target">◆</span>
+                <span id="symbol-search-target">&#x25C6;</span>
             </div>
             <div class="symbol-search-grid"></div>
         </div>
@@ -596,14 +595,14 @@
     <div id="bar-hit-container">
         <div class="bar-hit-label">
             <span>PRESS <span class="bar-hit-key-badge" id="bar-hit-key">E</span></span>
-            <span class="bar-hit-stats">ROUND <span id="bar-hit-round">1</span>/<span id="bar-hit-rounds">3</span> &nbsp;|&nbsp; ✕<span id="bar-hit-failures">0</span>/<span id="bar-hit-max-failures">3</span></span>
+            <span class="bar-hit-stats">ROUND <span id="bar-hit-round">1</span>/<span id="bar-hit-rounds">3</span> &nbsp;|&nbsp; &#x2715;<span id="bar-hit-failures">0</span>/<span id="bar-hit-max-failures">3</span></span>
         </div>
         <div class="bar-hit-track">
             <div class="bar-hit-fill"></div>
             <div class="bar-hit-zone"></div>
         </div>
         <div class="bar-hit-bottom">
-            <span id="bar-hit-message" class="bar-hit-msg">—</span>
+            <span id="bar-hit-message" class="bar-hit-msg">&#x2014;</span>
             <div class="bar-hit-timer-bar"><div class="bar-hit-timer-progress"></div></div>
         </div>
     </div>
@@ -752,7 +751,7 @@
         </div>
         <div class="ss-info-row">
             <span id="ss-round">Round 1 / 5</span>
-            <span id="ss-status" class="ss-status">Watch carefully…</span>
+            <span id="ss-status" class="ss-status">Watch carefully&#x2026;</span>
             <span id="ss-progress-text">0 / 1</span>
         </div>
         <div class="ss-grid">

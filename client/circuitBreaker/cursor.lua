@@ -1,5 +1,5 @@
 -- Glitch Minigames
--- Copyright (C) 2024 Glitch
+-- Copyright (C) 2024-2026 Glitch Studios
 -- 
 -- This program is free software: you can redistribute it and/or modify
 -- it under the terms of the GNU General Public License as published by
@@ -14,30 +14,24 @@
 -- You should have received a copy of the GNU General Public License
 -- along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-local Class = require 'class'
+local Class = CircuitBreaker.Class -- loaded in init.lua
 
 local cursor = {}
 
 ---@param direction Directions
 ---@param cursorSpeed number
 function cursor:setPosition(direction, cursorSpeed)
-    if direction == Directions.Up then
+    if direction == CircuitBreaker.Directions.Up then
         self.position = vec2(self.position.x, self.position.y - cursorSpeed)
-    elseif direction == Directions.Down then
+    elseif direction == CircuitBreaker.Directions.Down then
         self.position = vec2(self.position.x, self.position.y + cursorSpeed)
-    elseif direction == Directions.Left then
+    elseif direction == CircuitBreaker.Directions.Left then
         self.position = vec2(self.position.x - cursorSpeed, self.position.y)
-    elseif direction == Directions.Right then
+    elseif direction == CircuitBreaker.Directions.Right then
         self.position = vec2(self.position.x + cursorSpeed, self.position.y)
     end
 
-    self.position = vec2(math.clamp(self.position.x, 0, 1), math.clamp(self.position.y, 0, 1))
-end
-
----@param direction Directions
----@param cursorSpeed number
-function cursor:DebugCursorPosition(direction, cursorSpeed)
-    self:setPosition(direction, cursorSpeed)
+    self.position = vec2(CircuitBreaker.clamp(self.position.x, 0, 1), CircuitBreaker.clamp(self.position.y, 0, 1))
 end
 
 ---@param cursorSpeed number
@@ -47,12 +41,12 @@ end
 
 function cursor:setCursorStartPosition(gamePorts)
     local magnitude = (gamePorts.startPortHeading == 0 or gamePorts.startPortHeading == 180) and 0.0144 or 0.0210
-    self.position = GetOffsetPosition(gamePorts.startPortPos, magnitude, gamePorts.startPortHeading, 1)
+    self.position = CircuitBreaker.GetOffsetPosition(gamePorts.startPortPos, magnitude, gamePorts.startPortHeading, 1)
 end
 
 function cursor:updateAlpha()
     if self.isAlive then return end
-    self.private.alpha = math.clamp(self.private.alpha - 5, 0, 255)
+    self.private.alpha = CircuitBreaker.clamp(self.private.alpha - 5, 0, 255)
 
     if self.private.alpha ~= 0 then return end
     self.isVisible = false
@@ -72,13 +66,13 @@ function cursor:GetCursorInputFromPlayer()
     local lastPos = self.position
 
     if IsDisabledControlPressed(0, 34) then -- INPUT_MOVE_LEFT_ONLY
-        newDirection = Directions.Left
+        newDirection = CircuitBreaker.Directions.Left
     elseif IsDisabledControlPressed(0, 35) then -- INPUT_MOVE_RIGHT_ONLY
-        newDirection = Directions.Right
+        newDirection = CircuitBreaker.Directions.Right
     elseif IsDisabledControlPressed(0, 32) then -- INPUT_MOVE_UP_ONLY
-        newDirection = Directions.Up
+        newDirection = CircuitBreaker.Directions.Up
     elseif IsDisabledControlPressed(0, 33) then -- INPUT_MOVE_DOWN_ONLY
-        newDirection = Directions.Down
+        newDirection = CircuitBreaker.Directions.Down
     end
 
     if newDirection == self.lastDirection then return end
@@ -116,11 +110,11 @@ function cursor:CheckTailCollision()
         end
 
         if math.abs(xDelta) > math.abs(yDelta) then
-            if math.round(self.position.x, 4) > math.round(centerPoint.x - distance / 2, 4) and math.round(self.position.x, 4) < math.round(centerPoint.x + distance / 2, 4) and math.abs(self.position.y - centerPoint.y) <= 0.006 then
+            if CircuitBreaker.round(self.position.x, 4) > CircuitBreaker.round(centerPoint.x - distance / 2, 4) and CircuitBreaker.round(self.position.x, 4) < CircuitBreaker.round(centerPoint.x + distance / 2, 4) and math.abs(self.position.y - centerPoint.y) <= 0.006 then
                 return true
             end
         else
-            if math.round(self.position.y, 4) > math.round(centerPoint.y - distance / 2, 4) and math.round(self.position.y, 4) < math.round(centerPoint.y + distance / 2, 4) and math.abs(self.position.x - centerPoint.x) <= 0.006 then
+            if CircuitBreaker.round(self.position.y, 4) > CircuitBreaker.round(centerPoint.y - distance / 2, 4) and CircuitBreaker.round(self.position.y, 4) < CircuitBreaker.round(centerPoint.y + distance / 2, 4) and math.abs(self.position.x - centerPoint.x) <= 0.006 then
                 return true
             end
         end
@@ -132,13 +126,13 @@ end
 ---@param startHeading number
 function cursor:SetStartDirection(startHeading)
     if startHeading == 0 then
-        self.lastDirection = Directions.Right
+        self.lastDirection = CircuitBreaker.Directions.Right
     elseif startHeading == 90 then
-        self.lastDirection = Directions.Down
+        self.lastDirection = CircuitBreaker.Directions.Down
     elseif startHeading == 180 then
-        self.lastDirection = Directions.Left
+        self.lastDirection = CircuitBreaker.Directions.Left
     else
-        self.lastDirection = Directions.Up
+        self.lastDirection = CircuitBreaker.Directions.Up
     end
 end
 
@@ -176,13 +170,13 @@ function cursor:DrawTailHistory()
         end
 
         if math.abs(xDelta) > math.abs(yDelta) then
-            if HasCircuitFailed then
+            if CircuitBreaker.HasCircuitFailed then
                 DrawSprite('MPCircuitHack', 'Tail', centerPoint.x, centerPoint.y, distance + 0.0018, 0.003, 0, 188, 49, 43, self.private.alpha)
             else
                 DrawSprite('MPCircuitHack', 'Tail', centerPoint.x, centerPoint.y, distance + 0.0018, 0.003, 0, 45, 203, 134, self.private.alpha)
             end
         else
-            if HasCircuitFailed then
+            if CircuitBreaker.HasCircuitFailed then
                 DrawSprite('MPCircuitHack', 'Tail', centerPoint.x, centerPoint.y, 0.0018, distance + 0.001, 0, 188, 49, 43, self.private.alpha)
             else
                 DrawSprite('MPCircuitHack', 'Tail', centerPoint.x, centerPoint.y, 0.0018, distance + 0.001, 0, 45, 203, 134, self.private.alpha)
@@ -196,23 +190,23 @@ function cursor:DrawCursor()
         DrawSprite('MPCircuitHack', 'Spark', self.position.x, self.position.y, 0.0125, 0.0125, 0, 255, 255, 255, self.private.alpha)
     end
 
-    if HasCircuitFailed then
+    if CircuitBreaker.HasCircuitFailed then
         DrawSprite('MPCircuitHack', 'Head', self.position.x, self.position.y, self.cursorHeadSize, self.cursorHeadSize, 0, 188, 49, 43, self.private.alpha)
     else
         DrawSprite('MPCircuitHack', 'Head', self.position.x, self.position.y, self.cursorHeadSize, self.cursorHeadSize, 0, 45, 203, 134, self.private.alpha)
     end
 end
 
-Cursor = Class.new(cursor)
+CircuitBreaker.Cursor = Class.new(cursor)
 
 ---@param gamePorts table
 ---@return table
-function newCursor(gamePorts)
-    local cur = Cursor.new({
+function CircuitBreaker.newCursor(gamePorts)
+    local cur = CircuitBreaker.Cursor.new({
         cursorHeadSize = 0.0125,
         isAlive = true,
         isVisible = true,
-        lastDirection = Directions.Right,
+        lastDirection = CircuitBreaker.Directions.Right,
         position = vec2(0),
         private = {
             history = {gamePorts.startPortPos},

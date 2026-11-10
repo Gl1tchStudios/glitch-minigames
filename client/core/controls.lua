@@ -29,7 +29,7 @@ end
 
 local ESC = { keys = { 'ESC' }, label = 'Cancel', cancel = true }
 
-GameControls = {
+local GameControls = {
     -- scaleform / Lua games
     StartDrilling = function() return 'Drilling', {
         { keys = { 'W' }, label = 'Drill down' },
@@ -240,9 +240,27 @@ local MUTE_KEYS = {
     CAPS = { control = 137, code = 'CapsLock', cap = 'CAPS' },
     M    = { control = 244, code = 'KeyM',     cap = 'M' },
 }
-MuteKey = MUTE_KEYS[string.upper(config.MuteKey or 'TAB')] or MUTE_KEYS.TAB
+local MuteKey = MUTE_KEYS[string.upper(config.MuteKey or 'TAB')] or MUTE_KEYS.TAB
 
 local muteActive = false
+local muteWatching = false
+
+-- Games without NUI keyboard focus (backdoor sequence, rhythm, balance) never see the
+-- key in the browser, so watch it here too, only while such a game runs. With keyboard
+-- focus the control does not fire, and the NUI ignores a second toggle within 250ms anyway.
+local function WatchMuteKey()
+    if muteWatching then return end
+    muteWatching = true
+    CreateThread(function()
+        while muteActive do
+            if IsDisabledControlJustPressed(0, MuteKey.control) or IsControlJustPressed(0, MuteKey.control) then
+                SendNUIMessage({ action = 'toggleMute' })
+            end
+            Wait(0)
+        end
+        muteWatching = false
+    end)
+end
 
 -- ---- where the HUD is drawn (config.KeybindDisplay) ------------------------
 --   'ui'  glitch-uiElements ShowKeybinds (same themes, layered over other scripts' HUDs)
@@ -270,7 +288,20 @@ local function OxText(title, rows)
     return table.concat(lines, '  \n')
 end
 
+-- Title and labels through config.Text (copies: the caller's tables stay untouched)
+local function Translate(title, rows)
+    local out = {}
+    for i, r in ipairs(rows) do
+        local copy = {}
+        for k, v in pairs(r) do copy[k] = v end
+        copy.label = Minigames.T(r.label)
+        out[i] = copy
+    end
+    return Minigames.T(title), out
+end
+
 local function Draw(title, rows, mute)
+    title, rows = Translate(title, rows)
     local via = Provider()
     shown = { via = via, title = title, rows = rows }
     for i, r in ipairs(rows) do
@@ -317,6 +348,7 @@ function ShowControls(name, args)
         if last and last.cancel then table.insert(rows, #rows, row) else rows[#rows + 1] = row end
     end
     Draw(title, rows, muteActive)
+    if muteActive then WatchMuteKey() end
 end
 
 function HideControls()
@@ -329,7 +361,7 @@ end
 RegisterNUICallback('muteState', function(data, cb)
     cb('ok')
     if not shown or not shown.muteIndex then return end
-    local label = data and data.muted and 'Unmute sounds' or 'Mute sounds'
+    local label = Minigames.T(data and data.muted and 'Unmute sounds' or 'Mute sounds')
     local row = shown.rows[shown.muteIndex]
     if row.label == label then return end
     row.label = label
@@ -354,21 +386,6 @@ AddEventHandler('onResourceStop', function(res)
     end
 end)
 
--- Games without NUI keyboard focus (backdoor sequence, rhythm, balance) never see the
--- key in the browser, so watch it here too. With keyboard focus the control does not
--- fire, and the NUI ignores a second toggle within 250ms anyway.
-CreateThread(function()
-    while true do
-        if muteActive then
-            if IsDisabledControlJustPressed(0, MuteKey.control) or IsControlJustPressed(0, MuteKey.control) then
-                SendNUIMessage({ action = 'toggleMute' })
-            end
-            Wait(0)
-        else
-            Wait(250)
-        end
-    end
-end)
 
 -- Prefer glitch-uiElements for new scripts (exports ShowKeybinds / HideKeybinds, same looks).
 -- Other resources can borrow our controls HUD through client events, e.g.

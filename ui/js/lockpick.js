@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // --
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -962,7 +962,7 @@ let lockpickGame = {
             self.unbind();
             $('#lockpick-container').fadeOut(200);
 
-            $.post('https://glitch-minigames/lockpickResult', JSON.stringify({
+            $.post('https://' + GetParentResourceName() + '/lockpickResult', JSON.stringify({
                 success: success,
                 successes: self.successes,
                 failures: self.failures
@@ -974,7 +974,7 @@ let lockpickGame = {
         this.active = false;
         this.unbind();
         $('#lockpick-container').hide();
-        $.post('https://glitch-minigames/lockpickClose', JSON.stringify({}));
+        $.post('https://' + GetParentResourceName() + '/lockpickClose', JSON.stringify({}));
     }
 };
 

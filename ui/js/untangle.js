@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ var Untangle = (function() {
     }
 
     function generateEdges() {
-        // Fan triangulation — always a planar graph, so the puzzle is always solvable.
+        // Fan triangulation - always a planar graph, so the puzzle is always solvable.
         // Outer cycle: 0-1-2-..-(n-1)-0, plus diagonals from node 0 to nodes 2..n-2.
         edges = [];
         for (var i = 0; i < nodeCount - 1; i++) {

@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ let numberUpGame = {
         if (this.active) return;
 
         this.config = {
-            count: config.count || 20,             // how many numbers (1–N)
+            count: config.count || 20,             // how many numbers (1-N)
             timeLimit: config.timeLimit || 30000,  // ms
             gridCols: config.gridCols || 4,        // grid columns
             maxMistakes: config.maxMistakes || 3   // wrong clicks before fail
@@ -75,7 +75,7 @@ let numberUpGame = {
 
     updateDisplay: function() {
         const remaining = this.config.count - (this.nextNumber - 1);
-        $('#number-up-next').text(this.nextNumber > this.config.count ? '—' : this.nextNumber);
+        $('#number-up-next').text(this.nextNumber > this.config.count ? '\u2014' : this.nextNumber);
         $('#number-up-progress-text').text((this.nextNumber - 1) + ' / ' + this.config.count);
         $('#number-up-mistakes').text(this.mistakes);
         $('#number-up-max-mistakes').text(this.config.maxMistakes);
@@ -144,7 +144,7 @@ let numberUpGame = {
 
         setTimeout(function() {
             $('#number-up-container').fadeOut(500, function() {
-                $.post('https://glitch-minigames/numberUpResult', JSON.stringify(resultData));
+                $.post('https://' + GetParentResourceName() + '/numberUpResult', JSON.stringify(resultData));
             });
         }, 700);
     },

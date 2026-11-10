@@ -1,5 +1,5 @@
 // -- Glitch Minigames
-// -- Copyright (C) 2024 Glitch
+// -- Copyright (C) 2024-2026 Glitch Studios
 // -- 
 // -- This program is free software: you can redistribute it and/or modify
 // -- it under the terms of the GNU General Public License as published by
@@ -136,7 +136,7 @@ function stopKeymash(success) {
         $('#keymash-container').fadeOut(300);
         $('.progress-bar').removeClass('progress-flash failure-flash').css('stroke', '');
         
-        fetch('https://glitch-minigames/keymashResult', {
+        fetch('https://' + GetParentResourceName() + '/keymashResult', {
             method: 'POST',
             body: JSON.stringify({
                 success: success
